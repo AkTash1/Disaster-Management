@@ -439,7 +439,7 @@
                     onChange={(e) => setSettings(s => ({ ...s, notifications: { ...s.notifications, landslide_early_warning: e.target.checked } }))}
                     className="rounded bg-slate-700 border-slate-600 text-blue-600"
                   />
-                  <span>Slope Saturation & Pore Pressure Threshold Exceeded (>80% saturation)</span>
+                  <span>Slope Saturation & Pore Pressure Threshold Exceeded (&gt;80% saturation)</span>
                 </label>
                 <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
                   <input
@@ -457,7 +457,7 @@
                     onChange={(e) => setSettings(s => ({ ...s, notifications: { ...s.notifications, severe_weather_warning: e.target.checked } }))}
                     className="rounded bg-slate-700 border-slate-600 text-blue-600"
                   />
-                  <span>IMD Red Alert Precipitation Nowcasts (>100 mm in 24 hrs)</span>
+                  <span>IMD Red Alert Precipitation Nowcasts (&gt;100 mm in 24 hrs)</span>
                 </label>
               </div>
             </div>
