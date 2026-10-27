@@ -1,0 +1,1637 @@
+{
+  "_id": "6aad6b426d586d617e6bd187",
+  "content": "// ============================================================================\n// MULTIMODAL DISASTER INTELLIGENCE PLATFORM\n// FINAL PRODUCTION DATABASE SCHEMA\n//\n// PostgreSQL 16 + PostGIS\n//\n// Architecture:\n// SOURCE MANAGEMENT\n// \u2192 INGESTION & PROVENANCE\n// \u2192 REFERENCE DATA\n// \u2192 CANONICAL OBSERVATIONS\n// \u2192 ENRICHMENT & DERIVED RESULTS\n// \u2192 SOURCE QUALITY / SCORING\n// \u2192 EVENT INTELLIGENCE\n// \u2192 BENCHMARK DATASETS\n//\n// Benchmark extension:\n// Supports single-event, multi-event, cascading-hazard and related-event\n// benchmark samples without duplicating canonical observations.\n// ============================================================================\n\n\n// ============================================================================\n// ENUMS\n// ============================================================================\n\nEnum dataset_kind {\n  feed\n  static_reference\n  benchmark\n}\n\nEnum source_type {\n  api\n  rss\n  catalogue\n  file\n  social_media\n  satellite\n  official_report\n  research_dataset\n  other\n}\n\nEnum modality {\n  text\n  image\n  video\n  raster\n  tabular\n}\n\nEnum pipeline_stage {\n  collection\n  validation\n  normalization\n  deduplication\n  enrichment\n  inference\n  event_detection\n  matching\n  fusion\n  impact_estimation\n  training\n  evaluation\n}\n\nEnum run_type {\n  scheduled\n  manual\n  retry\n  backfill\n  reprocess\n}\n\nEnum run_status {\n  queued\n  running\n  completed\n  failed\n  cancelled\n}\n\nEnum collection_status {\n  success\n  unchanged\n  partial\n  failed\n}\n\nEnum validation_status {\n  pending\n  passed\n  warning\n  failed\n}\n\nEnum record_status {\n  active\n  superseded\n  retracted\n  rejected\n}\n\nEnum time_precision {\n  second\n  minute\n  hour\n  day\n  month\n  year\n  approximate\n}\n\nEnum result_origin {\n  model\n  rule\n  spatial_analysis\n  human\n}\n\nEnum observation_relation_type {\n  duplicate_of\n  supersedes\n  corrects\n  retracts\n  reparsed_from\n  corroborates\n}\n\nEnum region_relation {\n  contains_point\n  intersects\n  mentioned\n}\n\nEnum match_method {\n  spatial\n  temporal\n  semantic\n  rule_based\n  machine_learning\n  manual\n}\n\nEnum match_decision {\n  same_event\n  different_event\n  uncertain\n}\n\nEnum event_origin {\n  source_reported\n  platform_detected\n}\n\nEnum event_status {\n  candidate\n  detected\n  verified\n  published\n  rejected\n  superseded\n  merged\n}\n\nEnum verification_status {\n  unverified\n  partial\n  verified\n  rejected\n}\n\nEnum evidence_stance {\n  supports\n  contradicts\n  context\n}\n\nEnum event_lineage_type {\n  superseded_by\n  merged_into\n  split_into\n}\n\nEnum event_relationship_type {\n  triggered\n  caused\n  contributed_to\n  associated_with\n  concurrent_with\n  escalated_to\n  part_of\n}\n\nEnum impact_kind {\n  casualty\n  displacement\n  damage\n  affected_population\n  affected_area\n  need\n}\n\nEnum impact_origin {\n  reported\n  extracted\n  detected\n  estimated\n}\n\nEnum split_type {\n  train\n  validation\n  test\n}\n\nEnum score_kind {\n  relevance\n  reliability\n  authority\n  freshness\n}\n\n// --------------------------------------------------------------------------\n// Benchmark / event-composition enums\n// --------------------------------------------------------------------------\n\nEnum event_group_role {\n  primary\n  trigger\n  related\n  impact\n  precursor\n  consequence\n  context\n}\n\nEnum sample_type {\n  single_event\n  multi_event\n  prediction\n  event_classification\n  severity_prediction\n  event_relation_prediction\n  event_matching\n}\n\nEnum sample_event_role {\n  primary\n  trigger\n  related\n  impact\n  precursor\n  consequence\n  context\n}\n\n\n// ============================================================================\n// 1. SOURCE MANAGEMENT\n// ============================================================================\n\nTable data_source {\n  source_id uuid [pk]\n  source_code varchar [not null, unique]\n  name varchar [not null]\n  source_type source_type [not null]\n  provider varchar\n  base_url text\n  license text\n  config jsonb\n  is_active boolean [not null, default: true]\n  last_success_at timestamptz\n  last_failure_at timestamptz\n  created_at timestamptz [not null]\n}\n\nTable dataset {\n  dataset_id uuid [pk]\n  source_id uuid [not null]\n  dataset_code varchar [not null, unique]\n  name varchar [not null]\n  kind dataset_kind [not null]\n  modality modality\n  task varchar\n  description text\n  is_active boolean [not null, default: true]\n  created_at timestamptz [not null]\n\n  indexes {\n    source_id\n    kind\n  }\n}\n\nTable dataset_version {\n  dataset_version_id uuid [pk]\n  dataset_id uuid [not null]\n  version varchar [not null]\n  released_at timestamptz\n  valid_from date\n  valid_to date\n  sample_count bigint\n  load_run_id uuid\n  metadata jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    (dataset_id, version) [unique]\n    load_run_id\n  }\n\n  checks {\n    `valid_to is null or valid_from is null or valid_to >= valid_from` [name: 'ck_dsv_dates']\n  }\n}\n\n\n// ============================================================================\n// 2. INGESTION & PROVENANCE\n// ============================================================================\n\nTable pipeline_run {\n  pipeline_run_id uuid [pk]\n  pipeline_name varchar [not null]\n  pipeline_version varchar [not null]\n  stage pipeline_stage\n  run_type run_type [not null]\n  status run_status [not null]\n  started_at timestamptz [not null]\n  completed_at timestamptz\n  records_read bigint\n  records_written bigint\n  records_rejected bigint\n  config jsonb\n  config_hash char(64)\n  error_message text\n  created_at timestamptz [not null]\n\n  indexes {\n    (pipeline_name, started_at)\n    (stage, started_at)\n    status\n  }\n\n  checks {\n    `completed_at is null or completed_at >= started_at` [name: 'ck_run_time']\n    `records_read is null or records_read >= 0` [name: 'ck_run_read']\n    `records_written is null or records_written >= 0` [name: 'ck_run_written']\n    `records_rejected is null or records_rejected >= 0` [name: 'ck_run_rejected']\n  }\n}\n\nTable collection {\n  collection_id uuid [pk]\n  pipeline_run_id uuid [not null]\n  source_id uuid [not null]\n  dataset_id uuid [not null]\n  method varchar [not null]\n  request_uri text\n  http_status int\n  started_at timestamptz [not null]\n  completed_at timestamptz\n  records_received bigint\n  status collection_status [not null]\n  error_message text\n  created_at timestamptz [not null]\n\n  indexes {\n    (source_id, started_at)\n    (dataset_id, started_at)\n    pipeline_run_id\n  }\n\n  checks {\n    `completed_at is null or completed_at >= started_at` [name: 'ck_collection_time']\n    `records_received is null or records_received >= 0` [name: 'ck_collection_records']\n  }\n}\n\nTable raw_object {\n  raw_object_id uuid [pk]\n  collection_id uuid [not null]\n  storage_uri text [not null, unique]\n  content_type varchar\n  size_bytes bigint [not null]\n  sha256 char(64) [not null, unique]\n  captured_at timestamptz [not null]\n  metadata jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    collection_id\n  }\n\n  checks {\n    `size_bytes >= 0` [name: 'ck_raw_size']\n  }\n}\n\nTable raw_validation {\n  raw_validation_id uuid [pk]\n  raw_object_id uuid [not null]\n  status validation_status [not null]\n  schema_valid boolean\n  checksum_valid boolean\n  content_valid boolean\n  validation_errors jsonb\n  validator_version varchar [not null]\n  validated_at timestamptz [not null]\n\n  indexes {\n    raw_object_id\n    (raw_object_id, validator_version)\n  }\n}\n\nTable ingest_rejection {\n  ingest_rejection_id uuid [pk]\n  pipeline_run_id uuid [not null]\n  raw_object_id uuid\n  record_identifier varchar\n  stage pipeline_stage [not null]\n  rejection_code varchar [not null]\n  reason text\n  details jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    pipeline_run_id\n    raw_object_id\n    rejection_code\n  }\n}\n\n\n// ============================================================================\n// 3. REFERENCE DATA\n// ============================================================================\n\nTable hazard {\n  hazard_id uuid [pk]\n  code varchar [not null, unique]\n  name varchar [not null]\n  category varchar\n  description text\n  parent_hazard_id uuid\n  is_active boolean [not null, default: true]\n  created_at timestamptz [not null]\n\n  indexes {\n    parent_hazard_id\n  }\n\n  checks {\n    `parent_hazard_id is null or parent_hazard_id <> hazard_id` [name: 'ck_hazard_self']\n  }\n}\n\nTable admin_region {\n  admin_region_id uuid [pk]\n  dataset_version_id uuid [not null]\n  region_type varchar [not null]\n  region_code varchar\n  name varchar [not null]\n  parent_region_id uuid\n  geometry geometry [not null]\n  centroid geometry\n  properties jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    (dataset_version_id, region_code) [unique]\n    parent_region_id\n    region_type\n    geometry [type: gist]\n    centroid [type: gist]\n  }\n\n  checks {\n    `ST_SRID(geometry) = 4326` [name: 'ck_region_srid']\n    `ST_IsValid(geometry)` [name: 'ck_region_valid']\n    `centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_region_centroid_srid']\n  }\n}\n\nTable static_raster {\n  static_raster_id uuid [pk]\n  name varchar [not null]\n  dataset_version_id uuid [not null]\n  raster_type varchar [not null]\n  storage_uri text [not null]\n  crs varchar\n  resolution double\n  width bigint\n  height bigint\n  bounds jsonb\n  nodata_value double\n  metadata jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    dataset_version_id\n    raster_type\n  }\n}\n\nTable geo_feature {\n  geo_feature_id uuid [pk]\n  feature_type varchar [not null]\n  name varchar\n  source_id uuid\n  external_id varchar\n  geometry geometry [not null]\n  properties jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    source_id\n    (source_id, external_id)\n    feature_type\n    geometry [type: gist]\n  }\n\n  checks {\n    `ST_SRID(geometry) = 4326` [name: 'ck_geo_feature_srid']\n  }\n}\n\n\n// ============================================================================\n// 4. CANONICAL SOURCE DATA\n// ============================================================================\n\nTable observation {\n  observation_id uuid [pk]\n  dataset_version_id uuid [not null]\n  raw_object_id uuid [not null]\n  source_record_id varchar\n  hazard_id uuid\n  observed_at timestamptz\n  observed_start timestamptz\n  observed_end timestamptz\n  published_at timestamptz\n  time_precision time_precision\n  latitude double\n  longitude double\n  geometry geometry\n  location_uncertainty_km double\n  modality modality [not null]\n  observation_type varchar [not null]\n  value jsonb\n  quality_status varchar\n  quality_score double\n  language varchar(10)\n  source_updated_at timestamptz\n  source_revision varchar\n  record_hash char(64)\n  status record_status [not null, default: 'active']\n  created_at timestamptz [not null]\n\n  indexes {\n    (dataset_version_id, source_record_id)\n    (observation_type, observed_start)\n    status\n    record_hash\n    observed_start\n    geometry [type: gist]\n    created_at [type: brin]\n  }\n\n  checks {\n    `observed_end is null or observed_start is null or observed_end >= observed_start` [name: 'ck_obs_time']\n    `quality_score is null or quality_score between 0 and 1` [name: 'ck_obs_quality']\n    `location_uncertainty_km is null or location_uncertainty_km >= 0` [name: 'ck_obs_uncertainty']\n    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_obs_srid']\n  }\n}\n\nTable observation_region {\n  observation_id uuid [not null]\n  admin_region_id uuid [not null]\n  relation region_relation\n  is_primary boolean [not null, default: false]\n  method varchar [not null]\n  confidence double\n  derived_result_id uuid\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (observation_id, admin_region_id, relation) [pk]\n    admin_region_id\n  }\n\n  checks {\n    `confidence is null or confidence between 0 and 1` [name: 'ck_obs_region_conf']\n  }\n}\n\nTable observation_relation {\n  relation_id uuid [pk]\n  observation_id uuid [not null]\n  related_observation_id uuid [not null]\n  relation_type observation_relation_type [not null]\n  method varchar\n  score double\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (observation_id, related_observation_id, relation_type) [unique]\n    related_observation_id\n  }\n\n  checks {\n    `observation_id <> related_observation_id` [name: 'ck_obs_relation_self']\n    `score is null or score between 0 and 1` [name: 'ck_obs_relation_score']\n  }\n}\n\nTable text_item {\n  observation_id uuid [pk]\n  text_kind varchar [not null]\n  title text\n  body text\n  content_hash char(64)\n  url text\n  author varchar\n  publisher varchar\n  platform varchar\n  parent_observation_id uuid\n  is_official boolean [not null, default: false]\n  engagement jsonb\n  entities_raw jsonb\n\n  indexes {\n    content_hash\n    (platform, publisher)\n  }\n}\n\nTable raster_product {\n  observation_id uuid [pk]\n  platform varchar [not null]\n  sensor varchar\n  product_id varchar\n  processing_level varchar\n  acquisition_start timestamptz\n  acquisition_end timestamptz\n  resolution_m double\n  crs varchar\n  cloud_cover_pct double\n  polarization varchar\n  orbit_pass varchar\n  variables jsonb\n  bands jsonb\n  is_pre_event boolean\n  storage_uri text [not null]\n\n  indexes {\n    (platform, acquisition_start)\n    product_id\n  }\n\n  checks {\n    `cloud_cover_pct is null or cloud_cover_pct between 0 and 100` [name: 'ck_raster_cloud']\n    `acquisition_end is null or acquisition_start is null or acquisition_end >= acquisition_start` [name: 'ck_raster_time']\n  }\n}\n\nTable media {\n  media_id uuid [pk]\n  observation_id uuid [not null]\n  media_type varchar [not null]\n  source_url text\n  raw_object_id uuid\n  raw_locator varchar [not null, default: '$']\n  perceptual_hash varchar\n  width int\n  height int\n  duration_sec double\n  geometry geometry\n  captured_at timestamptz\n\n  indexes {\n    observation_id\n    raw_object_id\n    perceptual_hash\n    geometry [type: gist]\n  }\n\n  checks {\n    `source_url is not null or raw_object_id is not null` [name: 'ck_media_locatable']\n    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_media_srid']\n  }\n}\n\n\n// ============================================================================\n// 5. ENRICHMENT & DERIVED RESULTS\n// ============================================================================\n\nTable model {\n  model_id uuid [pk]\n  name varchar [not null]\n  version varchar [not null]\n  task varchar [not null]\n  framework varchar\n  architecture varchar\n  model_uri text\n  training_dataset_version_id uuid\n  config jsonb\n  is_active boolean [not null, default: true]\n  created_at timestamptz [not null]\n\n  indexes {\n    (name, version) [unique]\n    task\n  }\n}\n\nTable derived_result {\n  derived_result_id uuid [pk]\n  observation_id uuid\n  model_id uuid\n  result_type varchar [not null]\n  status varchar [not null]\n  result jsonb\n  confidence double\n  output_uri text\n  supersedes_result_id uuid\n  created_at timestamptz [not null]\n\n  indexes {\n    observation_id\n    model_id\n    result_type\n    supersedes_result_id\n    created_at\n  }\n\n  checks {\n    `confidence is null or confidence between 0 and 1` [name: 'ck_derived_conf']\n    `supersedes_result_id is null or supersedes_result_id <> derived_result_id` [name: 'ck_derived_self']\n  }\n}\n\nTable derived_result_input {\n  derived_result_input_id uuid [pk]\n  derived_result_id uuid [not null]\n  observation_id uuid\n  media_id uuid\n  static_raster_id uuid\n  geo_feature_id uuid\n  input_result_id uuid\n  modality_event_id uuid\n  event_id uuid\n  input_role varchar [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    derived_result_id\n    observation_id\n    media_id\n    static_raster_id\n    geo_feature_id\n    input_result_id\n    modality_event_id\n    event_id\n  }\n\n  checks {\n    `num_nonnulls(observation_id, media_id, static_raster_id, geo_feature_id, input_result_id, modality_event_id, event_id) = 1` [name: 'ck_derived_input_one']\n  }\n}\n\n\n// ============================================================================\n// 6. SOURCE QUALITY / SCORING\n// ============================================================================\n\nTable source_score {\n  source_score_id uuid [pk]\n  source_id uuid [not null]\n  hazard_id uuid\n  task varchar\n  score_type score_kind [not null]\n  score double [not null]\n  methodology varchar\n  methodology_version varchar\n  evidence jsonb\n  valid_from timestamptz [not null]\n  valid_to timestamptz\n  created_at timestamptz [not null]\n\n  indexes {\n    (source_id, hazard_id, task, score_type)\n    source_id\n    hazard_id\n    task\n  }\n\n  checks {\n    `score between 0 and 1` [name: 'ck_source_score']\n    `valid_to is null or valid_to > valid_from` [name: 'ck_source_score_dates']\n  }\n}\n\n\n// ============================================================================\n// 7. MODALITY EVENTS\n// ============================================================================\n\nTable modality_event {\n  modality_event_id uuid [pk]\n  origin event_origin [not null]\n  evidence_domain varchar [not null]\n  hazard_id uuid [not null]\n  pipeline_run_id uuid [not null]\n  start_time timestamptz [not null]\n  end_time timestamptz\n  time_precision time_precision\n  published_at timestamptz\n  geometry geometry\n  location_uncertainty_km double\n  magnitude double\n  magnitude_type varchar\n  depth_km double\n  severity varchar\n  confidence double\n  status record_status [not null, default: 'active']\n  supersedes_modality_event_id uuid\n  attributes jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    (hazard_id, start_time)\n    (evidence_domain, start_time)\n    status\n    geometry [type: gist]\n  }\n\n  checks {\n    `end_time is null or end_time >= start_time` [name: 'ck_modality_event_time']\n    `confidence is null or confidence between 0 and 1` [name: 'ck_modality_event_conf']\n    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_modality_event_srid']\n    `supersedes_modality_event_id is null or supersedes_modality_event_id <> modality_event_id` [name: 'ck_modality_event_self']\n    `location_uncertainty_km is null or location_uncertainty_km >= 0` [name: 'ck_modality_event_uncertainty']\n  }\n}\n\nTable modality_event_input {\n  modality_event_input_id uuid [pk]\n  modality_event_id uuid [not null]\n  observation_id uuid\n  derived_result_id uuid\n  input_role varchar [not null]\n  weight double\n  created_at timestamptz [not null]\n\n  indexes {\n    modality_event_id\n    observation_id\n    derived_result_id\n  }\n\n  checks {\n    `num_nonnulls(observation_id, derived_result_id) = 1` [name: 'ck_modality_input_one']\n    `weight is null or weight between 0 and 1` [name: 'ck_modality_input_weight']\n  }\n}\n\n\n// ============================================================================\n// 8. EVENT MATCHING\n// ============================================================================\n\nTable event_match {\n  event_match_id uuid [pk]\n  pipeline_run_id uuid [not null]\n  modality_event_a_id uuid [not null]\n  modality_event_b_id uuid [not null]\n  overall_score double [not null]\n  decision match_decision [not null]\n  method match_method [not null]\n  signals jsonb\n  created_at timestamptz [not null]\n\n  indexes {\n    (modality_event_a_id, modality_event_b_id, pipeline_run_id) [unique]\n    modality_event_b_id\n    decision\n  }\n\n  checks {\n    `modality_event_a_id <> modality_event_b_id` [name: 'ck_event_match_self']\n    `overall_score between 0 and 1` [name: 'ck_event_match_score']\n  }\n}\n\n\n// ============================================================================\n// 9. UNIFIED EVENTS\n// ============================================================================\n\nTable event {\n  event_id uuid [pk]\n  event_code varchar [not null, unique]\n  hazard_id uuid [not null]\n  name varchar\n  start_time timestamptz [not null]\n  end_time timestamptz\n  time_precision time_precision\n  centroid geometry\n  affected_area geometry\n  magnitude double\n  magnitude_type varchar\n  severity varchar\n  confidence double\n  confidence_method varchar\n  status event_status [not null]\n  verification verification_status [not null, default: 'unverified']\n  verification_notes text\n  description text\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n  updated_at timestamptz [not null]\n\n  indexes {\n    (hazard_id, start_time)\n    status\n    centroid [type: gist]\n    affected_area [type: gist]\n  }\n\n  checks {\n    `end_time is null or end_time >= start_time` [name: 'ck_event_time']\n    `confidence is null or confidence between 0 and 1` [name: 'ck_event_conf']\n    `centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_event_centroid_srid']\n    `affected_area is null or ST_SRID(affected_area) = 4326` [name: 'ck_event_area_srid']\n  }\n}\n\nTable event_attribute_selection {\n  event_attribute_selection_id uuid [pk]\n  event_id uuid [not null]\n  attribute_name varchar [not null]\n  modality_event_id uuid [not null]\n  value jsonb [not null]\n  method varchar [not null]\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (event_id, attribute_name, created_at)\n    modality_event_id\n  }\n}\n\nTable event_member {\n  event_id uuid [not null]\n  modality_event_id uuid [not null]\n  membership_score double\n  is_primary boolean [not null, default: false]\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (event_id, modality_event_id) [pk]\n    modality_event_id\n  }\n\n  checks {\n    `membership_score is null or membership_score between 0 and 1` [name: 'ck_event_member_score']\n  }\n}\n\nTable event_evidence {\n  event_evidence_id uuid [pk]\n  event_id uuid [not null]\n  observation_id uuid\n  derived_result_id uuid\n  stance evidence_stance [not null, default: 'supports']\n  confidence double\n  is_primary boolean [not null, default: false]\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    event_id\n    observation_id\n    derived_result_id\n  }\n\n  checks {\n    `num_nonnulls(observation_id, derived_result_id) = 1` [name: 'ck_event_evidence_one']\n    `confidence is null or confidence between 0 and 1` [name: 'ck_event_evidence_conf']\n  }\n}\n\nTable event_region {\n  event_id uuid [not null]\n  admin_region_id uuid [not null]\n  relation region_relation\n  overlap_fraction double\n  is_primary boolean [not null, default: false]\n  method varchar [not null]\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (event_id, admin_region_id, relation) [pk]\n    admin_region_id\n  }\n\n  checks {\n    `overlap_fraction is null or overlap_fraction between 0 and 1` [name: 'ck_event_region_fraction']\n  }\n}\n\nTable event_impact {\n  event_impact_id uuid [pk]\n  event_id uuid [not null]\n  kind impact_kind [not null]\n  category varchar [not null]\n  origin impact_origin [not null]\n  metric_value double\n  unit varchar\n  admin_region_id uuid\n  geo_feature_id uuid\n  geometry geometry\n  confidence double\n  is_canonical boolean [not null, default: false]\n  method varchar\n  source_observation_id uuid\n  source_derived_result_id uuid\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (event_id, kind, category)\n    admin_region_id\n    geo_feature_id\n    geometry [type: gist]\n  }\n\n  checks {\n    `metric_value is not null or geometry is not null` [name: 'ck_event_impact_value']\n    `confidence is null or confidence between 0 and 1` [name: 'ck_event_impact_conf']\n    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_event_impact_srid']\n  }\n}\n\n\n// ============================================================================\n// 10. EVENT LINEAGE\n// ============================================================================\n\nTable event_lineage {\n  event_lineage_id uuid [pk]\n  from_event_id uuid [not null]\n  to_event_id uuid [not null]\n  relation event_lineage_type [not null]\n  reason text\n  pipeline_run_id uuid\n  created_at timestamptz [not null]\n\n  indexes {\n    (from_event_id, to_event_id, relation) [unique]\n    to_event_id\n  }\n\n  checks {\n    `from_event_id <> to_event_id` [name: 'ck_event_lineage_self']\n  }\n}\n\n\n// ============================================================================\n// 11. REAL-WORLD EVENT RELATIONSHIPS\n//\n// Different from event_lineage:\n//\n// event_lineage:\n//   How did our database representation change?\n//\n// event_relationship:\n//   How are two distinct real-world events related?\n//\n// Examples:\n//   Heavy Rainfall \u2192 triggered \u2192 Flood\n//   Flood \u2192 contributed_to \u2192 Landslide\n//   Flood \u2192 caused \u2192 Infrastructure Damage\n// ============================================================================\n\nTable event_relationship {\n  event_relationship_id uuid [pk]\n  parent_event_id uuid [not null]\n  child_event_id uuid [not null]\n  relationship_type event_relationship_type [not null]\n  confidence double\n  evidence jsonb\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (parent_event_id, child_event_id, relationship_type) [unique]\n    parent_event_id\n    child_event_id\n  }\n\n  checks {\n    `parent_event_id <> child_event_id` [name: 'ck_event_relationship_self']\n    `confidence is null or confidence between 0 and 1` [name: 'ck_event_relationship_conf']\n  }\n}\n\n\n// ============================================================================\n// 12. DISASTER EPISODES / EVENT GROUPS\n//\n// event = one unified real-world hazard event\n//\n// event_group = a larger disaster episode containing multiple distinct\n// related events.\n//\n// Example:\n//\n// Heavy Rainfall \u2192 Flood \u2192 Landslide \u2192 Infrastructure Damage\n//\n// These remain separate event records and are connected through the group\n// and event_relationship tables.\n// ============================================================================\n\nTable event_group {\n  event_group_id uuid [pk]\n  event_group_code varchar [not null, unique]\n  name varchar\n  description text\n  start_time timestamptz [not null]\n  end_time timestamptz\n  centroid geometry\n  affected_area geometry\n  severity varchar\n  confidence double\n  status varchar [not null, default: 'active']\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n  updated_at timestamptz [not null]\n\n  indexes {\n    start_time\n    status\n    centroid [type: gist]\n    affected_area [type: gist]\n  }\n\n  checks {\n    `end_time is null or end_time >= start_time` [name: 'ck_event_group_time']\n    `confidence is null or confidence between 0 and 1` [name: 'ck_event_group_conf']\n    `centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_event_group_centroid_srid']\n    `affected_area is null or ST_SRID(affected_area) = 4326` [name: 'ck_event_group_area_srid']\n  }\n}\n\nTable event_group_member {\n  event_group_id uuid [not null]\n  event_id uuid [not null]\n  role event_group_role [not null]\n  is_primary boolean [not null, default: false]\n  confidence double\n  pipeline_run_id uuid [not null]\n  created_at timestamptz [not null]\n\n  indexes {\n    (event_group_id, event_id) [pk]\n    event_id\n    role\n  }\n\n  checks {\n    `confidence is null or confidence between 0 and 1` [name: 'ck_event_group_member_conf']\n  }\n}\n\n\n// ============================================================================\n// 13. BENCHMARK / TRAINING DATASETS\n//\n// dataset_sample = prediction/evaluation unit\n//\n// dataset_sample_item = multimodal input evidence\n//\n// dataset_sample_event = event(s) represented by the sample\n//\n// This supports:\n//\n// single_event:\n//   one sample \u2192 one event\n//\n// multi_event:\n//   one sample \u2192 multiple related events\n//\n// cascading example:\n//   rainfall \u2192 flood \u2192 landslide\n// ============================================================================\n\nTable dataset_sample {\n  dataset_sample_id uuid [pk]\n  dataset_version_id uuid [not null]\n  external_sample_id varchar [not null]\n  sample_type sample_type [not null]\n  event_group_id uuid\n  split split_type [not null]\n  label jsonb\n  weight double\n  created_at timestamptz [not null]\n\n  indexes {\n    (dataset_version_id, external_sample_id) [unique]\n    (dataset_version_id, split)\n    event_group_id\n    sample_type\n  }\n\n  checks {\n    `weight is null or weight >= 0` [name: 'ck_sample_weight']\n  }\n}\n\nTable dataset_sample_item {\n  dataset_sample_item_id uuid [pk]\n  dataset_sample_id uuid [not null]\n  role varchar [not null]\n  observation_id uuid\n  media_id uuid\n  derived_result_id uuid\n  created_at timestamptz [not null]\n\n  indexes {\n    dataset_sample_id\n    observation_id\n    media_id\n    derived_result_id\n  }\n\n  checks {\n    `num_nonnulls(observation_id, media_id, derived_result_id) = 1` [name: 'ck_sample_item_one']\n  }\n}\n\nTable dataset_sample_event {\n  dataset_sample_event_id uuid [pk]\n  dataset_sample_id uuid [not null]\n  event_id uuid [not null]\n  role sample_event_role [not null]\n  is_primary boolean [not null, default: false]\n  relationship_to_primary event_relationship_type\n  confidence double\n  created_at timestamptz [not null]\n\n  indexes {\n    (dataset_sample_id, event_id) [unique]\n    dataset_sample_id\n    event_id\n    role\n  }\n\n  checks {\n    `confidence is null or confidence between 0 and 1` [name: 'ck_sample_event_conf']\n  }\n}\n\n\n// ============================================================================\n// RELATIONSHIPS\n// ============================================================================\n\n// SOURCE MANAGEMENT\nRef: dataset.source_id > data_source.source_id\nRef: dataset_version.dataset_id > dataset.dataset_id\nRef: dataset_version.load_run_id > pipeline_run.pipeline_run_id\n\n// INGESTION\nRef: collection.pipeline_run_id > pipeline_run.pipeline_run_id\nRef: collection.source_id > data_source.source_id\nRef: collection.dataset_id > dataset.dataset_id\nRef: raw_object.collection_id > collection.collection_id\nRef: raw_validation.raw_object_id > raw_object.raw_object_id\nRef: ingest_rejection.pipeline_run_id > pipeline_run.pipeline_run_id\nRef: ingest_rejection.raw_object_id > raw_object.raw_object_id\n\n// REFERENCE DATA\nRef: hazard.parent_hazard_id > hazard.hazard_id\nRef: admin_region.dataset_version_id > dataset_version.dataset_version_id\nRef: admin_region.parent_region_id > admin_region.admin_region_id\nRef: static_raster.dataset_version_id > dataset_version.dataset_version_id\nRef: geo_feature.source_id > data_source.source_id\n\n// OBSERVATIONS\nRef: observation.dataset_version_id > dataset_version.dataset_version_id\nRef: observation.raw_object_id > raw_object.raw_object_id\nRef: observation.hazard_id > hazard.hazard_id\n\nRef: observation_region.observation_id > observation.observation_id\nRef: observation_region.admin_region_id > admin_region.admin_region_id\nRef: observation_region.derived_result_id > derived_result.derived_result_id\nRef: observation_region.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: observation_relation.observation_id > observation.observation_id\nRef: observation_relation.related_observation_id > observation.observation_id\nRef: observation_relation.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: text_item.observation_id - observation.observation_id\nRef: text_item.parent_observation_id > observation.observation_id\n\nRef: raster_product.observation_id - observation.observation_id\n\nRef: media.observation_id > observation.observation_id\nRef: media.raw_object_id > raw_object.raw_object_id\n\n// DERIVED RESULTS\nRef: model.training_dataset_version_id > dataset_version.dataset_version_id\n\nRef: derived_result.observation_id > observation.observation_id\nRef: derived_result.model_id > model.model_id\nRef: derived_result.supersedes_result_id > derived_result.derived_result_id\n\nRef: derived_result_input.derived_result_id > derived_result.derived_result_id\nRef: derived_result_input.observation_id > observation.observation_id\nRef: derived_result_input.media_id > media.media_id\nRef: derived_result_input.static_raster_id > static_raster.static_raster_id\nRef: derived_result_input.geo_feature_id > geo_feature.geo_feature_id\nRef: derived_result_input.input_result_id > derived_result.derived_result_id\nRef: derived_result_input.modality_event_id > modality_event.modality_event_id\nRef: derived_result_input.event_id > event.event_id\n\n// SOURCE QUALITY / SCORING\nRef: source_score.source_id > data_source.source_id\nRef: source_score.hazard_id > hazard.hazard_id\n\n// MODALITY EVENTS\nRef: modality_event.hazard_id > hazard.hazard_id\nRef: modality_event.pipeline_run_id > pipeline_run.pipeline_run_id\nRef: modality_event.supersedes_modality_event_id > modality_event.modality_event_id\n\nRef: modality_event_input.modality_event_id > modality_event.modality_event_id\nRef: modality_event_input.observation_id > observation.observation_id\nRef: modality_event_input.derived_result_id > derived_result.derived_result_id\n\n// EVENT MATCHING\nRef: event_match.pipeline_run_id > pipeline_run.pipeline_run_id\nRef: event_match.modality_event_a_id > modality_event.modality_event_id\nRef: event_match.modality_event_b_id > modality_event.modality_event_id\n\n// UNIFIED EVENTS\nRef: event.hazard_id > hazard.hazard_id\nRef: event.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: event_attribute_selection.event_id > event.event_id\nRef: event_attribute_selection.modality_event_id > modality_event.modality_event_id\nRef: event_attribute_selection.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: event_member.event_id > event.event_id\nRef: event_member.modality_event_id > modality_event.modality_event_id\nRef: event_member.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: event_evidence.event_id > event.event_id\nRef: event_evidence.observation_id > observation.observation_id\nRef: event_evidence.derived_result_id > derived_result.derived_result_id\nRef: event_evidence.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: event_region.event_id > event.event_id\nRef: event_region.admin_region_id > admin_region.admin_region_id\nRef: event_region.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: event_impact.event_id > event.event_id\nRef: event_impact.admin_region_id > admin_region.admin_region_id\nRef: event_impact.geo_feature_id > geo_feature.geo_feature_id\nRef: event_impact.source_observation_id > observation.observation_id\nRef: event_impact.source_derived_result_id > derived_result.derived_result_id\nRef: event_impact.pipeline_run_id > pipeline_run.pipeline_run_id\n\n// EVENT LINEAGE\nRef: event_lineage.from_event_id > event.event_id\nRef: event_lineage.to_event_id > event.event_id\nRef: event_lineage.pipeline_run_id > pipeline_run.pipeline_run_id\n\n// REAL-WORLD EVENT RELATIONSHIPS\nRef: event_relationship.parent_event_id > event.event_id\nRef: event_relationship.child_event_id > event.event_id\nRef: event_relationship.pipeline_run_id > pipeline_run.pipeline_run_id\n\n// EVENT GROUPS\nRef: event_group.pipeline_run_id > pipeline_run.pipeline_run_id\n\nRef: event_group_member.event_group_id > event_group.event_group_id\nRef: event_group_member.event_id > event.event_id\nRef: event_group_member.pipeline_run_id > pipeline_run.pipeline_run_id\n\n// BENCHMARK DATASETS\nRef: dataset_sample.dataset_version_id > dataset_version.dataset_version_id\nRef: dataset_sample.event_group_id > event_group.event_group_id\n\nRef: dataset_sample_item.dataset_sample_id > dataset_sample.dataset_sample_id\nRef: dataset_sample_item.observation_id > observation.observation_id\nRef: dataset_sample_item.media_id > media.media_id\nRef: dataset_sample_item.derived_result_id > derived_result.derived_result_id\n\nRef: dataset_sample_event.dataset_sample_id > dataset_sample.dataset_sample_id\nRef: dataset_sample_event.event_id > event.event_id\n\n\n// ============================================================================\n// TABLE GROUPS\n// ============================================================================\n\nTableGroup \"1. Source Management\" {\n  data_source\n  dataset\n  dataset_version\n}\n\nTableGroup \"2. Ingestion & Provenance\" {\n  pipeline_run\n  collection\n  raw_object\n  raw_validation\n  ingest_rejection\n}\n\nTableGroup \"3. Reference Data\" {\n  hazard\n  admin_region\n  static_raster\n  geo_feature\n}\n\nTableGroup \"4. Canonical Source Data\" {\n  observation\n  observation_region\n  observation_relation\n  text_item\n  raster_product\n  media\n}\n\nTableGroup \"5. Enrichment & Derived Results\" {\n  model\n  derived_result\n  derived_result_input\n}\n\nTableGroup \"6. Source Quality / Scoring\" {\n  source_score\n}\n\nTableGroup \"7. Event Intelligence\" {\n  modality_event\n  modality_event_input\n  event_match\n  event\n  event_attribute_selection\n  event_member\n  event_evidence\n  event_region\n  event_impact\n  event_lineage\n  event_relationship\n  event_group\n  event_group_member\n}\n\nTableGroup \"8. Benchmark Datasets\" {\n  dataset_sample\n  dataset_sample_item\n  dataset_sample_event\n}",
+  "userid": "6aad6b3c943b561dd484ae56",
+  "name": null,
+  "diagram": {
+    "tables": [
+      {
+        "name": "data_source",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      },
+      {
+        "name": "dataset",
+        "schemaName": "public",
+        "x": 616.6500015258789,
+        "y": 53
+      },
+      {
+        "name": "dataset_version",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 74
+      },
+      {
+        "name": "pipeline_run",
+        "schemaName": "public",
+        "x": 12,
+        "y": 474
+      },
+      {
+        "name": "collection",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 472
+      },
+      {
+        "name": "raw_object",
+        "schemaName": "public",
+        "x": 2088.5,
+        "y": 568
+      },
+      {
+        "name": "raw_validation",
+        "schemaName": "public",
+        "x": 2842.433334350586,
+        "y": 116
+      },
+      {
+        "name": "ingest_rejection",
+        "schemaName": "public",
+        "x": 2842.433334350586,
+        "y": 567
+      },
+      {
+        "name": "hazard",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1052
+      },
+      {
+        "name": "admin_region",
+        "schemaName": "public",
+        "x": 2088.5,
+        "y": 954
+      },
+      {
+        "name": "static_raster",
+        "schemaName": "public",
+        "x": 2088.5,
+        "y": 74
+      },
+      {
+        "name": "geo_feature",
+        "schemaName": "public",
+        "x": 616.6500015258789,
+        "y": 452
+      },
+      {
+        "name": "observation",
+        "schemaName": "public",
+        "x": 2842.433334350586,
+        "y": 933
+      },
+      {
+        "name": "observation_region",
+        "schemaName": "public",
+        "x": 4638.616668701172,
+        "y": 12
+      },
+      {
+        "name": "observation_relation",
+        "schemaName": "public",
+        "x": 3694.683334350586,
+        "y": 661
+      },
+      {
+        "name": "text_item",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1386
+      },
+      {
+        "name": "raster_product",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1880
+      },
+      {
+        "name": "media",
+        "schemaName": "public",
+        "x": 3694.683334350586,
+        "y": 996
+      },
+      {
+        "name": "model",
+        "schemaName": "public",
+        "x": 2088.5,
+        "y": 1374
+      },
+      {
+        "name": "derived_result",
+        "schemaName": "public",
+        "x": 3694.683334350586,
+        "y": 220
+      },
+      {
+        "name": "derived_result_input",
+        "schemaName": "public",
+        "x": 4638.616668701172,
+        "y": 378
+      },
+      {
+        "name": "source_score",
+        "schemaName": "public",
+        "x": 616.6500015258789,
+        "y": 787
+      },
+      {
+        "name": "modality_event",
+        "schemaName": "public",
+        "x": 616.6500015258789,
+        "y": 1270
+      },
+      {
+        "name": "modality_event_input",
+        "schemaName": "public",
+        "x": 4638.616668701172,
+        "y": 808
+      },
+      {
+        "name": "event_match",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 1009
+      },
+      {
+        "name": "event",
+        "schemaName": "public",
+        "x": 616.6500015258789,
+        "y": 1989
+      },
+      {
+        "name": "event_attribute_selection",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 1375
+      },
+      {
+        "name": "event_member",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 1731
+      },
+      {
+        "name": "event_evidence",
+        "schemaName": "public",
+        "x": 4638.616668701172,
+        "y": 1110
+      },
+      {
+        "name": "event_region",
+        "schemaName": "public",
+        "x": 2842.433334350586,
+        "y": 1811
+      },
+      {
+        "name": "event_impact",
+        "schemaName": "public",
+        "x": 4638.616668701172,
+        "y": 1476
+      },
+      {
+        "name": "event_lineage",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 2001
+      },
+      {
+        "name": "event_relationship",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 2303
+      },
+      {
+        "name": "event_group",
+        "schemaName": "public",
+        "x": 616.6500015258789,
+        "y": 2782
+      },
+      {
+        "name": "event_group_member",
+        "schemaName": "public",
+        "x": 1290.349998474121,
+        "y": 2680
+      },
+      {
+        "name": "dataset_sample",
+        "schemaName": "public",
+        "x": 2088.5,
+        "y": 1931
+      },
+      {
+        "name": "dataset_sample_item",
+        "schemaName": "public",
+        "x": 4638.616668701172,
+        "y": 2098
+      },
+      {
+        "name": "dataset_sample_event",
+        "schemaName": "public",
+        "x": 2842.433334350586,
+        "y": 2145
+      }
+    ]
+  },
+  "tableGroups": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "source_id"
+      ],
+      "firstTableName": "dataset",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "source_id"
+      ],
+      "secondTableName": "data_source",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_id"
+      ],
+      "firstTableName": "dataset_version",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_id"
+      ],
+      "secondTableName": "dataset",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "load_run_id"
+      ],
+      "firstTableName": "dataset_version",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "collection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "source_id"
+      ],
+      "firstTableName": "collection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "source_id"
+      ],
+      "secondTableName": "data_source",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_id"
+      ],
+      "firstTableName": "collection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_id"
+      ],
+      "secondTableName": "dataset",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "collection_id"
+      ],
+      "firstTableName": "raw_object",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "collection_id"
+      ],
+      "secondTableName": "collection",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "raw_object_id"
+      ],
+      "firstTableName": "raw_validation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "raw_object_id"
+      ],
+      "secondTableName": "raw_object",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "ingest_rejection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "raw_object_id"
+      ],
+      "firstTableName": "ingest_rejection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "raw_object_id"
+      ],
+      "secondTableName": "raw_object",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "parent_hazard_id"
+      ],
+      "firstTableName": "hazard",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "hazard_id"
+      ],
+      "secondTableName": "hazard",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_version_id"
+      ],
+      "firstTableName": "admin_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_version_id"
+      ],
+      "secondTableName": "dataset_version",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "parent_region_id"
+      ],
+      "firstTableName": "admin_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "admin_region_id"
+      ],
+      "secondTableName": "admin_region",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_version_id"
+      ],
+      "firstTableName": "static_raster",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_version_id"
+      ],
+      "secondTableName": "dataset_version",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "source_id"
+      ],
+      "firstTableName": "geo_feature",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "source_id"
+      ],
+      "secondTableName": "data_source",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_version_id"
+      ],
+      "firstTableName": "observation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_version_id"
+      ],
+      "secondTableName": "dataset_version",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "raw_object_id"
+      ],
+      "firstTableName": "observation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "raw_object_id"
+      ],
+      "secondTableName": "raw_object",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "hazard_id"
+      ],
+      "firstTableName": "observation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "hazard_id"
+      ],
+      "secondTableName": "hazard",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "observation_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "admin_region_id"
+      ],
+      "firstTableName": "observation_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "admin_region_id"
+      ],
+      "secondTableName": "admin_region",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "derived_result_id"
+      ],
+      "firstTableName": "observation_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "observation_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "observation_relation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "related_observation_id"
+      ],
+      "firstTableName": "observation_relation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "observation_relation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "text_item",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "parent_observation_id"
+      ],
+      "firstTableName": "text_item",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "raster_product",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "media",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "raw_object_id"
+      ],
+      "firstTableName": "media",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "raw_object_id"
+      ],
+      "secondTableName": "raw_object",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "training_dataset_version_id"
+      ],
+      "firstTableName": "model",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_version_id"
+      ],
+      "secondTableName": "dataset_version",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "derived_result",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "model_id"
+      ],
+      "firstTableName": "derived_result",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "model_id"
+      ],
+      "secondTableName": "model",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "supersedes_result_id"
+      ],
+      "firstTableName": "derived_result",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "derived_result_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "media_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "media_id"
+      ],
+      "secondTableName": "media",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "static_raster_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "static_raster_id"
+      ],
+      "secondTableName": "static_raster",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "geo_feature_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "geo_feature_id"
+      ],
+      "secondTableName": "geo_feature",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "input_result_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "modality_event_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "modality_event_id"
+      ],
+      "secondTableName": "modality_event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "derived_result_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "source_id"
+      ],
+      "firstTableName": "source_score",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "source_id"
+      ],
+      "secondTableName": "data_source",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "hazard_id"
+      ],
+      "firstTableName": "source_score",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "hazard_id"
+      ],
+      "secondTableName": "hazard",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "hazard_id"
+      ],
+      "firstTableName": "modality_event",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "hazard_id"
+      ],
+      "secondTableName": "hazard",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "modality_event",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "supersedes_modality_event_id"
+      ],
+      "firstTableName": "modality_event",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "modality_event_id"
+      ],
+      "secondTableName": "modality_event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "modality_event_id"
+      ],
+      "firstTableName": "modality_event_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "modality_event_id"
+      ],
+      "secondTableName": "modality_event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "modality_event_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "derived_result_id"
+      ],
+      "firstTableName": "modality_event_input",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_match",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "modality_event_a_id"
+      ],
+      "firstTableName": "event_match",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "modality_event_id"
+      ],
+      "secondTableName": "modality_event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "modality_event_b_id"
+      ],
+      "firstTableName": "event_match",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "modality_event_id"
+      ],
+      "secondTableName": "modality_event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "hazard_id"
+      ],
+      "firstTableName": "event",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "hazard_id"
+      ],
+      "secondTableName": "hazard",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "event_attribute_selection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "modality_event_id"
+      ],
+      "firstTableName": "event_attribute_selection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "modality_event_id"
+      ],
+      "secondTableName": "modality_event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_attribute_selection",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "event_member",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "modality_event_id"
+      ],
+      "firstTableName": "event_member",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "modality_event_id"
+      ],
+      "secondTableName": "modality_event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_member",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "event_evidence",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "event_evidence",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "derived_result_id"
+      ],
+      "firstTableName": "event_evidence",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_evidence",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "event_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "admin_region_id"
+      ],
+      "firstTableName": "event_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "admin_region_id"
+      ],
+      "secondTableName": "admin_region",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_region",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "event_impact",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "admin_region_id"
+      ],
+      "firstTableName": "event_impact",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "admin_region_id"
+      ],
+      "secondTableName": "admin_region",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "geo_feature_id"
+      ],
+      "firstTableName": "event_impact",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "geo_feature_id"
+      ],
+      "secondTableName": "geo_feature",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "source_observation_id"
+      ],
+      "firstTableName": "event_impact",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "source_derived_result_id"
+      ],
+      "firstTableName": "event_impact",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_impact",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "from_event_id"
+      ],
+      "firstTableName": "event_lineage",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "to_event_id"
+      ],
+      "firstTableName": "event_lineage",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_lineage",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "parent_event_id"
+      ],
+      "firstTableName": "event_relationship",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "child_event_id"
+      ],
+      "firstTableName": "event_relationship",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_relationship",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_group",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_group_id"
+      ],
+      "firstTableName": "event_group_member",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_group_id"
+      ],
+      "secondTableName": "event_group",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "event_group_member",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "pipeline_run_id"
+      ],
+      "firstTableName": "event_group_member",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "pipeline_run_id"
+      ],
+      "secondTableName": "pipeline_run",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_version_id"
+      ],
+      "firstTableName": "dataset_sample",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_version_id"
+      ],
+      "secondTableName": "dataset_version",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_group_id"
+      ],
+      "firstTableName": "dataset_sample",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_group_id"
+      ],
+      "secondTableName": "event_group",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_sample_id"
+      ],
+      "firstTableName": "dataset_sample_item",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_sample_id"
+      ],
+      "secondTableName": "dataset_sample",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "observation_id"
+      ],
+      "firstTableName": "dataset_sample_item",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "observation_id"
+      ],
+      "secondTableName": "observation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "media_id"
+      ],
+      "firstTableName": "dataset_sample_item",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "media_id"
+      ],
+      "secondTableName": "media",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "derived_result_id"
+      ],
+      "firstTableName": "dataset_sample_item",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "derived_result_id"
+      ],
+      "secondTableName": "derived_result",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "dataset_sample_id"
+      ],
+      "firstTableName": "dataset_sample_event",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "dataset_sample_id"
+      ],
+      "secondTableName": "dataset_sample",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "event_id"
+      ],
+      "firstTableName": "dataset_sample_event",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "event_id"
+      ],
+      "secondTableName": "event",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    }
+  ],
+  "relationshipMode": "All",
+  "detailLevel": "All",
+  "visibleEntities": {
+    "tables": [],
+    "stickyNotes": [],
+    "tableGroups": [],
+    "schemas": []
+  },
+  "createdAt": "2026-09-18T16:48:02.436Z",
+  "updatedAt": "2026-09-29T06:22:18.377Z",
+  "__v": 0,
+  "stickyNoteLayouts": null,
+  "ydocDestroyedAt": "2026-09-29T06:22:18.377Z",
+  "workspaceId": "6aad7cf6943b561dd4855c7a",
+  "id": "6aad6b426d586d617e6bd187",
+  "views": []
+}

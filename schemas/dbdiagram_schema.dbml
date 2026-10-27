@@ -1,0 +1,1480 @@
+// ============================================================================
+// MULTIMODAL DISASTER INTELLIGENCE PLATFORM
+// FINAL PRODUCTION DATABASE SCHEMA
+//
+// PostgreSQL 16 + PostGIS
+//
+// Architecture:
+// SOURCE MANAGEMENT
+// → INGESTION & PROVENANCE
+// → REFERENCE DATA
+// → CANONICAL OBSERVATIONS
+// → ENRICHMENT & DERIVED RESULTS
+// → SOURCE QUALITY / SCORING
+// → EVENT INTELLIGENCE
+// → BENCHMARK DATASETS
+//
+// Benchmark extension:
+// Supports single-event, multi-event, cascading-hazard and related-event
+// benchmark samples without duplicating canonical observations.
+// ============================================================================
+
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+Enum dataset_kind {
+  feed
+  static_reference
+  benchmark
+}
+
+Enum source_type {
+  api
+  rss
+  catalogue
+  file
+  social_media
+  satellite
+  official_report
+  research_dataset
+  other
+}
+
+Enum modality {
+  text
+  image
+  video
+  raster
+  tabular
+}
+
+Enum pipeline_stage {
+  collection
+  validation
+  normalization
+  deduplication
+  enrichment
+  inference
+  event_detection
+  matching
+  fusion
+  impact_estimation
+  training
+  evaluation
+}
+
+Enum run_type {
+  scheduled
+  manual
+  retry
+  backfill
+  reprocess
+}
+
+Enum run_status {
+  queued
+  running
+  completed
+  failed
+  cancelled
+}
+
+Enum collection_status {
+  success
+  unchanged
+  partial
+  failed
+}
+
+Enum validation_status {
+  pending
+  passed
+  warning
+  failed
+}
+
+Enum record_status {
+  active
+  superseded
+  retracted
+  rejected
+}
+
+Enum time_precision {
+  second
+  minute
+  hour
+  day
+  month
+  year
+  approximate
+}
+
+Enum result_origin {
+  model
+  rule
+  spatial_analysis
+  human
+}
+
+Enum observation_relation_type {
+  duplicate_of
+  supersedes
+  corrects
+  retracts
+  reparsed_from
+  corroborates
+}
+
+Enum region_relation {
+  contains_point
+  intersects
+  mentioned
+}
+
+Enum match_method {
+  spatial
+  temporal
+  semantic
+  rule_based
+  machine_learning
+  manual
+}
+
+Enum match_decision {
+  same_event
+  different_event
+  uncertain
+}
+
+Enum event_origin {
+  source_reported
+  platform_detected
+}
+
+Enum event_status {
+  candidate
+  detected
+  verified
+  published
+  rejected
+  superseded
+  merged
+}
+
+Enum verification_status {
+  unverified
+  partial
+  verified
+  rejected
+}
+
+Enum evidence_stance {
+  supports
+  contradicts
+  context
+}
+
+Enum event_lineage_type {
+  superseded_by
+  merged_into
+  split_into
+}
+
+Enum event_relationship_type {
+  triggered
+  caused
+  contributed_to
+  associated_with
+  concurrent_with
+  escalated_to
+  part_of
+}
+
+Enum impact_kind {
+  casualty
+  displacement
+  damage
+  affected_population
+  affected_area
+  need
+}
+
+Enum impact_origin {
+  reported
+  extracted
+  detected
+  estimated
+}
+
+Enum split_type {
+  train
+  validation
+  test
+}
+
+Enum score_kind {
+  relevance
+  reliability
+  authority
+  freshness
+}
+
+// --------------------------------------------------------------------------
+// Benchmark / event-composition enums
+// --------------------------------------------------------------------------
+
+Enum event_group_role {
+  primary
+  trigger
+  related
+  impact
+  precursor
+  consequence
+  context
+}
+
+Enum sample_type {
+  single_event
+  multi_event
+  prediction
+  event_classification
+  severity_prediction
+  event_relation_prediction
+  event_matching
+}
+
+Enum sample_event_role {
+  primary
+  trigger
+  related
+  impact
+  precursor
+  consequence
+  context
+}
+
+
+// ============================================================================
+// 1. SOURCE MANAGEMENT
+// ============================================================================
+
+Table data_source {
+  source_id uuid [pk]
+  source_code varchar [not null, unique]
+  name varchar [not null]
+  source_type source_type [not null]
+  provider varchar
+  base_url text
+  license text
+  config jsonb
+  is_active boolean [not null, default: true]
+  last_success_at timestamptz
+  last_failure_at timestamptz
+  created_at timestamptz [not null]
+}
+
+Table dataset {
+  dataset_id uuid [pk]
+  source_id uuid [not null]
+  dataset_code varchar [not null, unique]
+  name varchar [not null]
+  kind dataset_kind [not null]
+  modality modality
+  task varchar
+  description text
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+
+  indexes {
+    source_id
+    kind
+  }
+}
+
+Table dataset_version {
+  dataset_version_id uuid [pk]
+  dataset_id uuid [not null]
+  version varchar [not null]
+  released_at timestamptz
+  valid_from date
+  valid_to date
+  sample_count bigint
+  load_run_id uuid
+  metadata jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    (dataset_id, version) [unique]
+    load_run_id
+  }
+
+  checks {
+    `valid_to is null or valid_from is null or valid_to >= valid_from` [name: 'ck_dsv_dates']
+  }
+}
+
+
+// ============================================================================
+// 2. INGESTION & PROVENANCE
+// ============================================================================
+
+Table pipeline_run {
+  pipeline_run_id uuid [pk]
+  pipeline_name varchar [not null]
+  pipeline_version varchar [not null]
+  stage pipeline_stage
+  run_type run_type [not null]
+  status run_status [not null]
+  started_at timestamptz [not null]
+  completed_at timestamptz
+  records_read bigint
+  records_written bigint
+  records_rejected bigint
+  config jsonb
+  config_hash char(64)
+  error_message text
+  created_at timestamptz [not null]
+
+  indexes {
+    (pipeline_name, started_at)
+    (stage, started_at)
+    status
+  }
+
+  checks {
+    `completed_at is null or completed_at >= started_at` [name: 'ck_run_time']
+    `records_read is null or records_read >= 0` [name: 'ck_run_read']
+    `records_written is null or records_written >= 0` [name: 'ck_run_written']
+    `records_rejected is null or records_rejected >= 0` [name: 'ck_run_rejected']
+  }
+}
+
+Table collection {
+  collection_id uuid [pk]
+  pipeline_run_id uuid [not null]
+  source_id uuid [not null]
+  dataset_id uuid [not null]
+  method varchar [not null]
+  request_uri text
+  http_status int
+  started_at timestamptz [not null]
+  completed_at timestamptz
+  records_received bigint
+  status collection_status [not null]
+  error_message text
+  created_at timestamptz [not null]
+
+  indexes {
+    (source_id, started_at)
+    (dataset_id, started_at)
+    pipeline_run_id
+  }
+
+  checks {
+    `completed_at is null or completed_at >= started_at` [name: 'ck_collection_time']
+    `records_received is null or records_received >= 0` [name: 'ck_collection_records']
+  }
+}
+
+Table raw_object {
+  raw_object_id uuid [pk]
+  collection_id uuid [not null]
+  storage_uri text [not null, unique]
+  content_type varchar
+  size_bytes bigint [not null]
+  sha256 char(64) [not null, unique]
+  captured_at timestamptz [not null]
+  metadata jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    collection_id
+  }
+
+  checks {
+    `size_bytes >= 0` [name: 'ck_raw_size']
+  }
+}
+
+Table raw_validation {
+  raw_validation_id uuid [pk]
+  raw_object_id uuid [not null]
+  status validation_status [not null]
+  schema_valid boolean
+  checksum_valid boolean
+  content_valid boolean
+  validation_errors jsonb
+  validator_version varchar [not null]
+  validated_at timestamptz [not null]
+
+  indexes {
+    raw_object_id
+    (raw_object_id, validator_version)
+  }
+}
+
+Table ingest_rejection {
+  ingest_rejection_id uuid [pk]
+  pipeline_run_id uuid [not null]
+  raw_object_id uuid
+  record_identifier varchar
+  stage pipeline_stage [not null]
+  rejection_code varchar [not null]
+  reason text
+  details jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    pipeline_run_id
+    raw_object_id
+    rejection_code
+  }
+}
+
+
+// ============================================================================
+// 3. REFERENCE DATA
+// ============================================================================
+
+Table hazard {
+  hazard_id uuid [pk]
+  code varchar [not null, unique]
+  name varchar [not null]
+  category varchar
+  description text
+  parent_hazard_id uuid
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+
+  indexes {
+    parent_hazard_id
+  }
+
+  checks {
+    `parent_hazard_id is null or parent_hazard_id <> hazard_id` [name: 'ck_hazard_self']
+  }
+}
+
+Table admin_region {
+  admin_region_id uuid [pk]
+  dataset_version_id uuid [not null]
+  region_type varchar [not null]
+  region_code varchar
+  name varchar [not null]
+  parent_region_id uuid
+  geometry geometry [not null]
+  centroid geometry
+  properties jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    (dataset_version_id, region_code) [unique]
+    parent_region_id
+    region_type
+    geometry [type: gist]
+    centroid [type: gist]
+  }
+
+  checks {
+    `ST_SRID(geometry) = 4326` [name: 'ck_region_srid']
+    `ST_IsValid(geometry)` [name: 'ck_region_valid']
+    `centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_region_centroid_srid']
+  }
+}
+
+Table static_raster {
+  static_raster_id uuid [pk]
+  name varchar [not null]
+  dataset_version_id uuid [not null]
+  raster_type varchar [not null]
+  storage_uri text [not null]
+  crs varchar
+  resolution double
+  width bigint
+  height bigint
+  bounds jsonb
+  nodata_value double
+  metadata jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    dataset_version_id
+    raster_type
+  }
+}
+
+Table geo_feature {
+  geo_feature_id uuid [pk]
+  feature_type varchar [not null]
+  name varchar
+  source_id uuid
+  external_id varchar
+  geometry geometry [not null]
+  properties jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    source_id
+    (source_id, external_id)
+    feature_type
+    geometry [type: gist]
+  }
+
+  checks {
+    `ST_SRID(geometry) = 4326` [name: 'ck_geo_feature_srid']
+  }
+}
+
+
+// ============================================================================
+// 4. CANONICAL SOURCE DATA
+// ============================================================================
+
+Table observation {
+  observation_id uuid [pk]
+  dataset_version_id uuid [not null]
+  raw_object_id uuid [not null]
+  source_record_id varchar
+  hazard_id uuid
+  observed_at timestamptz
+  observed_start timestamptz
+  observed_end timestamptz
+  published_at timestamptz
+  time_precision time_precision
+  latitude double
+  longitude double
+  geometry geometry
+  location_uncertainty_km double
+  modality modality [not null]
+  observation_type varchar [not null]
+  value jsonb
+  quality_status varchar
+  quality_score double
+  language varchar(10)
+  source_updated_at timestamptz
+  source_revision varchar
+  record_hash char(64)
+  status record_status [not null, default: 'active']
+  created_at timestamptz [not null]
+
+  indexes {
+    (dataset_version_id, source_record_id)
+    (observation_type, observed_start)
+    status
+    record_hash
+    observed_start
+    geometry [type: gist]
+    created_at [type: brin]
+  }
+
+  checks {
+    `observed_end is null or observed_start is null or observed_end >= observed_start` [name: 'ck_obs_time']
+    `quality_score is null or quality_score between 0 and 1` [name: 'ck_obs_quality']
+    `location_uncertainty_km is null or location_uncertainty_km >= 0` [name: 'ck_obs_uncertainty']
+    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_obs_srid']
+  }
+}
+
+Table observation_region {
+  observation_id uuid [not null]
+  admin_region_id uuid [not null]
+  relation region_relation
+  is_primary boolean [not null, default: false]
+  method varchar [not null]
+  confidence double
+  derived_result_id uuid
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (observation_id, admin_region_id, relation) [pk]
+    admin_region_id
+  }
+
+  checks {
+    `confidence is null or confidence between 0 and 1` [name: 'ck_obs_region_conf']
+  }
+}
+
+Table observation_relation {
+  relation_id uuid [pk]
+  observation_id uuid [not null]
+  related_observation_id uuid [not null]
+  relation_type observation_relation_type [not null]
+  method varchar
+  score double
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (observation_id, related_observation_id, relation_type) [unique]
+    related_observation_id
+  }
+
+  checks {
+    `observation_id <> related_observation_id` [name: 'ck_obs_relation_self']
+    `score is null or score between 0 and 1` [name: 'ck_obs_relation_score']
+  }
+}
+
+Table text_item {
+  observation_id uuid [pk]
+  text_kind varchar [not null]
+  title text
+  body text
+  content_hash char(64)
+  url text
+  author varchar
+  publisher varchar
+  platform varchar
+  parent_observation_id uuid
+  is_official boolean [not null, default: false]
+  engagement jsonb
+  entities_raw jsonb
+
+  indexes {
+    content_hash
+    (platform, publisher)
+  }
+}
+
+Table raster_product {
+  observation_id uuid [pk]
+  platform varchar [not null]
+  sensor varchar
+  product_id varchar
+  processing_level varchar
+  acquisition_start timestamptz
+  acquisition_end timestamptz
+  resolution_m double
+  crs varchar
+  cloud_cover_pct double
+  polarization varchar
+  orbit_pass varchar
+  variables jsonb
+  bands jsonb
+  is_pre_event boolean
+  storage_uri text [not null]
+
+  indexes {
+    (platform, acquisition_start)
+    product_id
+  }
+
+  checks {
+    `cloud_cover_pct is null or cloud_cover_pct between 0 and 100` [name: 'ck_raster_cloud']
+    `acquisition_end is null or acquisition_start is null or acquisition_end >= acquisition_start` [name: 'ck_raster_time']
+  }
+}
+
+Table media {
+  media_id uuid [pk]
+  observation_id uuid [not null]
+  media_type varchar [not null]
+  source_url text
+  raw_object_id uuid
+  raw_locator varchar [not null, default: '$']
+  perceptual_hash varchar
+  width int
+  height int
+  duration_sec double
+  geometry geometry
+  captured_at timestamptz
+
+  indexes {
+    observation_id
+    raw_object_id
+    perceptual_hash
+    geometry [type: gist]
+  }
+
+  checks {
+    `source_url is not null or raw_object_id is not null` [name: 'ck_media_locatable']
+    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_media_srid']
+  }
+}
+
+
+// ============================================================================
+// 5. ENRICHMENT & DERIVED RESULTS
+// ============================================================================
+
+Table model {
+  model_id uuid [pk]
+  name varchar [not null]
+  version varchar [not null]
+  task varchar [not null]
+  framework varchar
+  architecture varchar
+  model_uri text
+  training_dataset_version_id uuid
+  config jsonb
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+
+  indexes {
+    (name, version) [unique]
+    task
+  }
+}
+
+Table derived_result {
+  derived_result_id uuid [pk]
+  observation_id uuid
+  model_id uuid
+  result_type varchar [not null]
+  status varchar [not null]
+  result jsonb
+  confidence double
+  output_uri text
+  supersedes_result_id uuid
+  created_at timestamptz [not null]
+
+  indexes {
+    observation_id
+    model_id
+    result_type
+    supersedes_result_id
+    created_at
+  }
+
+  checks {
+    `confidence is null or confidence between 0 and 1` [name: 'ck_derived_conf']
+    `supersedes_result_id is null or supersedes_result_id <> derived_result_id` [name: 'ck_derived_self']
+  }
+}
+
+Table derived_result_input {
+  derived_result_input_id uuid [pk]
+  derived_result_id uuid [not null]
+  observation_id uuid
+  media_id uuid
+  static_raster_id uuid
+  geo_feature_id uuid
+  input_result_id uuid
+  modality_event_id uuid
+  event_id uuid
+  input_role varchar [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    derived_result_id
+    observation_id
+    media_id
+    static_raster_id
+    geo_feature_id
+    input_result_id
+    modality_event_id
+    event_id
+  }
+
+  checks {
+    `num_nonnulls(observation_id, media_id, static_raster_id, geo_feature_id, input_result_id, modality_event_id, event_id) = 1` [name: 'ck_derived_input_one']
+  }
+}
+
+
+// ============================================================================
+// 6. SOURCE QUALITY / SCORING
+// ============================================================================
+
+Table source_score {
+  source_score_id uuid [pk]
+  source_id uuid [not null]
+  hazard_id uuid
+  task varchar
+  score_type score_kind [not null]
+  score double [not null]
+  methodology varchar
+  methodology_version varchar
+  evidence jsonb
+  valid_from timestamptz [not null]
+  valid_to timestamptz
+  created_at timestamptz [not null]
+
+  indexes {
+    (source_id, hazard_id, task, score_type)
+    source_id
+    hazard_id
+    task
+  }
+
+  checks {
+    `score between 0 and 1` [name: 'ck_source_score']
+    `valid_to is null or valid_to > valid_from` [name: 'ck_source_score_dates']
+  }
+}
+
+
+// ============================================================================
+// 7. MODALITY EVENTS
+// ============================================================================
+
+Table modality_event {
+  modality_event_id uuid [pk]
+  origin event_origin [not null]
+  evidence_domain varchar [not null]
+  hazard_id uuid [not null]
+  pipeline_run_id uuid [not null]
+  start_time timestamptz [not null]
+  end_time timestamptz
+  time_precision time_precision
+  published_at timestamptz
+  geometry geometry
+  location_uncertainty_km double
+  magnitude double
+  magnitude_type varchar
+  depth_km double
+  severity varchar
+  confidence double
+  status record_status [not null, default: 'active']
+  supersedes_modality_event_id uuid
+  attributes jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    (hazard_id, start_time)
+    (evidence_domain, start_time)
+    status
+    geometry [type: gist]
+  }
+
+  checks {
+    `end_time is null or end_time >= start_time` [name: 'ck_modality_event_time']
+    `confidence is null or confidence between 0 and 1` [name: 'ck_modality_event_conf']
+    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_modality_event_srid']
+    `supersedes_modality_event_id is null or supersedes_modality_event_id <> modality_event_id` [name: 'ck_modality_event_self']
+    `location_uncertainty_km is null or location_uncertainty_km >= 0` [name: 'ck_modality_event_uncertainty']
+  }
+}
+
+Table modality_event_input {
+  modality_event_input_id uuid [pk]
+  modality_event_id uuid [not null]
+  observation_id uuid
+  derived_result_id uuid
+  input_role varchar [not null]
+  weight double
+  created_at timestamptz [not null]
+
+  indexes {
+    modality_event_id
+    observation_id
+    derived_result_id
+  }
+
+  checks {
+    `num_nonnulls(observation_id, derived_result_id) = 1` [name: 'ck_modality_input_one']
+    `weight is null or weight between 0 and 1` [name: 'ck_modality_input_weight']
+  }
+}
+
+
+// ============================================================================
+// 8. EVENT MATCHING
+// ============================================================================
+
+Table event_match {
+  event_match_id uuid [pk]
+  pipeline_run_id uuid [not null]
+  modality_event_a_id uuid [not null]
+  modality_event_b_id uuid [not null]
+  overall_score double [not null]
+  decision match_decision [not null]
+  method match_method [not null]
+  signals jsonb
+  created_at timestamptz [not null]
+
+  indexes {
+    (modality_event_a_id, modality_event_b_id, pipeline_run_id) [unique]
+    modality_event_b_id
+    decision
+  }
+
+  checks {
+    `modality_event_a_id <> modality_event_b_id` [name: 'ck_event_match_self']
+    `overall_score between 0 and 1` [name: 'ck_event_match_score']
+  }
+}
+
+
+// ============================================================================
+// 9. UNIFIED EVENTS
+// ============================================================================
+
+Table event {
+  event_id uuid [pk]
+  event_code varchar [not null, unique]
+  hazard_id uuid [not null]
+  name varchar
+  start_time timestamptz [not null]
+  end_time timestamptz
+  time_precision time_precision
+  centroid geometry
+  affected_area geometry
+  magnitude double
+  magnitude_type varchar
+  severity varchar
+  confidence double
+  confidence_method varchar
+  status event_status [not null]
+  verification verification_status [not null, default: 'unverified']
+  verification_notes text
+  description text
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (hazard_id, start_time)
+    status
+    centroid [type: gist]
+    affected_area [type: gist]
+  }
+
+  checks {
+    `end_time is null or end_time >= start_time` [name: 'ck_event_time']
+    `confidence is null or confidence between 0 and 1` [name: 'ck_event_conf']
+    `centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_event_centroid_srid']
+    `affected_area is null or ST_SRID(affected_area) = 4326` [name: 'ck_event_area_srid']
+  }
+}
+
+Table event_attribute_selection {
+  event_attribute_selection_id uuid [pk]
+  event_id uuid [not null]
+  attribute_name varchar [not null]
+  modality_event_id uuid [not null]
+  value jsonb [not null]
+  method varchar [not null]
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (event_id, attribute_name, created_at)
+    modality_event_id
+  }
+}
+
+Table event_member {
+  event_id uuid [not null]
+  modality_event_id uuid [not null]
+  membership_score double
+  is_primary boolean [not null, default: false]
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (event_id, modality_event_id) [pk]
+    modality_event_id
+  }
+
+  checks {
+    `membership_score is null or membership_score between 0 and 1` [name: 'ck_event_member_score']
+  }
+}
+
+Table event_evidence {
+  event_evidence_id uuid [pk]
+  event_id uuid [not null]
+  observation_id uuid
+  derived_result_id uuid
+  stance evidence_stance [not null, default: 'supports']
+  confidence double
+  is_primary boolean [not null, default: false]
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    event_id
+    observation_id
+    derived_result_id
+  }
+
+  checks {
+    `num_nonnulls(observation_id, derived_result_id) = 1` [name: 'ck_event_evidence_one']
+    `confidence is null or confidence between 0 and 1` [name: 'ck_event_evidence_conf']
+  }
+}
+
+Table event_region {
+  event_id uuid [not null]
+  admin_region_id uuid [not null]
+  relation region_relation
+  overlap_fraction double
+  is_primary boolean [not null, default: false]
+  method varchar [not null]
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (event_id, admin_region_id, relation) [pk]
+    admin_region_id
+  }
+
+  checks {
+    `overlap_fraction is null or overlap_fraction between 0 and 1` [name: 'ck_event_region_fraction']
+  }
+}
+
+Table event_impact {
+  event_impact_id uuid [pk]
+  event_id uuid [not null]
+  kind impact_kind [not null]
+  category varchar [not null]
+  origin impact_origin [not null]
+  metric_value double
+  unit varchar
+  admin_region_id uuid
+  geo_feature_id uuid
+  geometry geometry
+  confidence double
+  is_canonical boolean [not null, default: false]
+  method varchar
+  source_observation_id uuid
+  source_derived_result_id uuid
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (event_id, kind, category)
+    admin_region_id
+    geo_feature_id
+    geometry [type: gist]
+  }
+
+  checks {
+    `metric_value is not null or geometry is not null` [name: 'ck_event_impact_value']
+    `confidence is null or confidence between 0 and 1` [name: 'ck_event_impact_conf']
+    `geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_event_impact_srid']
+  }
+}
+
+
+// ============================================================================
+// 10. EVENT LINEAGE
+// ============================================================================
+
+Table event_lineage {
+  event_lineage_id uuid [pk]
+  from_event_id uuid [not null]
+  to_event_id uuid [not null]
+  relation event_lineage_type [not null]
+  reason text
+  pipeline_run_id uuid
+  created_at timestamptz [not null]
+
+  indexes {
+    (from_event_id, to_event_id, relation) [unique]
+    to_event_id
+  }
+
+  checks {
+    `from_event_id <> to_event_id` [name: 'ck_event_lineage_self']
+  }
+}
+
+
+// ============================================================================
+// 11. REAL-WORLD EVENT RELATIONSHIPS
+//
+// Different from event_lineage:
+//
+// event_lineage:
+//   How did our database representation change?
+//
+// event_relationship:
+//   How are two distinct real-world events related?
+//
+// Examples:
+//   Heavy Rainfall → triggered → Flood
+//   Flood → contributed_to → Landslide
+//   Flood → caused → Infrastructure Damage
+// ============================================================================
+
+Table event_relationship {
+  event_relationship_id uuid [pk]
+  parent_event_id uuid [not null]
+  child_event_id uuid [not null]
+  relationship_type event_relationship_type [not null]
+  confidence double
+  evidence jsonb
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (parent_event_id, child_event_id, relationship_type) [unique]
+    parent_event_id
+    child_event_id
+  }
+
+  checks {
+    `parent_event_id <> child_event_id` [name: 'ck_event_relationship_self']
+    `confidence is null or confidence between 0 and 1` [name: 'ck_event_relationship_conf']
+  }
+}
+
+
+// ============================================================================
+// 12. DISASTER EPISODES / EVENT GROUPS
+//
+// event = one unified real-world hazard event
+//
+// event_group = a larger disaster episode containing multiple distinct
+// related events.
+//
+// Example:
+//
+// Heavy Rainfall → Flood → Landslide → Infrastructure Damage
+//
+// These remain separate event records and are connected through the group
+// and event_relationship tables.
+// ============================================================================
+
+Table event_group {
+  event_group_id uuid [pk]
+  event_group_code varchar [not null, unique]
+  name varchar
+  description text
+  start_time timestamptz [not null]
+  end_time timestamptz
+  centroid geometry
+  affected_area geometry
+  severity varchar
+  confidence double
+  status varchar [not null, default: 'active']
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    start_time
+    status
+    centroid [type: gist]
+    affected_area [type: gist]
+  }
+
+  checks {
+    `end_time is null or end_time >= start_time` [name: 'ck_event_group_time']
+    `confidence is null or confidence between 0 and 1` [name: 'ck_event_group_conf']
+    `centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_event_group_centroid_srid']
+    `affected_area is null or ST_SRID(affected_area) = 4326` [name: 'ck_event_group_area_srid']
+  }
+}
+
+Table event_group_member {
+  event_group_id uuid [not null]
+  event_id uuid [not null]
+  role event_group_role [not null]
+  is_primary boolean [not null, default: false]
+  confidence double
+  pipeline_run_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (event_group_id, event_id) [pk]
+    event_id
+    role
+  }
+
+  checks {
+    `confidence is null or confidence between 0 and 1` [name: 'ck_event_group_member_conf']
+  }
+}
+
+
+// ============================================================================
+// 13. BENCHMARK / TRAINING DATASETS
+//
+// dataset_sample = prediction/evaluation unit
+//
+// dataset_sample_item = multimodal input evidence
+//
+// dataset_sample_event = event(s) represented by the sample
+//
+// This supports:
+//
+// single_event:
+//   one sample → one event
+//
+// multi_event:
+//   one sample → multiple related events
+//
+// cascading example:
+//   rainfall → flood → landslide
+// ============================================================================
+
+Table dataset_sample {
+  dataset_sample_id uuid [pk]
+  dataset_version_id uuid [not null]
+  external_sample_id varchar [not null]
+  sample_type sample_type [not null]
+  event_group_id uuid
+  split split_type [not null]
+  label jsonb
+  weight double
+  created_at timestamptz [not null]
+
+  indexes {
+    (dataset_version_id, external_sample_id) [unique]
+    (dataset_version_id, split)
+    event_group_id
+    sample_type
+  }
+
+  checks {
+    `weight is null or weight >= 0` [name: 'ck_sample_weight']
+  }
+}
+
+Table dataset_sample_item {
+  dataset_sample_item_id uuid [pk]
+  dataset_sample_id uuid [not null]
+  role varchar [not null]
+  observation_id uuid
+  media_id uuid
+  derived_result_id uuid
+  created_at timestamptz [not null]
+
+  indexes {
+    dataset_sample_id
+    observation_id
+    media_id
+    derived_result_id
+  }
+
+  checks {
+    `num_nonnulls(observation_id, media_id, derived_result_id) = 1` [name: 'ck_sample_item_one']
+  }
+}
+
+Table dataset_sample_event {
+  dataset_sample_event_id uuid [pk]
+  dataset_sample_id uuid [not null]
+  event_id uuid [not null]
+  role sample_event_role [not null]
+  is_primary boolean [not null, default: false]
+  relationship_to_primary event_relationship_type
+  confidence double
+  created_at timestamptz [not null]
+
+  indexes {
+    (dataset_sample_id, event_id) [unique]
+    dataset_sample_id
+    event_id
+    role
+  }
+
+  checks {
+    `confidence is null or confidence between 0 and 1` [name: 'ck_sample_event_conf']
+  }
+}
+
+
+// ============================================================================
+// RELATIONSHIPS
+// ============================================================================
+
+// SOURCE MANAGEMENT
+Ref: dataset.source_id > data_source.source_id
+Ref: dataset_version.dataset_id > dataset.dataset_id
+Ref: dataset_version.load_run_id > pipeline_run.pipeline_run_id
+
+// INGESTION
+Ref: collection.pipeline_run_id > pipeline_run.pipeline_run_id
+Ref: collection.source_id > data_source.source_id
+Ref: collection.dataset_id > dataset.dataset_id
+Ref: raw_object.collection_id > collection.collection_id
+Ref: raw_validation.raw_object_id > raw_object.raw_object_id
+Ref: ingest_rejection.pipeline_run_id > pipeline_run.pipeline_run_id
+Ref: ingest_rejection.raw_object_id > raw_object.raw_object_id
+
+// REFERENCE DATA
+Ref: hazard.parent_hazard_id > hazard.hazard_id
+Ref: admin_region.dataset_version_id > dataset_version.dataset_version_id
+Ref: admin_region.parent_region_id > admin_region.admin_region_id
+Ref: static_raster.dataset_version_id > dataset_version.dataset_version_id
+Ref: geo_feature.source_id > data_source.source_id
+
+// OBSERVATIONS
+Ref: observation.dataset_version_id > dataset_version.dataset_version_id
+Ref: observation.raw_object_id > raw_object.raw_object_id
+Ref: observation.hazard_id > hazard.hazard_id
+
+Ref: observation_region.observation_id > observation.observation_id
+Ref: observation_region.admin_region_id > admin_region.admin_region_id
+Ref: observation_region.derived_result_id > derived_result.derived_result_id
+Ref: observation_region.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: observation_relation.observation_id > observation.observation_id
+Ref: observation_relation.related_observation_id > observation.observation_id
+Ref: observation_relation.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: text_item.observation_id - observation.observation_id
+Ref: text_item.parent_observation_id > observation.observation_id
+
+Ref: raster_product.observation_id - observation.observation_id
+
+Ref: media.observation_id > observation.observation_id
+Ref: media.raw_object_id > raw_object.raw_object_id
+
+// DERIVED RESULTS
+Ref: model.training_dataset_version_id > dataset_version.dataset_version_id
+
+Ref: derived_result.observation_id > observation.observation_id
+Ref: derived_result.model_id > model.model_id
+Ref: derived_result.supersedes_result_id > derived_result.derived_result_id
+
+Ref: derived_result_input.derived_result_id > derived_result.derived_result_id
+Ref: derived_result_input.observation_id > observation.observation_id
+Ref: derived_result_input.media_id > media.media_id
+Ref: derived_result_input.static_raster_id > static_raster.static_raster_id
+Ref: derived_result_input.geo_feature_id > geo_feature.geo_feature_id
+Ref: derived_result_input.input_result_id > derived_result.derived_result_id
+Ref: derived_result_input.modality_event_id > modality_event.modality_event_id
+Ref: derived_result_input.event_id > event.event_id
+
+// SOURCE QUALITY / SCORING
+Ref: source_score.source_id > data_source.source_id
+Ref: source_score.hazard_id > hazard.hazard_id
+
+// MODALITY EVENTS
+Ref: modality_event.hazard_id > hazard.hazard_id
+Ref: modality_event.pipeline_run_id > pipeline_run.pipeline_run_id
+Ref: modality_event.supersedes_modality_event_id > modality_event.modality_event_id
+
+Ref: modality_event_input.modality_event_id > modality_event.modality_event_id
+Ref: modality_event_input.observation_id > observation.observation_id
+Ref: modality_event_input.derived_result_id > derived_result.derived_result_id
+
+// EVENT MATCHING
+Ref: event_match.pipeline_run_id > pipeline_run.pipeline_run_id
+Ref: event_match.modality_event_a_id > modality_event.modality_event_id
+Ref: event_match.modality_event_b_id > modality_event.modality_event_id
+
+// UNIFIED EVENTS
+Ref: event.hazard_id > hazard.hazard_id
+Ref: event.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: event_attribute_selection.event_id > event.event_id
+Ref: event_attribute_selection.modality_event_id > modality_event.modality_event_id
+Ref: event_attribute_selection.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: event_member.event_id > event.event_id
+Ref: event_member.modality_event_id > modality_event.modality_event_id
+Ref: event_member.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: event_evidence.event_id > event.event_id
+Ref: event_evidence.observation_id > observation.observation_id
+Ref: event_evidence.derived_result_id > derived_result.derived_result_id
+Ref: event_evidence.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: event_region.event_id > event.event_id
+Ref: event_region.admin_region_id > admin_region.admin_region_id
+Ref: event_region.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: event_impact.event_id > event.event_id
+Ref: event_impact.admin_region_id > admin_region.admin_region_id
+Ref: event_impact.geo_feature_id > geo_feature.geo_feature_id
+Ref: event_impact.source_observation_id > observation.observation_id
+Ref: event_impact.source_derived_result_id > derived_result.derived_result_id
+Ref: event_impact.pipeline_run_id > pipeline_run.pipeline_run_id
+
+// EVENT LINEAGE
+Ref: event_lineage.from_event_id > event.event_id
+Ref: event_lineage.to_event_id > event.event_id
+Ref: event_lineage.pipeline_run_id > pipeline_run.pipeline_run_id
+
+// REAL-WORLD EVENT RELATIONSHIPS
+Ref: event_relationship.parent_event_id > event.event_id
+Ref: event_relationship.child_event_id > event.event_id
+Ref: event_relationship.pipeline_run_id > pipeline_run.pipeline_run_id
+
+// EVENT GROUPS
+Ref: event_group.pipeline_run_id > pipeline_run.pipeline_run_id
+
+Ref: event_group_member.event_group_id > event_group.event_group_id
+Ref: event_group_member.event_id > event.event_id
+Ref: event_group_member.pipeline_run_id > pipeline_run.pipeline_run_id
+
+// BENCHMARK DATASETS
+Ref: dataset_sample.dataset_version_id > dataset_version.dataset_version_id
+Ref: dataset_sample.event_group_id > event_group.event_group_id
+
+Ref: dataset_sample_item.dataset_sample_id > dataset_sample.dataset_sample_id
+Ref: dataset_sample_item.observation_id > observation.observation_id
+Ref: dataset_sample_item.media_id > media.media_id
+Ref: dataset_sample_item.derived_result_id > derived_result.derived_result_id
+
+Ref: dataset_sample_event.dataset_sample_id > dataset_sample.dataset_sample_id
+Ref: dataset_sample_event.event_id > event.event_id
+
+
+// ============================================================================
+// TABLE GROUPS
+// ============================================================================
+
+TableGroup "1. Source Management" {
+  data_source
+  dataset
+  dataset_version
+}
+
+TableGroup "2. Ingestion & Provenance" {
+  pipeline_run
+  collection
+  raw_object
+  raw_validation
+  ingest_rejection
+}
+
+TableGroup "3. Reference Data" {
+  hazard
+  admin_region
+  static_raster
+  geo_feature
+}
+
+TableGroup "4. Canonical Source Data" {
+  observation
+  observation_region
+  observation_relation
+  text_item
+  raster_product
+  media
+}
+
+TableGroup "5. Enrichment & Derived Results" {
+  model
+  derived_result
+  derived_result_input
+}
+
+TableGroup "6. Source Quality / Scoring" {
+  source_score
+}
+
+TableGroup "7. Event Intelligence" {
+  modality_event
+  modality_event_input
+  event_match
+  event
+  event_attribute_selection
+  event_member
+  event_evidence
+  event_region
+  event_impact
+  event_lineage
+  event_relationship
+  event_group
+  event_group_member
+}
+
+TableGroup "8. Benchmark Datasets" {
+  dataset_sample
+  dataset_sample_item
+  dataset_sample_event
+}

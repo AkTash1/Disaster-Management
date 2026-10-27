@@ -1,0 +1,4762 @@
+{
+  "enums": {
+    "dataset_kind": [
+      "feed",
+      "static_reference",
+      "benchmark"
+    ],
+    "source_type": [
+      "api",
+      "rss",
+      "catalogue",
+      "file",
+      "social_media",
+      "satellite",
+      "official_report",
+      "research_dataset",
+      "other"
+    ],
+    "modality": [
+      "text",
+      "image",
+      "video",
+      "raster",
+      "tabular"
+    ],
+    "pipeline_stage": [
+      "collection",
+      "validation",
+      "normalization",
+      "deduplication",
+      "enrichment",
+      "inference",
+      "event_detection",
+      "matching",
+      "fusion",
+      "impact_estimation",
+      "training",
+      "evaluation"
+    ],
+    "run_type": [
+      "scheduled",
+      "manual",
+      "retry",
+      "backfill",
+      "reprocess"
+    ],
+    "run_status": [
+      "queued",
+      "running",
+      "completed",
+      "failed",
+      "cancelled"
+    ],
+    "collection_status": [
+      "success",
+      "unchanged",
+      "partial",
+      "failed"
+    ],
+    "validation_status": [
+      "pending",
+      "passed",
+      "warning",
+      "failed"
+    ],
+    "record_status": [
+      "active",
+      "superseded",
+      "retracted",
+      "rejected"
+    ],
+    "time_precision": [
+      "second",
+      "minute",
+      "hour",
+      "day",
+      "month",
+      "year",
+      "approximate"
+    ],
+    "result_origin": [
+      "model",
+      "rule",
+      "spatial_analysis",
+      "human"
+    ],
+    "observation_relation_type": [
+      "duplicate_of",
+      "supersedes",
+      "corrects",
+      "retracts",
+      "reparsed_from",
+      "corroborates"
+    ],
+    "region_relation": [
+      "contains_point",
+      "intersects",
+      "mentioned"
+    ],
+    "match_method": [
+      "spatial",
+      "temporal",
+      "semantic",
+      "rule_based",
+      "machine_learning",
+      "manual"
+    ],
+    "match_decision": [
+      "same_event",
+      "different_event",
+      "uncertain"
+    ],
+    "event_origin": [
+      "source_reported",
+      "platform_detected"
+    ],
+    "event_status": [
+      "candidate",
+      "detected",
+      "verified",
+      "published",
+      "rejected",
+      "superseded",
+      "merged"
+    ],
+    "verification_status": [
+      "unverified",
+      "partial",
+      "verified",
+      "rejected"
+    ],
+    "evidence_stance": [
+      "supports",
+      "contradicts",
+      "context"
+    ],
+    "event_lineage_type": [
+      "superseded_by",
+      "merged_into",
+      "split_into"
+    ],
+    "event_relationship_type": [
+      "triggered",
+      "caused",
+      "contributed_to",
+      "associated_with",
+      "concurrent_with",
+      "escalated_to",
+      "part_of"
+    ],
+    "impact_kind": [
+      "casualty",
+      "displacement",
+      "damage",
+      "affected_population",
+      "affected_area",
+      "need"
+    ],
+    "impact_origin": [
+      "reported",
+      "extracted",
+      "detected",
+      "estimated"
+    ],
+    "split_type": [
+      "train",
+      "validation",
+      "test"
+    ],
+    "score_kind": [
+      "relevance",
+      "reliability",
+      "authority",
+      "freshness"
+    ],
+    "event_group_role": [
+      "primary",
+      "trigger",
+      "related",
+      "impact",
+      "precursor",
+      "consequence",
+      "context"
+    ],
+    "sample_type": [
+      "single_event",
+      "multi_event",
+      "prediction",
+      "event_classification",
+      "severity_prediction",
+      "event_relation_prediction",
+      "event_matching"
+    ],
+    "sample_event_role": [
+      "primary",
+      "trigger",
+      "related",
+      "impact",
+      "precursor",
+      "consequence",
+      "context"
+    ]
+  },
+  "table_groups": {
+    "1. Source Management": [
+      "data_source",
+      "dataset",
+      "dataset_version"
+    ],
+    "6. Source Quality / Scoring": [
+      "source_score"
+    ],
+    "4. Canonical Source Data": [
+      "observation",
+      "observation_region",
+      "observation_relation",
+      "text_item",
+      "raster_product",
+      "media"
+    ],
+    "7. Event Intelligence": [
+      "modality_event",
+      "modality_event_input",
+      "event_match",
+      "event",
+      "event_attribute_selection",
+      "event_member",
+      "event_evidence",
+      "event_region",
+      "event_impact",
+      "event_lineage",
+      "event_relationship",
+      "event_group",
+      "event_group_member"
+    ],
+    "2. Ingestion & Provenance": [
+      "pipeline_run",
+      "collection",
+      "raw_object",
+      "raw_validation",
+      "ingest_rejection"
+    ],
+    "5. Enrichment & Derived Results": [
+      "model",
+      "derived_result",
+      "derived_result_input"
+    ],
+    "3. Reference Data": [
+      "hazard",
+      "admin_region",
+      "static_raster",
+      "geo_feature"
+    ],
+    "8. Benchmark Datasets": [
+      "dataset_sample",
+      "dataset_sample_item",
+      "dataset_sample_event"
+    ]
+  },
+  "tables": {
+    "data_source": {
+      "columns": [
+        {
+          "name": "source_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_code",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": true,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_type",
+          "type": "source_type",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "provider",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "base_url",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "license",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "config",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "true"
+        },
+        {
+          "name": "last_success_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "last_failure_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [],
+      "checks": [],
+      "group": "1. Source Management"
+    },
+    "dataset": {
+      "columns": [
+        {
+          "name": "dataset_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_code",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": true,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "kind",
+          "type": "dataset_kind",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality",
+          "type": "modality",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "task",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "true"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "source_id",
+        "kind"
+      ],
+      "checks": [],
+      "group": "1. Source Management"
+    },
+    "dataset_version": {
+      "columns": [
+        {
+          "name": "dataset_version_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "released_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "valid_from",
+          "type": "date",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "valid_to",
+          "type": "date",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "sample_count",
+          "type": "bigint",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "load_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(dataset_id, version) [unique]",
+        "load_run_id"
+      ],
+      "checks": [
+        "`valid_to is null or valid_from is null or valid_to >= valid_from` [name: 'ck_dsv_dates']"
+      ],
+      "group": "1. Source Management"
+    },
+    "pipeline_run": {
+      "columns": [
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_version",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "stage",
+          "type": "pipeline_stage",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "run_type",
+          "type": "run_type",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "run_status",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "started_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "records_read",
+          "type": "bigint",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "records_written",
+          "type": "bigint",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "records_rejected",
+          "type": "bigint",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "config",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "config_hash",
+          "type": "char(64)",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "error_message",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(pipeline_name, started_at)",
+        "(stage, started_at)",
+        "status"
+      ],
+      "checks": [
+        "`completed_at is null or completed_at >= started_at` [name: 'ck_run_time']",
+        "`records_read is null or records_read >= 0` [name: 'ck_run_read']",
+        "`records_written is null or records_written >= 0` [name: 'ck_run_written']",
+        "`records_rejected is null or records_rejected >= 0` [name: 'ck_run_rejected']"
+      ],
+      "group": "2. Ingestion & Provenance"
+    },
+    "collection": {
+      "columns": [
+        {
+          "name": "collection_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "method",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "request_uri",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "http_status",
+          "type": "int",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "started_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "records_received",
+          "type": "bigint",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "collection_status",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "error_message",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(source_id, started_at)",
+        "(dataset_id, started_at)",
+        "pipeline_run_id"
+      ],
+      "checks": [
+        "`completed_at is null or completed_at >= started_at` [name: 'ck_collection_time']",
+        "`records_received is null or records_received >= 0` [name: 'ck_collection_records']"
+      ],
+      "group": "2. Ingestion & Provenance"
+    },
+    "raw_object": {
+      "columns": [
+        {
+          "name": "raw_object_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "collection_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "storage_uri",
+          "type": "text",
+          "pk": false,
+          "not_null": true,
+          "unique": true,
+          "default": null
+        },
+        {
+          "name": "content_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "size_bytes",
+          "type": "bigint",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "sha256",
+          "type": "char(64)",
+          "pk": false,
+          "not_null": true,
+          "unique": true,
+          "default": null
+        },
+        {
+          "name": "captured_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "collection_id"
+      ],
+      "checks": [
+        "`size_bytes >= 0` [name: 'ck_raw_size']"
+      ],
+      "group": "2. Ingestion & Provenance"
+    },
+    "raw_validation": {
+      "columns": [
+        {
+          "name": "raw_validation_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "raw_object_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "validation_status",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "schema_valid",
+          "type": "boolean",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "checksum_valid",
+          "type": "boolean",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "content_valid",
+          "type": "boolean",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "validation_errors",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "validator_version",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "validated_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "raw_object_id",
+        "(raw_object_id, validator_version)"
+      ],
+      "checks": [],
+      "group": "2. Ingestion & Provenance"
+    },
+    "ingest_rejection": {
+      "columns": [
+        {
+          "name": "ingest_rejection_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "raw_object_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "record_identifier",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "stage",
+          "type": "pipeline_stage",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "rejection_code",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "details",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "pipeline_run_id",
+        "raw_object_id",
+        "rejection_code"
+      ],
+      "checks": [],
+      "group": "2. Ingestion & Provenance"
+    },
+    "hazard": {
+      "columns": [
+        {
+          "name": "hazard_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "code",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": true,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "category",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "parent_hazard_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "true"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "parent_hazard_id"
+      ],
+      "checks": [
+        "`parent_hazard_id is null or parent_hazard_id <> hazard_id` [name: 'ck_hazard_self']"
+      ],
+      "group": "3. Reference Data"
+    },
+    "admin_region": {
+      "columns": [
+        {
+          "name": "admin_region_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_version_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "region_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "region_code",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "parent_region_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geometry",
+          "type": "geometry",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "centroid",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "properties",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(dataset_version_id, region_code) [unique]",
+        "parent_region_id",
+        "region_type",
+        "geometry [type: gist]",
+        "centroid [type: gist]"
+      ],
+      "checks": [
+        "`ST_SRID(geometry) = 4326` [name: 'ck_region_srid']",
+        "`ST_IsValid(geometry)` [name: 'ck_region_valid']",
+        "`centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_region_centroid_srid']"
+      ],
+      "group": "3. Reference Data"
+    },
+    "static_raster": {
+      "columns": [
+        {
+          "name": "static_raster_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_version_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "raster_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "storage_uri",
+          "type": "text",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "crs",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "resolution",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "width",
+          "type": "bigint",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "height",
+          "type": "bigint",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "bounds",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "nodata_value",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "dataset_version_id",
+        "raster_type"
+      ],
+      "checks": [],
+      "group": "3. Reference Data"
+    },
+    "geo_feature": {
+      "columns": [
+        {
+          "name": "geo_feature_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "feature_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "external_id",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geometry",
+          "type": "geometry",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "properties",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "source_id",
+        "(source_id, external_id)",
+        "feature_type",
+        "geometry [type: gist]"
+      ],
+      "checks": [
+        "`ST_SRID(geometry) = 4326` [name: 'ck_geo_feature_srid']"
+      ],
+      "group": "3. Reference Data"
+    },
+    "observation": {
+      "columns": [
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_version_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "raw_object_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_record_id",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "hazard_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observed_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observed_start",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observed_end",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "published_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "time_precision",
+          "type": "time_precision",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "latitude",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "longitude",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geometry",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "location_uncertainty_km",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality",
+          "type": "modality",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "value",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "quality_status",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "quality_score",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "language",
+          "type": "varchar(10)",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_updated_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_revision",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "record_hash",
+          "type": "char(64)",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "record_status",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "'active'"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(dataset_version_id, source_record_id)",
+        "(observation_type, observed_start)",
+        "status",
+        "record_hash",
+        "observed_start",
+        "geometry [type: gist]",
+        "created_at [type: brin]"
+      ],
+      "checks": [
+        "`observed_end is null or observed_start is null or observed_end >= observed_start` [name: 'ck_obs_time']",
+        "`quality_score is null or quality_score between 0 and 1` [name: 'ck_obs_quality']",
+        "`location_uncertainty_km is null or location_uncertainty_km >= 0` [name: 'ck_obs_uncertainty']",
+        "`geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_obs_srid']"
+      ],
+      "group": "4. Canonical Source Data"
+    },
+    "observation_region": {
+      "columns": [
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "admin_region_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "relation",
+          "type": "region_relation",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "method",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "derived_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(observation_id, admin_region_id, relation) [pk]",
+        "admin_region_id"
+      ],
+      "checks": [
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_obs_region_conf']"
+      ],
+      "group": "4. Canonical Source Data"
+    },
+    "observation_relation": {
+      "columns": [
+        {
+          "name": "relation_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "related_observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "relation_type",
+          "type": "observation_relation_type",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "method",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "score",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(observation_id, related_observation_id, relation_type) [unique]",
+        "related_observation_id"
+      ],
+      "checks": [
+        "`observation_id <> related_observation_id` [name: 'ck_obs_relation_self']",
+        "`score is null or score between 0 and 1` [name: 'ck_obs_relation_score']"
+      ],
+      "group": "4. Canonical Source Data"
+    },
+    "text_item": {
+      "columns": [
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "text_kind",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "body",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "content_hash",
+          "type": "char(64)",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "url",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "author",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "publisher",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "platform",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "parent_observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_official",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "engagement",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "entities_raw",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "content_hash",
+        "(platform, publisher)"
+      ],
+      "checks": [],
+      "group": "4. Canonical Source Data"
+    },
+    "raster_product": {
+      "columns": [
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "platform",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "sensor",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "product_id",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "processing_level",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "acquisition_start",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "acquisition_end",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "resolution_m",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "crs",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "cloud_cover_pct",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "polarization",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "orbit_pass",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "variables",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "bands",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_pre_event",
+          "type": "boolean",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "storage_uri",
+          "type": "text",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(platform, acquisition_start)",
+        "product_id"
+      ],
+      "checks": [
+        "`cloud_cover_pct is null or cloud_cover_pct between 0 and 100` [name: 'ck_raster_cloud']",
+        "`acquisition_end is null or acquisition_start is null or acquisition_end >= acquisition_start` [name: 'ck_raster_time']"
+      ],
+      "group": "4. Canonical Source Data"
+    },
+    "media": {
+      "columns": [
+        {
+          "name": "media_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "media_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "raw_object_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "raw_locator",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "'$'"
+        },
+        {
+          "name": "perceptual_hash",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "duration_sec",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geometry",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "captured_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "observation_id",
+        "raw_object_id",
+        "perceptual_hash",
+        "geometry [type: gist]"
+      ],
+      "checks": [
+        "`source_url is not null or raw_object_id is not null` [name: 'ck_media_locatable']",
+        "`geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_media_srid']"
+      ],
+      "group": "4. Canonical Source Data"
+    },
+    "model": {
+      "columns": [
+        {
+          "name": "model_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "task",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "framework",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "architecture",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "model_uri",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "training_dataset_version_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "config",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "true"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(name, version) [unique]",
+        "task"
+      ],
+      "checks": [],
+      "group": "5. Enrichment & Derived Results"
+    },
+    "derived_result": {
+      "columns": [
+        {
+          "name": "derived_result_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "model_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "result_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "result",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "output_uri",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "supersedes_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "observation_id",
+        "model_id",
+        "result_type",
+        "supersedes_result_id",
+        "created_at"
+      ],
+      "checks": [
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_derived_conf']",
+        "`supersedes_result_id is null or supersedes_result_id <> derived_result_id` [name: 'ck_derived_self']"
+      ],
+      "group": "5. Enrichment & Derived Results"
+    },
+    "derived_result_input": {
+      "columns": [
+        {
+          "name": "derived_result_input_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "derived_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "media_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "static_raster_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geo_feature_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "input_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "input_role",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "derived_result_id",
+        "observation_id",
+        "media_id",
+        "static_raster_id",
+        "geo_feature_id",
+        "input_result_id",
+        "modality_event_id",
+        "event_id"
+      ],
+      "checks": [
+        "`num_nonnulls(observation_id, media_id, static_raster_id, geo_feature_id, input_result_id, modality_event_id, event_id) = 1` [name: 'ck_derived_input_one']"
+      ],
+      "group": "5. Enrichment & Derived Results"
+    },
+    "source_score": {
+      "columns": [
+        {
+          "name": "source_score_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "hazard_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "task",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "score_type",
+          "type": "score_kind",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "score",
+          "type": "double",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "methodology",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "methodology_version",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "evidence",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "valid_from",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "valid_to",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(source_id, hazard_id, task, score_type)",
+        "source_id",
+        "hazard_id",
+        "task"
+      ],
+      "checks": [
+        "`score between 0 and 1` [name: 'ck_source_score']",
+        "`valid_to is null or valid_to > valid_from` [name: 'ck_source_score_dates']"
+      ],
+      "group": "6. Source Quality / Scoring"
+    },
+    "modality_event": {
+      "columns": [
+        {
+          "name": "modality_event_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "origin",
+          "type": "event_origin",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "evidence_domain",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "hazard_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "start_time",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "end_time",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "time_precision",
+          "type": "time_precision",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "published_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geometry",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "location_uncertainty_km",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "magnitude",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "magnitude_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "depth_km",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "severity",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "record_status",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "'active'"
+        },
+        {
+          "name": "supersedes_modality_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "attributes",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(hazard_id, start_time)",
+        "(evidence_domain, start_time)",
+        "status",
+        "geometry [type: gist]"
+      ],
+      "checks": [
+        "`end_time is null or end_time >= start_time` [name: 'ck_modality_event_time']",
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_modality_event_conf']",
+        "`geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_modality_event_srid']",
+        "`supersedes_modality_event_id is null or supersedes_modality_event_id <> modality_event_id` [name: 'ck_modality_event_self']",
+        "`location_uncertainty_km is null or location_uncertainty_km >= 0` [name: 'ck_modality_event_uncertainty']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "modality_event_input": {
+      "columns": [
+        {
+          "name": "modality_event_input_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "derived_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "input_role",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "weight",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "modality_event_id",
+        "observation_id",
+        "derived_result_id"
+      ],
+      "checks": [
+        "`num_nonnulls(observation_id, derived_result_id) = 1` [name: 'ck_modality_input_one']",
+        "`weight is null or weight between 0 and 1` [name: 'ck_modality_input_weight']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_match": {
+      "columns": [
+        {
+          "name": "event_match_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality_event_a_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality_event_b_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "overall_score",
+          "type": "double",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "decision",
+          "type": "match_decision",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "method",
+          "type": "match_method",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "signals",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(modality_event_a_id, modality_event_b_id, pipeline_run_id) [unique]",
+        "modality_event_b_id",
+        "decision"
+      ],
+      "checks": [
+        "`modality_event_a_id <> modality_event_b_id` [name: 'ck_event_match_self']",
+        "`overall_score between 0 and 1` [name: 'ck_event_match_score']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event": {
+      "columns": [
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_code",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": true,
+          "default": null
+        },
+        {
+          "name": "hazard_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "start_time",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "end_time",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "time_precision",
+          "type": "time_precision",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "centroid",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "affected_area",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "magnitude",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "magnitude_type",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "severity",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence_method",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "event_status",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "verification",
+          "type": "verification_status",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "'unverified'"
+        },
+        {
+          "name": "verification_notes",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(hazard_id, start_time)",
+        "status",
+        "centroid [type: gist]",
+        "affected_area [type: gist]"
+      ],
+      "checks": [
+        "`end_time is null or end_time >= start_time` [name: 'ck_event_time']",
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_event_conf']",
+        "`centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_event_centroid_srid']",
+        "`affected_area is null or ST_SRID(affected_area) = 4326` [name: 'ck_event_area_srid']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_attribute_selection": {
+      "columns": [
+        {
+          "name": "event_attribute_selection_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "attribute_name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "value",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "method",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(event_id, attribute_name, created_at)",
+        "modality_event_id"
+      ],
+      "checks": [],
+      "group": "7. Event Intelligence"
+    },
+    "event_member": {
+      "columns": [
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "modality_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "membership_score",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(event_id, modality_event_id) [pk]",
+        "modality_event_id"
+      ],
+      "checks": [
+        "`membership_score is null or membership_score between 0 and 1` [name: 'ck_event_member_score']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_evidence": {
+      "columns": [
+        {
+          "name": "event_evidence_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "derived_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "stance",
+          "type": "evidence_stance",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "'supports'"
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "event_id",
+        "observation_id",
+        "derived_result_id"
+      ],
+      "checks": [
+        "`num_nonnulls(observation_id, derived_result_id) = 1` [name: 'ck_event_evidence_one']",
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_event_evidence_conf']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_region": {
+      "columns": [
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "admin_region_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "relation",
+          "type": "region_relation",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "overlap_fraction",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "method",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(event_id, admin_region_id, relation) [pk]",
+        "admin_region_id"
+      ],
+      "checks": [
+        "`overlap_fraction is null or overlap_fraction between 0 and 1` [name: 'ck_event_region_fraction']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_impact": {
+      "columns": [
+        {
+          "name": "event_impact_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "kind",
+          "type": "impact_kind",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "category",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "origin",
+          "type": "impact_origin",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "metric_value",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "unit",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "admin_region_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geo_feature_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "geometry",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_canonical",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "method",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "source_derived_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(event_id, kind, category)",
+        "admin_region_id",
+        "geo_feature_id",
+        "geometry [type: gist]"
+      ],
+      "checks": [
+        "`metric_value is not null or geometry is not null` [name: 'ck_event_impact_value']",
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_event_impact_conf']",
+        "`geometry is null or ST_SRID(geometry) = 4326` [name: 'ck_event_impact_srid']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_lineage": {
+      "columns": [
+        {
+          "name": "event_lineage_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "from_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "to_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "relation",
+          "type": "event_lineage_type",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(from_event_id, to_event_id, relation) [unique]",
+        "to_event_id"
+      ],
+      "checks": [
+        "`from_event_id <> to_event_id` [name: 'ck_event_lineage_self']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_relationship": {
+      "columns": [
+        {
+          "name": "event_relationship_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "parent_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "child_event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "relationship_type",
+          "type": "event_relationship_type",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "evidence",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(parent_event_id, child_event_id, relationship_type) [unique]",
+        "parent_event_id",
+        "child_event_id"
+      ],
+      "checks": [
+        "`parent_event_id <> child_event_id` [name: 'ck_event_relationship_self']",
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_event_relationship_conf']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_group": {
+      "columns": [
+        {
+          "name": "event_group_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_group_code",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": true,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "start_time",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "end_time",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "centroid",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "affected_area",
+          "type": "geometry",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "severity",
+          "type": "varchar",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "'active'"
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "start_time",
+        "status",
+        "centroid [type: gist]",
+        "affected_area [type: gist]"
+      ],
+      "checks": [
+        "`end_time is null or end_time >= start_time` [name: 'ck_event_group_time']",
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_event_group_conf']",
+        "`centroid is null or ST_SRID(centroid) = 4326` [name: 'ck_event_group_centroid_srid']",
+        "`affected_area is null or ST_SRID(affected_area) = 4326` [name: 'ck_event_group_area_srid']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "event_group_member": {
+      "columns": [
+        {
+          "name": "event_group_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "role",
+          "type": "event_group_role",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "pipeline_run_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(event_group_id, event_id) [pk]",
+        "event_id",
+        "role"
+      ],
+      "checks": [
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_event_group_member_conf']"
+      ],
+      "group": "7. Event Intelligence"
+    },
+    "dataset_sample": {
+      "columns": [
+        {
+          "name": "dataset_sample_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_version_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "external_sample_id",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "sample_type",
+          "type": "sample_type",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_group_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "split",
+          "type": "split_type",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "label",
+          "type": "jsonb",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "weight",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(dataset_version_id, external_sample_id) [unique]",
+        "(dataset_version_id, split)",
+        "event_group_id",
+        "sample_type"
+      ],
+      "checks": [
+        "`weight is null or weight >= 0` [name: 'ck_sample_weight']"
+      ],
+      "group": "8. Benchmark Datasets"
+    },
+    "dataset_sample_item": {
+      "columns": [
+        {
+          "name": "dataset_sample_item_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_sample_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "role",
+          "type": "varchar",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "observation_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "media_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "derived_result_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "dataset_sample_id",
+        "observation_id",
+        "media_id",
+        "derived_result_id"
+      ],
+      "checks": [
+        "`num_nonnulls(observation_id, media_id, derived_result_id) = 1` [name: 'ck_sample_item_one']"
+      ],
+      "group": "8. Benchmark Datasets"
+    },
+    "dataset_sample_event": {
+      "columns": [
+        {
+          "name": "dataset_sample_event_id",
+          "type": "uuid",
+          "pk": true,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "dataset_sample_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "role",
+          "type": "sample_event_role",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": "false"
+        },
+        {
+          "name": "relationship_to_primary",
+          "type": "event_relationship_type",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "confidence",
+          "type": "double",
+          "pk": false,
+          "not_null": false,
+          "unique": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "pk": false,
+          "not_null": true,
+          "unique": false,
+          "default": null
+        }
+      ],
+      "indexes": [
+        "(dataset_sample_id, event_id) [unique]",
+        "dataset_sample_id",
+        "event_id",
+        "role"
+      ],
+      "checks": [
+        "`confidence is null or confidence between 0 and 1` [name: 'ck_sample_event_conf']"
+      ],
+      "group": "8. Benchmark Datasets"
+    }
+  },
+  "refs": [
+    {
+      "from_table": "dataset",
+      "from_col": "source_id",
+      "rel": ">",
+      "to_table": "data_source",
+      "to_col": "source_id"
+    },
+    {
+      "from_table": "dataset_version",
+      "from_col": "dataset_id",
+      "rel": ">",
+      "to_table": "dataset",
+      "to_col": "dataset_id"
+    },
+    {
+      "from_table": "dataset_version",
+      "from_col": "load_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "collection",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "collection",
+      "from_col": "source_id",
+      "rel": ">",
+      "to_table": "data_source",
+      "to_col": "source_id"
+    },
+    {
+      "from_table": "collection",
+      "from_col": "dataset_id",
+      "rel": ">",
+      "to_table": "dataset",
+      "to_col": "dataset_id"
+    },
+    {
+      "from_table": "raw_object",
+      "from_col": "collection_id",
+      "rel": ">",
+      "to_table": "collection",
+      "to_col": "collection_id"
+    },
+    {
+      "from_table": "raw_validation",
+      "from_col": "raw_object_id",
+      "rel": ">",
+      "to_table": "raw_object",
+      "to_col": "raw_object_id"
+    },
+    {
+      "from_table": "ingest_rejection",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "ingest_rejection",
+      "from_col": "raw_object_id",
+      "rel": ">",
+      "to_table": "raw_object",
+      "to_col": "raw_object_id"
+    },
+    {
+      "from_table": "hazard",
+      "from_col": "parent_hazard_id",
+      "rel": ">",
+      "to_table": "hazard",
+      "to_col": "hazard_id"
+    },
+    {
+      "from_table": "admin_region",
+      "from_col": "dataset_version_id",
+      "rel": ">",
+      "to_table": "dataset_version",
+      "to_col": "dataset_version_id"
+    },
+    {
+      "from_table": "admin_region",
+      "from_col": "parent_region_id",
+      "rel": ">",
+      "to_table": "admin_region",
+      "to_col": "admin_region_id"
+    },
+    {
+      "from_table": "static_raster",
+      "from_col": "dataset_version_id",
+      "rel": ">",
+      "to_table": "dataset_version",
+      "to_col": "dataset_version_id"
+    },
+    {
+      "from_table": "geo_feature",
+      "from_col": "source_id",
+      "rel": ">",
+      "to_table": "data_source",
+      "to_col": "source_id"
+    },
+    {
+      "from_table": "observation",
+      "from_col": "dataset_version_id",
+      "rel": ">",
+      "to_table": "dataset_version",
+      "to_col": "dataset_version_id"
+    },
+    {
+      "from_table": "observation",
+      "from_col": "raw_object_id",
+      "rel": ">",
+      "to_table": "raw_object",
+      "to_col": "raw_object_id"
+    },
+    {
+      "from_table": "observation",
+      "from_col": "hazard_id",
+      "rel": ">",
+      "to_table": "hazard",
+      "to_col": "hazard_id"
+    },
+    {
+      "from_table": "observation_region",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "observation_region",
+      "from_col": "admin_region_id",
+      "rel": ">",
+      "to_table": "admin_region",
+      "to_col": "admin_region_id"
+    },
+    {
+      "from_table": "observation_region",
+      "from_col": "derived_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "observation_region",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "observation_relation",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "observation_relation",
+      "from_col": "related_observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "observation_relation",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "text_item",
+      "from_col": "observation_id",
+      "rel": "-",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "text_item",
+      "from_col": "parent_observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "raster_product",
+      "from_col": "observation_id",
+      "rel": "-",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "media",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "media",
+      "from_col": "raw_object_id",
+      "rel": ">",
+      "to_table": "raw_object",
+      "to_col": "raw_object_id"
+    },
+    {
+      "from_table": "model",
+      "from_col": "training_dataset_version_id",
+      "rel": ">",
+      "to_table": "dataset_version",
+      "to_col": "dataset_version_id"
+    },
+    {
+      "from_table": "derived_result",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "derived_result",
+      "from_col": "model_id",
+      "rel": ">",
+      "to_table": "model",
+      "to_col": "model_id"
+    },
+    {
+      "from_table": "derived_result",
+      "from_col": "supersedes_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "derived_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "media_id",
+      "rel": ">",
+      "to_table": "media",
+      "to_col": "media_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "static_raster_id",
+      "rel": ">",
+      "to_table": "static_raster",
+      "to_col": "static_raster_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "geo_feature_id",
+      "rel": ">",
+      "to_table": "geo_feature",
+      "to_col": "geo_feature_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "input_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "modality_event_id",
+      "rel": ">",
+      "to_table": "modality_event",
+      "to_col": "modality_event_id"
+    },
+    {
+      "from_table": "derived_result_input",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "source_score",
+      "from_col": "source_id",
+      "rel": ">",
+      "to_table": "data_source",
+      "to_col": "source_id"
+    },
+    {
+      "from_table": "source_score",
+      "from_col": "hazard_id",
+      "rel": ">",
+      "to_table": "hazard",
+      "to_col": "hazard_id"
+    },
+    {
+      "from_table": "modality_event",
+      "from_col": "hazard_id",
+      "rel": ">",
+      "to_table": "hazard",
+      "to_col": "hazard_id"
+    },
+    {
+      "from_table": "modality_event",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "modality_event",
+      "from_col": "supersedes_modality_event_id",
+      "rel": ">",
+      "to_table": "modality_event",
+      "to_col": "modality_event_id"
+    },
+    {
+      "from_table": "modality_event_input",
+      "from_col": "modality_event_id",
+      "rel": ">",
+      "to_table": "modality_event",
+      "to_col": "modality_event_id"
+    },
+    {
+      "from_table": "modality_event_input",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "modality_event_input",
+      "from_col": "derived_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "event_match",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_match",
+      "from_col": "modality_event_a_id",
+      "rel": ">",
+      "to_table": "modality_event",
+      "to_col": "modality_event_id"
+    },
+    {
+      "from_table": "event_match",
+      "from_col": "modality_event_b_id",
+      "rel": ">",
+      "to_table": "modality_event",
+      "to_col": "modality_event_id"
+    },
+    {
+      "from_table": "event",
+      "from_col": "hazard_id",
+      "rel": ">",
+      "to_table": "hazard",
+      "to_col": "hazard_id"
+    },
+    {
+      "from_table": "event",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_attribute_selection",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_attribute_selection",
+      "from_col": "modality_event_id",
+      "rel": ">",
+      "to_table": "modality_event",
+      "to_col": "modality_event_id"
+    },
+    {
+      "from_table": "event_attribute_selection",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_member",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_member",
+      "from_col": "modality_event_id",
+      "rel": ">",
+      "to_table": "modality_event",
+      "to_col": "modality_event_id"
+    },
+    {
+      "from_table": "event_member",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_evidence",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_evidence",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "event_evidence",
+      "from_col": "derived_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "event_evidence",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_region",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_region",
+      "from_col": "admin_region_id",
+      "rel": ">",
+      "to_table": "admin_region",
+      "to_col": "admin_region_id"
+    },
+    {
+      "from_table": "event_region",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_impact",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_impact",
+      "from_col": "admin_region_id",
+      "rel": ">",
+      "to_table": "admin_region",
+      "to_col": "admin_region_id"
+    },
+    {
+      "from_table": "event_impact",
+      "from_col": "geo_feature_id",
+      "rel": ">",
+      "to_table": "geo_feature",
+      "to_col": "geo_feature_id"
+    },
+    {
+      "from_table": "event_impact",
+      "from_col": "source_observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "event_impact",
+      "from_col": "source_derived_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "event_impact",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_lineage",
+      "from_col": "from_event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_lineage",
+      "from_col": "to_event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_lineage",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_relationship",
+      "from_col": "parent_event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_relationship",
+      "from_col": "child_event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_relationship",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_group",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "event_group_member",
+      "from_col": "event_group_id",
+      "rel": ">",
+      "to_table": "event_group",
+      "to_col": "event_group_id"
+    },
+    {
+      "from_table": "event_group_member",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    },
+    {
+      "from_table": "event_group_member",
+      "from_col": "pipeline_run_id",
+      "rel": ">",
+      "to_table": "pipeline_run",
+      "to_col": "pipeline_run_id"
+    },
+    {
+      "from_table": "dataset_sample",
+      "from_col": "dataset_version_id",
+      "rel": ">",
+      "to_table": "dataset_version",
+      "to_col": "dataset_version_id"
+    },
+    {
+      "from_table": "dataset_sample",
+      "from_col": "event_group_id",
+      "rel": ">",
+      "to_table": "event_group",
+      "to_col": "event_group_id"
+    },
+    {
+      "from_table": "dataset_sample_item",
+      "from_col": "dataset_sample_id",
+      "rel": ">",
+      "to_table": "dataset_sample",
+      "to_col": "dataset_sample_id"
+    },
+    {
+      "from_table": "dataset_sample_item",
+      "from_col": "observation_id",
+      "rel": ">",
+      "to_table": "observation",
+      "to_col": "observation_id"
+    },
+    {
+      "from_table": "dataset_sample_item",
+      "from_col": "media_id",
+      "rel": ">",
+      "to_table": "media",
+      "to_col": "media_id"
+    },
+    {
+      "from_table": "dataset_sample_item",
+      "from_col": "derived_result_id",
+      "rel": ">",
+      "to_table": "derived_result",
+      "to_col": "derived_result_id"
+    },
+    {
+      "from_table": "dataset_sample_event",
+      "from_col": "dataset_sample_id",
+      "rel": ">",
+      "to_table": "dataset_sample",
+      "to_col": "dataset_sample_id"
+    },
+    {
+      "from_table": "dataset_sample_event",
+      "from_col": "event_id",
+      "rel": ">",
+      "to_table": "event",
+      "to_col": "event_id"
+    }
+  ]
+}

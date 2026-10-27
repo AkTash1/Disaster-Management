@@ -1,0 +1,22 @@
+# Credentials - NEVER commit
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Downloaded data (can be large)
+data/
+
+# Extracted mdapi tool
+mdapi.zip
+mdapi_extracted/
+
+# Logs & Agent scratch
+error_logs/
+*.log
+.agents/

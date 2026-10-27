@@ -1,0 +1,3820 @@
+{
+  "data_source": [
+    {
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "source_code": "SRC_CWC_HYDRO",
+      "name": "Central Water Commission Telemetry Feed",
+      "source_type": "api",
+      "provider": "Central Water Commission (CWC), Ministry of Jal Shakti",
+      "base_url": "https://cwc.gov.in/api/v2/telemetry",
+      "license": "Government Open Data License - India (GODL)",
+      "config": {
+        "refresh_rate_sec": 300,
+        "protocol": "REST_JSON"
+      },
+      "is_active": true,
+      "last_success_at": "2026-10-24T17:30:00+00:00",
+      "last_failure_at": null,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "source_id": "245ea883-4cda-58a8-9fc8-685f2c7b1330",
+      "source_code": "SRC_IMD_RADAR_GRID",
+      "name": "India Meteorological Department Radar & Gridded Rainfall",
+      "source_type": "api",
+      "provider": "India Meteorological Department (IMD)",
+      "base_url": "https://mausam.imd.gov.in/api/gridded",
+      "license": "GODL-India",
+      "config": {
+        "resolution_deg": 0.25,
+        "interval_hours": 3
+      },
+      "is_active": true,
+      "last_success_at": "2026-10-24T17:30:00+00:00",
+      "last_failure_at": null,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "source_id": "f58afd5a-ac50-5f28-a1b2-c2bae209ac97",
+      "source_code": "SRC_MOSDAC_INSAT3DR",
+      "name": "ISRO MOSDAC INSAT-3DR IMSRA Precipitation Feed",
+      "source_type": "satellite",
+      "provider": "Meteorological & Oceanographic Satellite Data Archival Centre (MOSDAC/ISRO)",
+      "base_url": "https://mosdac.gov.in/satellite/insat3dr",
+      "license": "ISRO Data Policy",
+      "config": {
+        "sensor": "IMSRA",
+        "orbit": "Geostationary"
+      },
+      "is_active": true,
+      "last_success_at": "2026-10-24T16:30:00+00:00",
+      "last_failure_at": null,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "source_id": "2f00300e-11d5-5a95-95f3-cd24fcbdcab3",
+      "source_code": "SRC_BHUVAN_NRSC",
+      "name": "ISRO Bhuvan Disaster Services & Landslide Inventory",
+      "source_type": "catalogue",
+      "provider": "National Remote Sensing Centre (NRSC / ISRO)",
+      "base_url": "https://bhuvan.nrsc.gov.in/disaster",
+      "license": "ISRO Academic & Disaster Response License",
+      "config": {
+        "layers": [
+          "slope",
+          "lulc",
+          "landslide_inventory"
+        ]
+      },
+      "is_active": true,
+      "last_success_at": "2026-10-24T17:30:00+00:00",
+      "last_failure_at": null,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "source_id": "8517d785-98df-58b5-aad6-33c89d48d017",
+      "source_code": "SRC_UK_SEOC",
+      "name": "Uttarakhand State Emergency Operation Centre Dispatch",
+      "source_type": "official_report",
+      "provider": "Uttarakhand State Disaster Management Authority (USDMA)",
+      "base_url": "https://usdma.uk.gov.in/dispatch",
+      "license": "USDMA Official Dissemination",
+      "config": {
+        "verification_required": true
+      },
+      "is_active": true,
+      "last_success_at": "2026-10-24T17:30:00+00:00",
+      "last_failure_at": null,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "source_id": "6cfb37f0-b35b-523b-b94a-fa5736834a6d",
+      "source_code": "SRC_COPERNICUS_SENTINEL1",
+      "name": "Copernicus Sentinel-1 SAR & EOS-04 C-Band Feed",
+      "source_type": "satellite",
+      "provider": "European Space Agency / ISRO EOS-04",
+      "base_url": "https://dataspace.copernicus.eu/api",
+      "license": "Copernicus Open Access",
+      "config": {
+        "polarization": "VV+VH",
+        "mode": "IW"
+      },
+      "is_active": true,
+      "last_success_at": "2026-10-24T14:30:00+00:00",
+      "last_failure_at": null,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "dataset": [
+    {
+      "dataset_id": "9c44975d-a8b6-5e39-8ae4-3b15a99cbc1c",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "dataset_code": "DS_CWC_TELEMETRY",
+      "name": "CWC Uttarakhand Real-Time Stream Gauge & Rainfall",
+      "kind": "feed",
+      "modality": "tabular",
+      "task": "Hydrological Monitoring",
+      "description": "Hourly river discharge, gauge water levels, and precipitation across 47 CWC monitoring stations in Uttarakhand basins.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "dataset_id": "a4adaa82-1906-5fc6-bcf9-31084c6e17ff",
+      "source_id": "245ea883-4cda-58a8-9fc8-685f2c7b1330",
+      "dataset_code": "DS_IMD_GRID_025",
+      "name": "IMD High-Resolution Gridded Daily Precipitation",
+      "kind": "feed",
+      "modality": "raster",
+      "task": "Precipitation Estimation",
+      "description": "0.25-degree daily gridded precipitation dataset interpolated over the Himalayan catchment.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "dataset_id": "489e7539-7fea-5a6d-94b7-474f79e2e124",
+      "source_id": "6cfb37f0-b35b-523b-b94a-fa5736834a6d",
+      "dataset_code": "DS_EOS04_SAR_BACKSCATTER",
+      "name": "EOS-04 / Sentinel-1 SAR Backscatter & Soil Moisture",
+      "kind": "feed",
+      "modality": "raster",
+      "task": "Soil Moisture & Flood Mapping",
+      "description": "C-band microwave radar backscatter (gamma0 HH/HV) capturing surface saturation and landslide scars.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "dataset_id": "e2467e70-5bc4-5333-ae15-eec2091bd000",
+      "source_id": "2f00300e-11d5-5a95-95f3-cd24fcbdcab3",
+      "dataset_code": "DS_BHUVAN_SLOPE_LULC",
+      "name": "ISRO Bhuvan Uttarakhand Slope & Geomorphology Layers",
+      "kind": "static_reference",
+      "modality": "raster",
+      "task": "Susceptibility Modeling",
+      "description": "Georeferenced terrain slope raster and Land Use Land Cover (LULC) baseline at 50k scale.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "dataset_id": "b154760d-045e-5529-874d-42c575be5173",
+      "source_id": "8517d785-98df-58b5-aad6-33c89d48d017",
+      "dataset_code": "DS_USDMA_SITREPS",
+      "name": "State Emergency Disaster Situation Reports & Incident Logs",
+      "kind": "feed",
+      "modality": "text",
+      "task": "Disaster Intelligence & Verification",
+      "description": "Official bilingual incident bulletins, road closure notices, and evacuation orders.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "pipeline_run": [
+    {
+      "pipeline_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "pipeline_name": "cwc_imd_ingestion_pipeline",
+      "pipeline_version": "v2.4.0",
+      "stage": "collection",
+      "run_type": "scheduled",
+      "status": "completed",
+      "started_at": "2026-10-24T16:30:00+00:00",
+      "completed_at": "2026-10-24T17:30:00+00:00",
+      "records_read": 1850,
+      "records_written": 1845,
+      "records_rejected": 5,
+      "config": {
+        "batch_size": 500,
+        "source": "CWC+IMD"
+      },
+      "config_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "error_message": null,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "pipeline_run_id": "637e1e58-32f6-5393-953c-b04c1da2a91f",
+      "pipeline_name": "multimodal_enrichment_pipeline",
+      "pipeline_version": "v1.8.2",
+      "stage": "enrichment",
+      "run_type": "scheduled",
+      "status": "completed",
+      "started_at": "2026-10-24T17:30:00+00:00",
+      "completed_at": "2026-10-24T17:30:00+00:00",
+      "records_read": 1845,
+      "records_written": 1840,
+      "records_rejected": 5,
+      "config": {
+        "models": [
+          "RandomForest_LandslideTrigger_v2",
+          "NER_Extractor"
+        ]
+      },
+      "config_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0",
+      "error_message": null,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "pipeline_run_id": "199c98bc-ee75-5118-97b0-8fa1754b3c8b",
+      "pipeline_name": "modality_event_detector",
+      "pipeline_version": "v3.1.0",
+      "stage": "event_detection",
+      "run_type": "scheduled",
+      "status": "completed",
+      "started_at": "2026-10-24T17:30:00+00:00",
+      "completed_at": "2026-10-24T17:30:00+00:00",
+      "records_read": 140,
+      "records_written": 140,
+      "records_rejected": 0,
+      "config": {
+        "confidence_threshold": 0.7
+      },
+      "config_hash": "b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef01",
+      "error_message": null,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "pipeline_name": "unified_event_fusion_engine",
+      "pipeline_version": "v2.0.1",
+      "stage": "fusion",
+      "run_type": "scheduled",
+      "status": "completed",
+      "started_at": "2026-10-24T17:30:00+00:00",
+      "completed_at": "2026-10-24T18:30:00+00:00",
+      "records_read": 48,
+      "records_written": 24,
+      "records_rejected": 0,
+      "config": {
+        "temporal_window_hours": 6,
+        "spatial_radius_km": 15
+      },
+      "config_hash": "c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef012",
+      "error_message": null,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "dataset_version": [
+    {
+      "dataset_version_id": "9f63ad3d-bede-5b9d-a157-057954d89e45",
+      "dataset_id": "9c44975d-a8b6-5e39-8ae4-3b15a99cbc1c",
+      "load_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "version": "v2026.10",
+      "released_at": "2026-10-24T06:30:00+00:00",
+      "valid_from": "2026-10-01",
+      "valid_to": "2026-10-31",
+      "sample_count": 1767,
+      "metadata": {
+        "stations": 47,
+        "parameters": [
+          "rainfall_mm",
+          "discharge_cumec",
+          "water_level_m"
+        ]
+      },
+      "created_at": "2026-10-24T06:30:00+00:00"
+    },
+    {
+      "dataset_version_id": "3bcdeb33-3a4f-5ec6-bd72-68f86a5738f3",
+      "dataset_id": "a4adaa82-1906-5fc6-bcf9-31084c6e17ff",
+      "load_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "version": "v2026.10",
+      "released_at": "2026-10-24T06:30:00+00:00",
+      "valid_from": "2026-10-01",
+      "valid_to": "2026-10-31",
+      "sample_count": 2000,
+      "metadata": {
+        "grid_cells": 142,
+        "unit": "mm/day"
+      },
+      "created_at": "2026-10-24T06:30:00+00:00"
+    },
+    {
+      "dataset_version_id": "fef5ddbe-806b-5134-b255-3a833ea62fb8",
+      "dataset_id": "489e7539-7fea-5a6d-94b7-474f79e2e124",
+      "load_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "version": "v1.0",
+      "released_at": "2026-10-23T18:30:00+00:00",
+      "valid_from": "2026-10-01",
+      "valid_to": "2026-10-31",
+      "sample_count": 797,
+      "metadata": {
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "crs": "EPSG:32644"
+      },
+      "created_at": "2026-10-23T18:30:00+00:00"
+    },
+    {
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "dataset_id": "e2467e70-5bc4-5333-ae15-eec2091bd000",
+      "load_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "version": "v2023.1",
+      "released_at": "2023-01-01T00:00:00Z",
+      "valid_from": "2023-01-01",
+      "valid_to": "2030-12-31",
+      "sample_count": 13,
+      "metadata": {
+        "raster_format": "GeoTIFF",
+        "crs": "EPSG:4326"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "dataset_version_id": "ef55e395-c90f-56e2-a8e8-b7c0d45b4e02",
+      "dataset_id": "b154760d-045e-5529-874d-42c575be5173",
+      "load_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "version": "v2026.10.24",
+      "released_at": "2026-10-24T12:30:00+00:00",
+      "valid_from": "2026-10-24",
+      "valid_to": "2026-10-25",
+      "sample_count": 86,
+      "metadata": {
+        "source_types": [
+          "official_bulletin",
+          "field_sitrep",
+          "news_report"
+        ]
+      },
+      "created_at": "2026-10-24T12:30:00+00:00"
+    }
+  ],
+  "collection": [
+    {
+      "collection_id": "c24ef55f-65f7-5e49-a8fa-adaeb81eedfd",
+      "pipeline_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "dataset_id": "9c44975d-a8b6-5e39-8ae4-3b15a99cbc1c",
+      "method": "GET",
+      "request_uri": "https://cwc.gov.in/api/v2/telemetry?state=Uttarakhand&format=json",
+      "http_status": 200,
+      "started_at": "2026-10-24T16:30:00+00:00",
+      "completed_at": "2026-10-24T16:30:00+00:00",
+      "records_received": 47,
+      "status": "success",
+      "error_message": null,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "collection_id": "bc2bd448-a238-5a00-aa9c-affbecc844dd",
+      "pipeline_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "source_id": "245ea883-4cda-58a8-9fc8-685f2c7b1330",
+      "dataset_id": "a4adaa82-1906-5fc6-bcf9-31084c6e17ff",
+      "method": "GET",
+      "request_uri": "https://mausam.imd.gov.in/api/gridded/uk_grid_025.nc",
+      "http_status": 200,
+      "started_at": "2026-10-24T16:30:00+00:00",
+      "completed_at": "2026-10-24T16:30:00+00:00",
+      "records_received": 142,
+      "status": "success",
+      "error_message": null,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "collection_id": "dd00b811-abf0-57a2-a615-a44012f51c67",
+      "pipeline_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "source_id": "6cfb37f0-b35b-523b-b94a-fa5736834a6d",
+      "dataset_id": "489e7539-7fea-5a6d-94b7-474f79e2e124",
+      "method": "GET",
+      "request_uri": "https://dataspace.copernicus.eu/api/sar/eos04/E04_SAR_CRS_08JUL2023.tif",
+      "http_status": 200,
+      "started_at": "2026-10-24T16:30:00+00:00",
+      "completed_at": "2026-10-24T16:30:00+00:00",
+      "records_received": 1,
+      "status": "success",
+      "error_message": null,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "raw_object": [
+    {
+      "raw_object_id": "6dbc44e4-9032-5dd5-a4dc-02468e614a04",
+      "collection_id": "c24ef55f-65f7-5e49-a8fa-adaeb81eedfd",
+      "storage_uri": "s3://disaster-lake/raw/cwc/20261024_1600_telemetry.json",
+      "content_type": "application/json",
+      "size_bytes": 135167,
+      "sha256": "3a8c1f0b9e8d7a6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a109876543210abcdef01",
+      "captured_at": "2026-10-24T16:30:00+00:00",
+      "metadata": {
+        "station_count": 47
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "raw_object_id": "95a74a1b-9299-5a87-b3d0-ea6f1e2ec6e4",
+      "collection_id": "bc2bd448-a238-5a00-aa9c-affbecc844dd",
+      "storage_uri": "s3://disaster-lake/raw/imd/20261024_grid025.nc",
+      "content_type": "application/x-netcdf",
+      "size_bytes": 91897,
+      "sha256": "4b9d2e1c0f9e8b7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a109876543210abcdef02",
+      "captured_at": "2026-10-24T16:30:00+00:00",
+      "metadata": {
+        "variables": [
+          "rain_daily"
+        ]
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "raw_object_id": "d9b2d10d-2a97-5abf-b585-5c317728efa6",
+      "collection_id": "dd00b811-abf0-57a2-a615-a44012f51c67",
+      "storage_uri": "s3://disaster-lake/raw/sar/E04_SAR_CRS_08JUL2023.tif",
+      "content_type": "image/tiff",
+      "size_bytes": 86358,
+      "sha256": "5c0e3f2d1a0f9c8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a109876543210abcdef03",
+      "captured_at": "2026-10-24T16:30:00+00:00",
+      "metadata": {
+        "sensor": "EOS-04 C-SAR"
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "raw_object_id": "12124199-a364-59f8-afac-b6a9a835ad47",
+      "collection_id": "c24ef55f-65f7-5e49-a8fa-adaeb81eedfd",
+      "storage_uri": "s3://disaster-lake/raw/usdma/sitrep_20261024_04.pdf",
+      "content_type": "application/pdf",
+      "size_bytes": 245000,
+      "sha256": "6d1f4a3e2b1a0d9f8e7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2109876543210abcdef04",
+      "captured_at": "2026-10-24T14:30:00+00:00",
+      "metadata": {
+        "title": "SEOC Rudraprayag Landslide Incident Bulletin"
+      },
+      "created_at": "2026-10-24T14:30:00+00:00"
+    }
+  ],
+  "raw_validation": [
+    {
+      "raw_validation_id": "feecfa50-183d-5364-a195-337ad071fce7",
+      "raw_object_id": "6dbc44e4-9032-5dd5-a4dc-02468e614a04",
+      "status": "passed",
+      "schema_valid": true,
+      "checksum_valid": true,
+      "content_valid": true,
+      "validation_errors": {},
+      "validator_version": "v1.2.0",
+      "validated_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "raw_validation_id": "49ccd511-3f9a-57c6-bce8-a24ee6f1e3d5",
+      "raw_object_id": "95a74a1b-9299-5a87-b3d0-ea6f1e2ec6e4",
+      "status": "passed",
+      "schema_valid": true,
+      "checksum_valid": true,
+      "content_valid": true,
+      "validation_errors": {},
+      "validator_version": "v1.2.0",
+      "validated_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "raw_validation_id": "3e354250-f26a-5338-8814-51d24aa720a0",
+      "raw_object_id": "d9b2d10d-2a97-5abf-b585-5c317728efa6",
+      "status": "passed",
+      "schema_valid": true,
+      "checksum_valid": true,
+      "content_valid": true,
+      "validation_errors": {},
+      "validator_version": "v1.2.0",
+      "validated_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "ingest_rejection": [
+    {
+      "ingest_rejection_id": "46813a89-62d6-5041-b142-5016b835fa6d",
+      "pipeline_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "raw_object_id": "6dbc44e4-9032-5dd5-a4dc-02468e614a04",
+      "record_identifier": "CWC_UK_Assan_Anomaly_999",
+      "stage": "validation",
+      "rejection_code": "TELEMETRY_SPIKE_EXCEEDED",
+      "reason": "Water level telemetry value 89.4m exceeds physical embankment height (22.0m)",
+      "details": {
+        "sensor_id": "Assan_1",
+        "reported_value": 89.4,
+        "max_threshold": 22.0
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "ingest_rejection_id": "74f72ae1-0b28-5591-bcf9-ff22a323fab8",
+      "pipeline_run_id": "7109390e-815f-503f-8418-83efd5e700d9",
+      "raw_object_id": "95a74a1b-9299-5a87-b3d0-ea6f1e2ec6e4",
+      "record_identifier": "GRID_UK_OUT_OF_BOUNDS",
+      "stage": "normalization",
+      "rejection_code": "COORDINATES_OUT_OF_STATE_BBOX",
+      "reason": "Grid centroid falls outside Uttarakhand administrative boundary polygon",
+      "details": {
+        "latitude": 32.45,
+        "longitude": 82.1
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "hazard": [
+    {
+      "hazard_id": "bd48b491-bea6-54d5-983e-92de69982a2a",
+      "parent_hazard_id": null,
+      "code": "HAZ_METEOROLOGICAL",
+      "name": "Severe Weather",
+      "category": "Meteorological",
+      "description": "Atmospheric conditions posing immediate risk including high winds, hail, and convective storm activity.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "hazard_id": "29515cc0-3ede-5d26-b0ea-08c515108d86",
+      "parent_hazard_id": "bd48b491-bea6-54d5-983e-92de69982a2a",
+      "code": "HAZ_HEAVY_RAINFALL",
+      "name": "Heavy Rainfall & Cloudburst",
+      "category": "Hydrometeorological",
+      "description": "Precipitation exceeding 64.5 mm/day or intense convective cloudburst exceeding 100 mm/hour.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "hazard_id": "8418325e-ff71-54f1-9d68-54e4b768f212",
+      "parent_hazard_id": null,
+      "code": "HAZ_FLASH_FLOOD",
+      "name": "Flash Flood & River Inundation",
+      "category": "Hydrological",
+      "description": "Rapid surge in river water volume and sudden breach of natural or artificial channel banks.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "parent_hazard_id": null,
+      "code": "HAZ_LANDSLIDE",
+      "name": "Landslide & Slope Failure",
+      "category": "Geological",
+      "description": "Downward movement of rock, debris, or earth mass triggered by intense precipitation or seismic shaking.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "hazard_id": "617d2d7d-53b6-5138-8195-3ae5445c982e",
+      "parent_hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "code": "HAZ_ROAD_BLOCKAGE",
+      "name": "Infrastructure & Road Blockage",
+      "category": "Anthropogenic/Infrastructure",
+      "description": "Complete obstruction of critical highway corridors and vehicular access routes due to debris or road collapse.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "hazard_id": "7516b7cb-9a99-5a3c-9354-6c60710477da",
+      "parent_hazard_id": null,
+      "code": "HAZ_EARTHQUAKE",
+      "name": "Earthquake & Seismic Event",
+      "category": "Geophysical",
+      "description": "Seismic ground shaking along Himalayan fault lines.",
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "admin_region": [
+    {
+      "admin_region_id": "1cd8f6ef-c02a-5e5f-b6ca-3b4bd84a88b1",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "45",
+      "name": "Almora",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.620608,
+              29.538667
+            ],
+            [
+              79.749944,
+              29.538667
+            ],
+            [
+              79.749944,
+              29.6191
+            ],
+            [
+              79.620608,
+              29.6191
+            ],
+            [
+              79.620608,
+              29.538667
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.699162,
+          29.568381
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 45,
+        "station_count": 3
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "ae2bcb8b-7ad5-57f0-b73a-1ffc6ea5ec3d",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "46",
+      "name": "Bageshwar",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.617694,
+              29.908222
+            ],
+            [
+              79.940558,
+              29.908222
+            ],
+            [
+              79.940558,
+              30.110197
+            ],
+            [
+              79.617694,
+              30.110197
+            ],
+            [
+              79.617694,
+              29.908222
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.806515,
+          29.942912
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 46,
+        "station_count": 3
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "68ec1dc7-bf96-5cba-b26f-9cd93596d0e7",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "47",
+      "name": "Chamoli",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.2855,
+              30.045
+            ],
+            [
+              79.494361,
+              30.045
+            ],
+            [
+              79.494361,
+              30.745139
+            ],
+            [
+              79.2855,
+              30.745139
+            ],
+            [
+              79.2855,
+              30.045
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.311921,
+          30.182502
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 47,
+        "station_count": 3
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "7a9a3c72-aebf-52cd-8dee-29536447fb22",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "48",
+      "name": "Champawat",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.882,
+              29.072222
+            ],
+            [
+              80.1175,
+              29.072222
+            ],
+            [
+              80.1175,
+              29.449111
+            ],
+            [
+              79.882,
+              29.449111
+            ],
+            [
+              79.882,
+              29.072222
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          80.089547,
+          29.208632
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 48,
+        "station_count": 4
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "4e6eba03-344f-5d1b-8ae1-9f528add36b6",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "49",
+      "name": "Dehradun",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              77.665808,
+              30.222708
+            ],
+            [
+              78.234186,
+              30.222708
+            ],
+            [
+              78.234186,
+              30.761156
+            ],
+            [
+              77.665808,
+              30.761156
+            ],
+            [
+              77.665808,
+              30.222708
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          77.969576,
+          30.420955
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 49,
+        "station_count": 5
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "6f20eb8c-fdd7-59c6-b64a-c514aa39e1de",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "50",
+      "name": "Haridwar",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              77.801706,
+              29.641375
+            ],
+            [
+              78.036714,
+              29.641375
+            ],
+            [
+              78.036714,
+              29.935678
+            ],
+            [
+              77.801706,
+              29.935678
+            ],
+            [
+              77.801706,
+              29.641375
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          77.9372,
+          29.839357
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 50,
+        "station_count": 5
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "91e747ed-5f97-5de9-977b-a1086d25b371",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "51",
+      "name": "Nainital",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.462328,
+              29.214725
+            ],
+            [
+              79.651194,
+              29.214725
+            ],
+            [
+              79.651194,
+              29.474139
+            ],
+            [
+              79.462328,
+              29.474139
+            ],
+            [
+              79.462328,
+              29.214725
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.582314,
+          29.352315
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 51,
+        "station_count": 4
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "d691d531-f93a-598b-ac3d-f36f3879ec37",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "52",
+      "name": "PAURI GARHWAL",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.290472,
+              29.751083
+            ],
+            [
+              78.817203,
+              29.751083
+            ],
+            [
+              78.817203,
+              30.235819
+            ],
+            [
+              78.290472,
+              30.235819
+            ],
+            [
+              78.290472,
+              29.751083
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          78.50303,
+          30.009689
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 52,
+        "station_count": 4
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "1c1becf8-28b2-5fae-8e9f-bc68516e590d",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "53",
+      "name": "Pithoragarh",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              80.160972,
+              29.579389
+            ],
+            [
+              80.540472,
+              29.579389
+            ],
+            [
+              80.540472,
+              29.905944
+            ],
+            [
+              80.160972,
+              29.905944
+            ],
+            [
+              80.160972,
+              29.579389
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          80.368345,
+          29.771868
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 53,
+        "station_count": 3
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "54",
+      "name": "Rudraprayag",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.999417,
+              30.415417
+            ],
+            [
+              79.085083,
+              30.415417
+            ],
+            [
+              79.085083,
+              30.635472
+            ],
+            [
+              78.999417,
+              30.635472
+            ],
+            [
+              78.999417,
+              30.415417
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.048545,
+          30.497755
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 54,
+        "station_count": 4
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "898d315b-1acd-5947-b737-9c8b1e910bd1",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "55",
+      "name": "Tehri Garhwal",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.047389,
+              30.49075
+            ],
+            [
+              78.047389,
+              30.49075
+            ],
+            [
+              78.047389,
+              30.49075
+            ],
+            [
+              78.047389,
+              30.49075
+            ],
+            [
+              78.047389,
+              30.49075
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          78.047389,
+          30.49075
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 55,
+        "station_count": 1
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "e7f09207-578b-5fab-a704-156655ccc1ac",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "56",
+      "name": "UDHAM SINGH NAGAR",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.931331,
+              28.929714
+            ],
+            [
+              79.703,
+              28.929714
+            ],
+            [
+              79.703,
+              29.307047
+            ],
+            [
+              78.931331,
+              29.307047
+            ],
+            [
+              78.931331,
+              28.929714
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.245107,
+          29.10818
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 56,
+        "station_count": 5
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "admin_region_id": "055a17ce-0cdd-51c5-8529-27ab0d83a8a1",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "parent_region_id": null,
+      "region_type": "district",
+      "region_code": "57",
+      "name": "Uttarkashi",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.103889,
+              30.731222
+            ],
+            [
+              78.712222,
+              30.731222
+            ],
+            [
+              78.712222,
+              31.015333
+            ],
+            [
+              78.103889,
+              31.015333
+            ],
+            [
+              78.103889,
+              30.731222
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          78.458839,
+          30.778609
+        ]
+      },
+      "properties": {
+        "state": "Uttarakhand",
+        "lgd_code": 57,
+        "station_count": 3
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "static_raster": [
+    {
+      "static_raster_id": "86060e04-cb15-5b96-b5f6-60d3f4528ee9",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "name": "bhuvan_uk_slope_georeferenced.tif",
+      "raster_type": "terrain_slope",
+      "storage_uri": "s3://disaster-lake/static_rasters/bhuvan_uk_slope_georeferenced.tif",
+      "crs": "EPSG:4326",
+      "resolution": 0.000277,
+      "width": 3600,
+      "height": 2800,
+      "bounds": {
+        "min_lon": 77.5,
+        "min_lat": 28.7,
+        "max_lon": 81.1,
+        "max_lat": 31.5
+      },
+      "nodata_value": -9999.0,
+      "metadata": {
+        "unit": "degrees",
+        "slope_classes": [
+          "0-15",
+          "15-30",
+          "30-45",
+          ">45"
+        ]
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "static_raster_id": "51b26fbf-f896-5af8-8ea1-b418a67dc9eb",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "name": "bhuvan_moef_UK_LULC50K_1112_uk_lulc.tif",
+      "raster_type": "land_use_land_cover",
+      "storage_uri": "s3://disaster-lake/static_rasters/bhuvan_uk_lulc.tif",
+      "crs": "EPSG:4326",
+      "resolution": 0.0005,
+      "width": 2400,
+      "height": 1800,
+      "bounds": {
+        "min_lon": 77.5,
+        "min_lat": 28.7,
+        "max_lon": 81.1,
+        "max_lat": 31.5
+      },
+      "nodata_value": 255.0,
+      "metadata": {
+        "source": "ISRO / NRSC"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "geo_feature": [
+    {
+      "geo_feature_id": "0a096a81-51c4-5e62-be42-24752982e5cf",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Almora_1",
+      "external_id": "CWC_UK_Almora_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.650639,
+          29.595758
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Almora_1",
+        "station_name": "Almora_1",
+        "district_name": "Almora",
+        "district_lgd_code": 45,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "4131a247-6f63-5567-a3c0-edf5fdbfb329",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Assan_1",
+      "external_id": "CWC_UK_Assan_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.665808,
+          30.435822
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Assan_1",
+        "station_name": "Assan_1",
+        "district_name": "Dehradun",
+        "district_lgd_code": 49,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "7055eb6e-67d1-5ba2-8687-1b67c404452d",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Badrinath_1",
+      "external_id": "CWC_UK_Badrinath_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.494361,
+          30.745139
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Badrinath_1",
+        "station_name": "Badrinath_1",
+        "district_name": "Chamoli",
+        "district_lgd_code": 47,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "3b476572-6c8f-5bf3-8677-097cd23c0101",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Bahadarabad",
+      "external_id": "CWC_UK_Bahadarabad",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.036714,
+          29.923803
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Bahadarabad",
+        "station_name": "Bahadarabad",
+        "district_name": "Haridwar",
+        "district_lgd_code": 50,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "50aaf28c-d5ad-561c-9b00-1f3cbf728951",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Baijnath (Gomti)",
+      "external_id": "CWC_UK_Baijnath_Gomti",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.617694,
+          29.908222
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Baijnath_Gomti",
+        "station_name": "Baijnath (Gomti)",
+        "district_name": "Bageshwar",
+        "district_lgd_code": 46,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "b5033095-c9ae-580a-98e1-41fa874a5a03",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Basukedar",
+      "external_id": "CWC_UK_Basukedar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.056333,
+          30.439194
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Basukedar",
+        "station_name": "Basukedar",
+        "district_name": "Rudraprayag",
+        "district_lgd_code": 54,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "6eab6268-f2c1-597e-932d-6e675c7a0c96",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Bhagwanpur_1",
+      "external_id": "CWC_UK_Bhagwanpur_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.801706,
+          29.935678
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Bhagwanpur_1",
+        "station_name": "Bhagwanpur_1",
+        "district_name": "Haridwar",
+        "district_lgd_code": 50,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "31de955d-5fd1-533b-b6e4-c116f4b470a1",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Chakrata",
+      "external_id": "CWC_UK_Chakrata",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.865028,
+          30.761156
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Chakrata",
+        "station_name": "Chakrata",
+        "district_name": "Dehradun",
+        "district_lgd_code": 49,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "5a846bdc-d82f-5447-a8b3-cc590a5056aa",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Champawat_1",
+      "external_id": "CWC_UK_Champawat_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.084694,
+          29.333417
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Champawat_1",
+        "station_name": "Champawat_1",
+        "district_name": "Champawat",
+        "district_lgd_code": 48,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "87663f07-486a-52fe-bfe4-4b02e53a9dd3",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Chandranagar_1",
+      "external_id": "CWC_UK_Chandranagar_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.062083,
+          30.415417
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Chandranagar_1",
+        "station_name": "Chandranagar_1",
+        "district_name": "Rudraprayag",
+        "district_lgd_code": 54,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "f1afed4a-273c-523c-8507-d86f836baa2b",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Dakpathar",
+      "external_id": "CWC_UK_Dakpathar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.797444,
+          30.498667
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Dakpathar",
+        "station_name": "Dakpathar",
+        "district_name": "Dehradun",
+        "district_lgd_code": 49,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "f1eb7e49-8d9d-52e0-97e4-82beb6868314",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Danda_1",
+      "external_id": "CWC_UK_Danda_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.108528,
+          29.159278
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Danda_1",
+        "station_name": "Danda_1",
+        "district_name": "Champawat",
+        "district_lgd_code": 48,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "daa7ce50-39d0-5ee6-ab6f-77f951dbd974",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Dharchula_1",
+      "external_id": "CWC_UK_Dharchula_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.540472,
+          29.84825
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Dharchula_1",
+        "station_name": "Dharchula_1",
+        "district_name": "Pithoragarh",
+        "district_lgd_code": 53,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "ab285dcc-949e-58e1-970c-11bdff1969b6",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Doiwala (Bhogpur)",
+      "external_id": "CWC_UK_Doiwala_Bhogpur",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.234186,
+          30.222708
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Doiwala_Bhogpur",
+        "station_name": "Doiwala (Bhogpur)",
+        "district_name": "Dehradun",
+        "district_lgd_code": 49,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "8db09192-bcf8-5f23-8c3d-0c2ca6825087",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Dugadda (Khoh)",
+      "external_id": "CWC_UK_Dugadda_Khoh",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.523417,
+          29.751083
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Dugadda_Khoh",
+        "station_name": "Dugadda (Khoh)",
+        "district_name": "PAURI GARHWAL",
+        "district_lgd_code": 52,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "8a5d8834-833f-5b82-84d6-74b83aac28ef",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Gadarpur",
+      "external_id": "CWC_UK_Gadarpur",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.244619,
+          29.043242
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Gadarpur",
+        "station_name": "Gadarpur",
+        "district_name": "UDHAM SINGH NAGAR",
+        "district_lgd_code": 56,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "bcefb5c4-6650-56e4-99cf-ec916ae50192",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Gairsain (Ramganga)",
+      "external_id": "CWC_UK_Gairsain_Ramganga",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.2855,
+          30.045
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Gairsain_Ramganga",
+        "station_name": "Gairsain (Ramganga)",
+        "district_name": "Chamoli",
+        "district_lgd_code": 47,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "6c66ace1-3d86-5c55-b9c1-ad9201d8ef7b",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Gola_1",
+      "external_id": "CWC_UK_Gola_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.547433,
+          29.271361
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Gola_1",
+        "station_name": "Gola_1",
+        "district_name": "Nainital",
+        "district_lgd_code": 51,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "44b15c32-f1f1-5aa8-b596-b6411359018e",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Guptkashi_1",
+      "external_id": "CWC_UK_Guptkashi_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.085083,
+          30.528639
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Guptkashi_1",
+        "station_name": "Guptkashi_1",
+        "district_name": "Rudraprayag",
+        "district_lgd_code": 54,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "f64832be-116b-5e4d-820f-64d13857abe7",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Haldwani_1",
+      "external_id": "CWC_UK_Haldwani_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.524003,
+          29.214725
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Haldwani_1",
+        "station_name": "Haldwani_1",
+        "district_name": "Nainital",
+        "district_lgd_code": 51,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "7a729015-782e-5425-8f68-93804dd5d3a6",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Haripura_2",
+      "external_id": "CWC_UK_Haripura_2",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.259656,
+          29.131519
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Haripura_2",
+        "station_name": "Haripura_2",
+        "district_name": "UDHAM SINGH NAGAR",
+        "district_lgd_code": 56,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "5f7bcc3d-294c-5327-ae15-538c5c8c6f8e",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Jhala_1",
+      "external_id": "CWC_UK_Jhala_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.712222,
+          31.015333
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Jhala_1",
+        "station_name": "Jhala_1",
+        "district_name": "Uttarkashi",
+        "district_lgd_code": 57,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "57280759-9c5f-5f40-8756-350701ccb423",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Joshiyara",
+      "external_id": "CWC_UK_Joshiyara",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.427333,
+          30.731222
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Joshiyara",
+        "station_name": "Joshiyara",
+        "district_name": "Uttarkashi",
+        "district_lgd_code": 57,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "1f058542-35be-5ccc-9491-28ee606ab831",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Kapkot (Saryu)",
+      "external_id": "CWC_UK_Kapkot_Saryu",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.9025,
+          29.945167
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Kapkot_Saryu",
+        "station_name": "Kapkot (Saryu)",
+        "district_name": "Bageshwar",
+        "district_lgd_code": 46,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "746442b1-a395-5ff8-969b-4553af01d14e",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Kempty",
+      "external_id": "CWC_UK_Kempty",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.047389,
+          30.49075
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Kempty",
+        "station_name": "Kempty",
+        "district_name": "Tehri Garhwal",
+        "district_lgd_code": 55,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "9dc9bd09-0a68-512c-bc89-8ceea257e4cb",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Khanpur_5",
+      "external_id": "CWC_UK_Khanpur_5",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.006786,
+          29.641375
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Khanpur_5",
+        "station_name": "Khanpur_5",
+        "district_name": "Haridwar",
+        "district_lgd_code": 50,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "f3a62700-c7bc-5855-9bc2-ba8ea492f9b6",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Khati_1",
+      "external_id": "CWC_UK_Khati_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.940558,
+          30.110197
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Khati_1",
+        "station_name": "Khati_1",
+        "district_name": "Bageshwar",
+        "district_lgd_code": 46,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "b5e3a306-b214-5768-8e0f-1fcbac25abe1",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Kosi_1",
+      "external_id": "CWC_UK_Kosi_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.620608,
+          29.6191
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Kosi_1",
+        "station_name": "Kosi_1",
+        "district_name": "Almora",
+        "district_lgd_code": 45,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "1b75610a-3e9b-599e-a5ba-ecde16667c63",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Lamgara",
+      "external_id": "CWC_UK_Lamgara",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.749944,
+          29.538667
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Lamgara",
+        "station_name": "Lamgara",
+        "district_name": "Almora",
+        "district_lgd_code": 45,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "6c0b770f-8b8e-5762-9c3d-eccc3ac55e6f",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Manglaur_1",
+      "external_id": "CWC_UK_Manglaur_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.863689,
+          29.785678
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Manglaur_1",
+        "station_name": "Manglaur_1",
+        "district_name": "Haridwar",
+        "district_lgd_code": 50,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "7ffa8289-6be3-52ce-bdf8-5272ef1af926",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Mukteshwar_1",
+      "external_id": "CWC_UK_Mukteshwar_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.651194,
+          29.474139
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Mukteshwar_1",
+        "station_name": "Mukteshwar_1",
+        "district_name": "Nainital",
+        "district_lgd_code": 51,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "ccc23a09-6d1b-5f17-b695-66bcb969075c",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Nachni",
+      "external_id": "CWC_UK_Nachni",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.160972,
+          29.905944
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Nachni",
+        "station_name": "Nachni",
+        "district_name": "Pithoragarh",
+        "district_lgd_code": 53,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "d8e7ea1f-331f-59e3-896a-d1af87b9c678",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Nainital_1",
+      "external_id": "CWC_UK_Nainital_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.462328,
+          29.395303
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Nainital_1",
+        "station_name": "Nainital_1",
+        "district_name": "Nainital",
+        "district_lgd_code": 51,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "873bbfcd-d6c1-5db6-8dcd-78cad1f24d3e",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Nandprayag (Nandakini)",
+      "external_id": "CWC_UK_Nandprayag_Nandakini",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.310639,
+          30.331222
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Nandprayag_Nandakini",
+        "station_name": "Nandprayag (Nandakini)",
+        "district_name": "Chamoli",
+        "district_lgd_code": 47,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "dc3efbfe-bda2-55c9-b1c3-24afbf29fdcb",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Pithoragarh",
+      "external_id": "CWC_UK_Pithoragarh",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.218861,
+          29.579389
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Pithoragarh",
+        "station_name": "Pithoragarh",
+        "district_name": "Pithoragarh",
+        "district_lgd_code": 53,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "f8891fb5-61af-5108-8e54-3aedb0f9e997",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Purola_1",
+      "external_id": "CWC_UK_Purola_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.103889,
+          30.912917
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Purola_1",
+        "station_name": "Purola_1",
+        "district_name": "Uttarkashi",
+        "district_lgd_code": 57,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "bec672d1-9f6e-57d6-b50f-86d0956a54fa",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Rithakhal",
+      "external_id": "CWC_UK_Rithakhal",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.882,
+          29.449111
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Rithakhal",
+        "station_name": "Rithakhal",
+        "district_name": "Champawat",
+        "district_lgd_code": 48,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "b84569fd-ffdb-52b6-9615-f268ee70f9f5",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Roorkee_2",
+      "external_id": "CWC_UK_Roorkee_2",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.884156,
+          29.867719
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Roorkee_2",
+        "station_name": "Roorkee_2",
+        "district_name": "Haridwar",
+        "district_lgd_code": 50,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "89e0b28d-1279-53cf-905b-db28817dacb0",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Rudrapur_2",
+      "external_id": "CWC_UK_Rudrapur_2",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.399886,
+          28.973736
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Rudrapur_2",
+        "station_name": "Rudrapur_2",
+        "district_name": "UDHAM SINGH NAGAR",
+        "district_lgd_code": 56,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "58e7ffc1-5c66-562d-a1cc-5d82e497c12d",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Sitarganj_1",
+      "external_id": "CWC_UK_Sitarganj_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.703,
+          28.929714
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Sitarganj_1",
+        "station_name": "Sitarganj_1",
+        "district_name": "UDHAM SINGH NAGAR",
+        "district_lgd_code": 56,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "8490c979-a729-57ab-adf6-035cee9787a2",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Sonprayag_1",
+      "external_id": "CWC_UK_Sonprayag_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.999417,
+          30.635472
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Sonprayag_1",
+        "station_name": "Sonprayag_1",
+        "district_name": "Rudraprayag",
+        "district_lgd_code": 54,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "5a066b24-bb52-5cfc-8c00-14046563f45f",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Srinagar_2",
+      "external_id": "CWC_UK_Srinagar_2",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.817203,
+          30.235819
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Srinagar_2",
+        "station_name": "Srinagar_2",
+        "district_name": "PAURI GARHWAL",
+        "district_lgd_code": 52,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "90fa5dd4-78c8-52fd-a939-1351055d7713",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Tanakpur_1",
+      "external_id": "CWC_UK_Tanakpur_1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.1175,
+          29.072222
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Tanakpur_1",
+        "station_name": "Tanakpur_1",
+        "district_name": "Champawat",
+        "district_lgd_code": 48,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "0c693f20-9946-5118-93bf-8bed3abe8319",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Tumaria",
+      "external_id": "CWC_UK_Tumaria",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.931331,
+          29.307047
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Tumaria",
+        "station_name": "Tumaria",
+        "district_name": "UDHAM SINGH NAGAR",
+        "district_lgd_code": 56,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "801a83aa-10c9-5bd5-921b-16e12ee3e1df",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Virbhadra",
+      "external_id": "CWC_UK_Virbhadra",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.290472,
+          30.074444
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Virbhadra",
+        "station_name": "Virbhadra",
+        "district_name": "PAURI GARHWAL",
+        "district_lgd_code": 52,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "f8fda947-5771-5784-ae84-357ab6a46b54",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Yamkeshwar",
+      "external_id": "CWC_UK_Yamkeshwar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.440861,
+          29.961306
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Yamkeshwar",
+        "station_name": "Yamkeshwar",
+        "district_name": "PAURI GARHWAL",
+        "district_lgd_code": 52,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "geo_feature_id": "03b7310d-485b-5727-be86-dff468b3e304",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "feature_type": "hydrological_station",
+      "name": "Yamuna Colony",
+      "external_id": "CWC_UK_Yamuna_Colony",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.033117,
+          30.337753
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_UK_Yamuna_Colony",
+        "station_name": "Yamuna Colony",
+        "district_name": "Dehradun",
+        "district_lgd_code": 49,
+        "agency": "Uttarakhand"
+      },
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "observation": [
+    {
+      "observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "dataset_version_id": "9f63ad3d-bede-5b9d-a157-057954d89e45",
+      "raw_object_id": "6dbc44e4-9032-5dd5-a4dc-02468e614a04",
+      "hazard_id": "29515cc0-3ede-5d26-b0ea-08c515108d86",
+      "source_record_id": "REC_CWC_BASUKEDAR_20261024_1400",
+      "observed_at": "2026-10-24T14:30:00+00:00",
+      "observed_start": "2026-10-24T12:30:00+00:00",
+      "observed_end": "2026-10-24T14:30:00+00:00",
+      "published_at": "2026-10-24T14:30:00+00:00",
+      "time_precision": "hour",
+      "latitude": 30.439194,
+      "longitude": 79.056333,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.056333,
+          30.439194
+        ]
+      },
+      "location_uncertainty_km": 0.05,
+      "modality": "tabular",
+      "observation_type": "precipitation_gauge",
+      "value": {
+        "rainfall_6h_mm": 128.4,
+        "hourly_rate_mm": 32.1,
+        "sensor": "TippingBucket_P1"
+      },
+      "quality_status": "verified",
+      "quality_score": 0.98,
+      "language": "en",
+      "source_updated_at": "2026-10-24T14:30:00+00:00",
+      "source_revision": "rev1",
+      "record_hash": "hash_cwc_rain_basukedar_001",
+      "status": "active",
+      "created_at": "2026-10-24T14:30:00+00:00"
+    },
+    {
+      "observation_id": "693a1832-16ef-5c2b-b204-895b40bd466e",
+      "dataset_version_id": "fef5ddbe-806b-5134-b255-3a833ea62fb8",
+      "raw_object_id": "d9b2d10d-2a97-5abf-b585-5c317728efa6",
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "source_record_id": "REC_EOS04_SAR_20261024_0800",
+      "observed_at": "2026-10-24T06:30:00+00:00",
+      "observed_start": "2026-10-24T06:30:00+00:00",
+      "observed_end": "2026-10-24T06:30:00+00:00",
+      "published_at": "2026-10-24T12:30:00+00:00",
+      "time_precision": "second",
+      "latitude": 30.498,
+      "longitude": 79.049,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.049,
+          30.498
+        ]
+      },
+      "location_uncertainty_km": 0.02,
+      "modality": "raster",
+      "observation_type": "sar_backscatter",
+      "value": {
+        "gamma0_hh_db": -12.4,
+        "gamma0_hv_db": -18.6,
+        "cross_pol_ratio_db": -4.2,
+        "saturation_pct": 94.2
+      },
+      "quality_status": "verified",
+      "quality_score": 0.95,
+      "language": null,
+      "source_updated_at": "2026-10-24T12:30:00+00:00",
+      "source_revision": "L1B_GRD",
+      "record_hash": "hash_sar_backscatter_002",
+      "status": "active",
+      "created_at": "2026-10-24T12:30:00+00:00"
+    },
+    {
+      "observation_id": "28d6163e-aceb-5cd2-8363-a2297f24edf0",
+      "dataset_version_id": "ef55e395-c90f-56e2-a8e8-b7c0d45b4e02",
+      "raw_object_id": "12124199-a364-59f8-afac-b6a9a835ad47",
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "source_record_id": "REC_USDMA_SITREP_04",
+      "observed_at": "2026-10-24T16:30:00+00:00",
+      "observed_start": "2026-10-24T14:30:00+00:00",
+      "observed_end": "2026-10-24T16:30:00+00:00",
+      "published_at": "2026-10-24T16:30:00+00:00",
+      "time_precision": "minute",
+      "latitude": 30.485,
+      "longitude": 79.062,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.062,
+          30.485
+        ]
+      },
+      "location_uncertainty_km": 0.2,
+      "modality": "text",
+      "observation_type": "official_sitrep",
+      "value": {
+        "title": "NH-107 Kedarnath Highway Road Blockage at Basukedar",
+        "blocked_km": 340,
+        "stranded_vehicles": 420
+      },
+      "quality_status": "verified",
+      "quality_score": 0.99,
+      "language": "en",
+      "source_updated_at": "2026-10-24T16:30:00+00:00",
+      "source_revision": "v1",
+      "record_hash": "hash_text_sitrep_003",
+      "status": "active",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "observation_id": "0a382fd0-7e98-5920-a992-4dc937089491",
+      "dataset_version_id": "ef55e395-c90f-56e2-a8e8-b7c0d45b4e02",
+      "raw_object_id": "12124199-a364-59f8-afac-b6a9a835ad47",
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "source_record_id": "REC_SDRF_PHOTO_LSD_01",
+      "observed_at": "2026-10-24T16:30:00+00:00",
+      "observed_start": "2026-10-24T16:30:00+00:00",
+      "observed_end": "2026-10-24T16:30:00+00:00",
+      "published_at": "2026-10-24T16:30:00+00:00",
+      "time_precision": "second",
+      "latitude": 30.4852,
+      "longitude": 79.0623,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.0623,
+          30.4852
+        ]
+      },
+      "location_uncertainty_km": 0.01,
+      "modality": "image",
+      "observation_type": "geotagged_field_photo",
+      "value": {
+        "caption": "Massive debris mass spanning NH-107 near Basukedar bridge",
+        "width": 1920,
+        "height": 1080
+      },
+      "quality_status": "verified",
+      "quality_score": 0.97,
+      "language": "en",
+      "source_updated_at": "2026-10-24T16:30:00+00:00",
+      "source_revision": "orig",
+      "record_hash": "hash_photo_lsd_004",
+      "status": "active",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "observation_id": "f6443b37-b5d3-5cd3-908b-1b15b1d28c64",
+      "dataset_version_id": "9f63ad3d-bede-5b9d-a157-057954d89e45",
+      "raw_object_id": "6dbc44e4-9032-5dd5-a4dc-02468e614a04",
+      "hazard_id": "8418325e-ff71-54f1-9d68-54e4b768f212",
+      "source_record_id": "REC_CWC_MANDAKINI_SURGE",
+      "observed_at": "2026-10-24T17:30:00+00:00",
+      "observed_start": "2026-10-24T16:30:00+00:00",
+      "observed_end": "2026-10-24T17:30:00+00:00",
+      "published_at": "2026-10-24T17:30:00+00:00",
+      "time_precision": "hour",
+      "latitude": 30.285,
+      "longitude": 78.98,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.98,
+          30.285
+        ]
+      },
+      "location_uncertainty_km": 0.05,
+      "modality": "tabular",
+      "observation_type": "water_level_gauge",
+      "value": {
+        "gauge_reading_m": 625.8,
+        "danger_level_m": 624.0,
+        "discharge_cumec": 1420.0
+      },
+      "quality_status": "verified",
+      "quality_score": 0.96,
+      "language": "en",
+      "source_updated_at": "2026-10-24T17:30:00+00:00",
+      "source_revision": "rev1",
+      "record_hash": "hash_stream_surge_005",
+      "status": "active",
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "observation_region": [
+    {
+      "observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "relation": "within",
+      "is_primary": true,
+      "method": "point_in_polygon",
+      "confidence": 1.0,
+      "created_at": "2026-10-24T14:30:00+00:00",
+      "derived_result_id": null,
+      "pipeline_run_id": "637e1e58-32f6-5393-953c-b04c1da2a91f"
+    },
+    {
+      "observation_id": "693a1832-16ef-5c2b-b204-895b40bd466e",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "relation": "within",
+      "is_primary": true,
+      "method": "raster_boundary_intersect",
+      "confidence": 0.95,
+      "created_at": "2026-10-24T12:30:00+00:00",
+      "derived_result_id": null,
+      "pipeline_run_id": "637e1e58-32f6-5393-953c-b04c1da2a91f"
+    },
+    {
+      "observation_id": "28d6163e-aceb-5cd2-8363-a2297f24edf0",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "relation": "within",
+      "is_primary": true,
+      "method": "gazetteer_named_entity",
+      "confidence": 0.99,
+      "created_at": "2026-10-24T16:30:00+00:00",
+      "derived_result_id": null,
+      "pipeline_run_id": "637e1e58-32f6-5393-953c-b04c1da2a91f"
+    }
+  ],
+  "observation_relation": [
+    {
+      "relation_id": "087b996a-4a33-509f-94e2-f227cfb5f632",
+      "observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "related_observation_id": "f6443b37-b5d3-5cd3-908b-1b15b1d28c64",
+      "pipeline_run_id": "637e1e58-32f6-5393-953c-b04c1da2a91f",
+      "relation_type": "corroborates",
+      "method": "hydrological_causal_correlation",
+      "score": 0.94,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "relation_id": "61d2428a-2684-5bad-8f58-60f799f935ec",
+      "observation_id": "693a1832-16ef-5c2b-b204-895b40bd466e",
+      "related_observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "pipeline_run_id": "637e1e58-32f6-5393-953c-b04c1da2a91f",
+      "relation_type": "supports",
+      "method": "soil_saturation_precipitation_crossmatch",
+      "score": 0.88,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "text_item": [
+    {
+      "observation_id": "28d6163e-aceb-5cd2-8363-a2297f24edf0",
+      "parent_observation_id": null,
+      "text_kind": "official_sitrep",
+      "title": "USDMA Incident SITREP #04: NH-107 Kedarnath Highway Road Blockage at Basukedar",
+      "body": "Massive debris slide triggered by 128.4mm rainfall at Basukedar along NH-107. Road completely severed over 340 meters. SDRF teams dispatched from Agastyamuni. 420 pilgrims and 65 vehicles safely rerouted to designated transit shelters.",
+      "content_hash": "a5e8c1d2e3f405162738495a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c",
+      "url": "https://usdma.uk.gov.in/sitrep/20261024_04",
+      "author": "Dr. V. K. Negi, SEOC In-Charge",
+      "publisher": "Uttarakhand State Emergency Operation Centre",
+      "platform": "SEOC Official Portal",
+      "is_official": true,
+      "engagement": {
+        "views": 1420,
+        "shares": 380
+      },
+      "entities_raw": {
+        "locations": [
+          "Basukedar",
+          "Rudraprayag",
+          "NH-107",
+          "Agastyamuni"
+        ],
+        "hazards": [
+          "Landslide",
+          "Road Blockage"
+        ],
+        "agencies": [
+          "SDRF",
+          "USDMA",
+          "BRO"
+        ]
+      }
+    }
+  ],
+  "raster_product": [
+    {
+      "observation_id": "693a1832-16ef-5c2b-b204-895b40bd466e",
+      "platform": "EOS-04",
+      "sensor": "C-SAR",
+      "product_id": "E04_SAR_CRS_08JUL2023_189124938037",
+      "processing_level": "Level-1B GRD",
+      "acquisition_start": "2026-10-24T06:30:00+00:00",
+      "acquisition_end": "2026-10-24T06:30:00+00:00",
+      "resolution_m": 10.0,
+      "crs": "EPSG:32644",
+      "cloud_cover_pct": 0.0,
+      "polarization": "VV+VH",
+      "orbit_pass": "Descending",
+      "variables": {
+        "gamma0_hh": "dB",
+        "gamma0_hv": "dB",
+        "cross_pol_ratio": "dB"
+      },
+      "bands": [
+        "gamma0_hh",
+        "gamma0_hv"
+      ],
+      "is_pre_event": false,
+      "storage_uri": "s3://disaster-lake/rasters/sar/eos04_rudraprayag_20261024.tif"
+    }
+  ],
+  "media": [
+    {
+      "media_id": "b7861cd0-d722-5174-85d5-08210d0dada8",
+      "observation_id": "0a382fd0-7e98-5920-a992-4dc937089491",
+      "raw_object_id": "12124199-a364-59f8-afac-b6a9a835ad47",
+      "media_type": "image/jpeg",
+      "source_url": "https://usdma.uk.gov.in/media/photos/20261024_nh107_debris.jpg",
+      "raw_locator": "$.photos[0]",
+      "perceptual_hash": "a8f0c2d3e4b51627",
+      "width": 1920,
+      "height": 1080,
+      "duration_sec": null,
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.0623,
+          30.4852
+        ]
+      },
+      "captured_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "model": [
+    {
+      "model_id": "d3330b57-b123-5ac3-a8c8-8824e826cfb6",
+      "training_dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "name": "RandomForest_LandslideTrigger_v2",
+      "version": "v2.1.0",
+      "task": "Landslide Probability Estimation",
+      "framework": "scikit-learn / XGBoost",
+      "architecture": "Gradient Boosted Ensembled Trees",
+      "model_uri": "s3://disaster-lake/models/rf_landslide_trigger_v2.pkl",
+      "config": {
+        "features": [
+          "slope_deg",
+          "accum_rainfall_48h",
+          "sar_cross_pol_db",
+          "distance_to_fault_m"
+        ]
+      },
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "model_id": "8b83bec6-7ed4-5020-8958-e1a3dfdf0f3d",
+      "training_dataset_version_id": "9f63ad3d-bede-5b9d-a157-057954d89e45",
+      "name": "CausalCascadeEstimator_v1",
+      "version": "v1.4.0",
+      "task": "Cascading Hazard Graph Inference",
+      "framework": "PyTorch Geometric",
+      "architecture": "Spatio-Temporal Graph Neural Network",
+      "model_uri": "s3://disaster-lake/models/gnn_cascade_v1.pt",
+      "config": {
+        "node_types": [
+          "rain",
+          "river",
+          "landslide",
+          "road",
+          "flood"
+        ]
+      },
+      "is_active": true,
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "derived_result": [
+    {
+      "derived_result_id": "62346075-d9ca-55dd-84b2-8c51b8874d28",
+      "observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "model_id": "d3330b57-b123-5ac3-a8c8-8824e826cfb6",
+      "supersedes_result_id": null,
+      "result_type": "slope_failure_probability",
+      "status": "completed",
+      "result": {
+        "predicted_hazard": "Landslide",
+        "failure_probability": 0.942,
+        "critical_trigger": "Rainfall threshold exceeded (128.4mm vs 90mm capacity)",
+        "susceptible_slope_deg": 38.5
+      },
+      "confidence": 0.94,
+      "output_uri": "s3://disaster-lake/derived/landslide_prob_basukedar.json",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "derived_result_id": "d3e0608c-b66f-531f-926c-cc469680b5fb",
+      "observation_id": "f6443b37-b5d3-5cd3-908b-1b15b1d28c64",
+      "model_id": "8b83bec6-7ed4-5020-8958-e1a3dfdf0f3d",
+      "supersedes_result_id": null,
+      "result_type": "inundation_risk_polygon",
+      "status": "completed",
+      "result": {
+        "river_basin": "Mandakini",
+        "inundation_area_sqkm": 4.8,
+        "downstream_warning_time_min": 45
+      },
+      "confidence": 0.89,
+      "output_uri": "s3://disaster-lake/derived/inundation_mandakini.geojson",
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "derived_result_input": [
+    {
+      "derived_result_input_id": "e9e1305b-279b-5ac3-93ff-25f1aaa6dcda",
+      "derived_result_id": "62346075-d9ca-55dd-84b2-8c51b8874d28",
+      "input_role": "primary_precipitation_telemetry",
+      "observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "media_id": null,
+      "static_raster_id": null,
+      "geo_feature_id": null,
+      "input_result_id": null,
+      "modality_event_id": null,
+      "event_id": null,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "derived_result_input_id": "a8dcae01-a78c-5624-8132-28c0bce6d84d",
+      "derived_result_id": "62346075-d9ca-55dd-84b2-8c51b8874d28",
+      "input_role": "terrain_slope_raster",
+      "observation_id": null,
+      "media_id": null,
+      "static_raster_id": "86060e04-cb15-5b96-b5f6-60d3f4528ee9",
+      "geo_feature_id": null,
+      "input_result_id": null,
+      "modality_event_id": null,
+      "event_id": null,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "source_score": [
+    {
+      "source_score_id": "ad9bf751-ccc1-56da-8c11-da0ca3220576",
+      "source_id": "d6febad9-d421-57f4-80f4-132325a343c2",
+      "hazard_id": "29515cc0-3ede-5d26-b0ea-08c515108d86",
+      "task": "precipitation_telemetry_accuracy",
+      "score_type": "accuracy",
+      "score": 0.985,
+      "methodology": "Cross-validation with IMD automated weather stations",
+      "methodology_version": "v1.0",
+      "evidence": {
+        "paired_samples": 420,
+        "r2_score": 0.97
+      },
+      "valid_from": "2026-10-22T18:30:00+00:00",
+      "valid_to": "2026-10-26T18:30:00+00:00",
+      "created_at": "2026-10-22T18:30:00+00:00"
+    },
+    {
+      "source_score_id": "d4a036f5-992e-5548-980b-c256cbd75bdc",
+      "source_id": "2f00300e-11d5-5a95-95f3-cd24fcbdcab3",
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "task": "landslide_susceptibility_reliability",
+      "score_type": "reliability",
+      "score": 0.942,
+      "methodology": "NRSC Field Audits in Garhwal Himalaya",
+      "methodology_version": "v2.0",
+      "evidence": {
+        "verified_historical_scars": 892,
+        "true_positive_rate": 0.93
+      },
+      "valid_from": "2026-10-22T18:30:00+00:00",
+      "valid_to": "2026-10-26T18:30:00+00:00",
+      "created_at": "2026-10-22T18:30:00+00:00"
+    }
+  ],
+  "modality_event": [
+    {
+      "modality_event_id": "0264a36a-c40e-5465-bc93-a2c7feb3c2b1",
+      "hazard_id": "29515cc0-3ede-5d26-b0ea-08c515108d86",
+      "pipeline_run_id": "199c98bc-ee75-5118-97b0-8fa1754b3c8b",
+      "supersedes_modality_event_id": null,
+      "origin": "sensor",
+      "evidence_domain": "weather",
+      "start_time": "2026-10-24T12:30:00+00:00",
+      "end_time": "2026-10-24T14:30:00+00:00",
+      "time_precision": "hour",
+      "published_at": "2026-10-24T14:30:00+00:00",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.056333,
+          30.439194
+        ]
+      },
+      "location_uncertainty_km": 0.1,
+      "magnitude": 128.4,
+      "magnitude_type": "precipitation_mm_6h",
+      "depth_km": null,
+      "severity": "Critical",
+      "confidence": 0.98,
+      "status": "active",
+      "attributes": {
+        "station_id": "CWC_UK_Basukedar",
+        "sensor_reading": "128.4mm"
+      },
+      "created_at": "2026-10-24T14:30:00+00:00"
+    },
+    {
+      "modality_event_id": "39677113-6362-5c48-97b4-ad3bd7017ed4",
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "pipeline_run_id": "199c98bc-ee75-5118-97b0-8fa1754b3c8b",
+      "supersedes_modality_event_id": null,
+      "origin": "satellite",
+      "evidence_domain": "sar_satellite",
+      "start_time": "2026-10-24T06:30:00+00:00",
+      "end_time": "2026-10-24T12:30:00+00:00",
+      "time_precision": "hour",
+      "published_at": "2026-10-24T12:30:00+00:00",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.049,
+          30.498
+        ]
+      },
+      "location_uncertainty_km": 0.05,
+      "magnitude": 94.2,
+      "magnitude_type": "soil_saturation_pct",
+      "depth_km": null,
+      "severity": "High",
+      "confidence": 0.95,
+      "status": "active",
+      "attributes": {
+        "sensor": "EOS-04 C-SAR",
+        "cross_pol_db": -4.2
+      },
+      "created_at": "2026-10-24T12:30:00+00:00"
+    },
+    {
+      "modality_event_id": "ff21afbc-1a7c-5048-be0d-255ec4871878",
+      "hazard_id": "8418325e-ff71-54f1-9d68-54e4b768f212",
+      "pipeline_run_id": "199c98bc-ee75-5118-97b0-8fa1754b3c8b",
+      "supersedes_modality_event_id": null,
+      "origin": "sensor",
+      "evidence_domain": "hydrological",
+      "start_time": "2026-10-24T16:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "minute",
+      "published_at": "2026-10-24T17:30:00+00:00",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.98,
+          30.285
+        ]
+      },
+      "location_uncertainty_km": 0.05,
+      "magnitude": 625.8,
+      "magnitude_type": "water_level_masl",
+      "depth_km": null,
+      "severity": "High",
+      "confidence": 0.96,
+      "status": "active",
+      "attributes": {
+        "river": "Mandakini",
+        "danger_level": 624.0,
+        "status": "Above Danger Level"
+      },
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "modality_event_id": "940202e1-fa00-5ee7-a7d4-16dbca8c361c",
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "pipeline_run_id": "199c98bc-ee75-5118-97b0-8fa1754b3c8b",
+      "supersedes_modality_event_id": null,
+      "origin": "human_curated",
+      "evidence_domain": "official_report",
+      "start_time": "2026-10-24T16:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "minute",
+      "published_at": "2026-10-24T16:30:00+00:00",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.062,
+          30.485
+        ]
+      },
+      "location_uncertainty_km": 0.1,
+      "magnitude": 18500.0,
+      "magnitude_type": "debris_volume_m3",
+      "depth_km": null,
+      "severity": "Critical",
+      "confidence": 0.99,
+      "status": "active",
+      "attributes": {
+        "road": "NH-107",
+        "location": "Basukedar"
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "modality_event_id": "07ce5608-6425-517a-a05c-ebdb0bfd7ecf",
+      "hazard_id": "617d2d7d-53b6-5138-8195-3ae5445c982e",
+      "pipeline_run_id": "199c98bc-ee75-5118-97b0-8fa1754b3c8b",
+      "supersedes_modality_event_id": null,
+      "origin": "human_curated",
+      "evidence_domain": "infrastructure",
+      "start_time": "2026-10-24T16:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "minute",
+      "published_at": "2026-10-24T16:30:00+00:00",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.062,
+          30.485
+        ]
+      },
+      "location_uncertainty_km": 0.05,
+      "magnitude": 340.0,
+      "magnitude_type": "carriageway_blocked_m",
+      "depth_km": null,
+      "severity": "Critical",
+      "confidence": 1.0,
+      "status": "active",
+      "attributes": {
+        "route": "Kedarnath Highway NH-107",
+        "traffic": "Suspended"
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "modality_event_input": [
+    {
+      "modality_event_input_id": "41ea910d-d49e-5ebb-9fd9-c1fc96b63f42",
+      "modality_event_id": "0264a36a-c40e-5465-bc93-a2c7feb3c2b1",
+      "observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "derived_result_id": null,
+      "input_role": "primary_rainfall_telemetry",
+      "weight": 1.0,
+      "created_at": "2026-10-24T14:30:00+00:00"
+    },
+    {
+      "modality_event_input_id": "729f9929-f9a3-5c3d-8ea7-271adab23022",
+      "modality_event_id": "39677113-6362-5c48-97b4-ad3bd7017ed4",
+      "observation_id": "693a1832-16ef-5c2b-b204-895b40bd466e",
+      "derived_result_id": null,
+      "input_role": "sar_backscatter_raster",
+      "weight": 0.95,
+      "created_at": "2026-10-24T12:30:00+00:00"
+    },
+    {
+      "modality_event_input_id": "1ad7a51c-1a43-5070-b2a5-5dc1ba88989b",
+      "modality_event_id": "ff21afbc-1a7c-5048-be0d-255ec4871878",
+      "observation_id": "f6443b37-b5d3-5cd3-908b-1b15b1d28c64",
+      "derived_result_id": null,
+      "input_role": "water_level_sensor_reading",
+      "weight": 1.0,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "modality_event_input_id": "aa91d020-eb06-5e13-abba-1fad8d9bebf5",
+      "modality_event_id": "940202e1-fa00-5ee7-a7d4-16dbca8c361c",
+      "observation_id": "28d6163e-aceb-5cd2-8363-a2297f24edf0",
+      "derived_result_id": null,
+      "input_role": "official_sitrep_text",
+      "weight": 1.0,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "modality_event_input_id": "1126eb72-f2fe-5ada-9c84-7b7d66a0b04b",
+      "modality_event_id": "07ce5608-6425-517a-a05c-ebdb0bfd7ecf",
+      "observation_id": null,
+      "derived_result_id": "62346075-d9ca-55dd-84b2-8c51b8874d28",
+      "input_role": "model_predicted_highway_severance",
+      "weight": 0.92,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "event_match": [
+    {
+      "event_match_id": "7473cac6-30f7-5ec6-983e-97e00511e06e",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "modality_event_a_id": "0264a36a-c40e-5465-bc93-a2c7feb3c2b1",
+      "modality_event_b_id": "39677113-6362-5c48-97b4-ad3bd7017ed4",
+      "overall_score": 0.93,
+      "decision": "match",
+      "method": "rule_based",
+      "signals": {
+        "spatial_overlap_pct": 92.4,
+        "temporal_lag_hours": 2.0
+      },
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "event_match_id": "575cad56-9923-538f-8b1a-7e8b10e523b2",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "modality_event_a_id": "940202e1-fa00-5ee7-a7d4-16dbca8c361c",
+      "modality_event_b_id": "07ce5608-6425-517a-a05c-ebdb0bfd7ecf",
+      "overall_score": 0.99,
+      "decision": "match",
+      "method": "rule_based",
+      "signals": {
+        "road_id_match": true,
+        "geotag_distance_meters": 15.0
+      },
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "event": [
+    {
+      "event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "hazard_id": "29515cc0-3ede-5d26-b0ea-08c515108d86",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "event_code": "EV-RAIN-2026-10-08-002",
+      "name": "Heavy Rainfall in Mandakini Catchment",
+      "start_time": "2026-10-24T12:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "hour",
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.056333,
+          30.439194
+        ]
+      },
+      "affected_area": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.95,
+              30.35
+            ],
+            [
+              79.15,
+              30.35
+            ],
+            [
+              79.15,
+              30.55
+            ],
+            [
+              78.95,
+              30.55
+            ],
+            [
+              78.95,
+              30.35
+            ]
+          ]
+        ]
+      },
+      "magnitude": 128.4,
+      "magnitude_type": "precipitation_mm",
+      "severity": "Critical",
+      "confidence": 0.98,
+      "confidence_method": "Multi-station telemetry corroborated with IMD Doppler radar",
+      "status": "ongoing",
+      "verification": "verified",
+      "verification_notes": "Corroborated by CWC Basukedar, CWC Rudraprayag, and IMD AWS",
+      "description": "Continuous cloudburst-induced heavy precipitation across Rudraprayag upper catchment reaching 128.4 mm in 6 hours.",
+      "created_at": "2026-10-24T14:30:00+00:00",
+      "updated_at": "2026-10-24T18:30:00+00:00"
+    },
+    {
+      "event_id": "e41d692b-5e52-5e94-ae1a-416ee5465bcc",
+      "hazard_id": "8418325e-ff71-54f1-9d68-54e4b768f212",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "event_code": "EV-RIV-2026-10-09-002",
+      "name": "Mandakini River Surging Above Warning Mark",
+      "start_time": "2026-10-24T15:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "hour",
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          78.98,
+          30.285
+        ]
+      },
+      "affected_area": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.92,
+              30.25
+            ],
+            [
+              79.05,
+              30.25
+            ],
+            [
+              79.05,
+              30.35
+            ],
+            [
+              78.92,
+              30.35
+            ],
+            [
+              78.92,
+              30.25
+            ]
+          ]
+        ]
+      },
+      "magnitude": 625.8,
+      "magnitude_type": "water_level_masl",
+      "severity": "High",
+      "confidence": 0.96,
+      "confidence_method": "CWC Rudraprayag Sangam gauge telemetry",
+      "status": "ongoing",
+      "verification": "verified",
+      "verification_notes": "Exceeds danger level by 1.8 meters.",
+      "description": "Rapid water surge in Mandakini River threatening low-lying ghats and settlements downstream of Agastyamuni.",
+      "created_at": "2026-10-24T15:30:00+00:00",
+      "updated_at": "2026-10-24T18:30:00+00:00"
+    },
+    {
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "hazard_id": "efafe8ce-a7a3-56d8-85ac-072f6a50859e",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "event_code": "EV-LSD-2026-10-09-001",
+      "name": "Basukedar Major Landslide on NH-107",
+      "start_time": "2026-10-24T16:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "minute",
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.062,
+          30.485
+        ]
+      },
+      "affected_area": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.04,
+              30.46
+            ],
+            [
+              79.08,
+              30.46
+            ],
+            [
+              79.08,
+              30.5
+            ],
+            [
+              79.04,
+              30.5
+            ],
+            [
+              79.04,
+              30.46
+            ]
+          ]
+        ]
+      },
+      "magnitude": 18500.0,
+      "magnitude_type": "debris_volume_m3",
+      "severity": "Critical",
+      "confidence": 0.99,
+      "confidence_method": "SDRF SITREP + Geotagged Drone Imagery + BRO On-site Survey",
+      "status": "active",
+      "verification": "verified",
+      "verification_notes": "SDRF Quick Response Team on site; BRO Task Force 752 deployed with excavators",
+      "description": "Major slope failure triggering rockfall and debris avalanche across Kedarnath Highway (NH-107) near Basukedar.",
+      "created_at": "2026-10-24T16:30:00+00:00",
+      "updated_at": "2026-10-24T18:30:00+00:00"
+    },
+    {
+      "event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "hazard_id": "617d2d7d-53b6-5138-8195-3ae5445c982e",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "event_code": "EV-ROD-2026-10-09-004",
+      "name": "NH-107 Kedarnath Highway Road Blockage",
+      "start_time": "2026-10-24T16:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "minute",
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.062,
+          30.485
+        ]
+      },
+      "affected_area": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.05,
+              30.47
+            ],
+            [
+              79.07,
+              30.47
+            ],
+            [
+              79.07,
+              30.49
+            ],
+            [
+              79.05,
+              30.49
+            ],
+            [
+              79.05,
+              30.47
+            ]
+          ]
+        ]
+      },
+      "magnitude": 340.0,
+      "magnitude_type": "road_length_m",
+      "severity": "Critical",
+      "confidence": 1.0,
+      "confidence_method": "District Police Dispatch + BRO Ground Confirmation",
+      "status": "active",
+      "verification": "verified",
+      "verification_notes": "Vehicular movement suspended between Agastyamuni and Kund",
+      "description": "Complete vehicular cutoff along 340m stretch of National Highway 107. Traffic diverted via Tehri bypass.",
+      "created_at": "2026-10-24T16:30:00+00:00",
+      "updated_at": "2026-10-24T18:30:00+00:00"
+    },
+    {
+      "event_id": "82b3a1fa-d70a-54ca-955b-979c647d767a",
+      "hazard_id": "8418325e-ff71-54f1-9d68-54e4b768f212",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "event_code": "EV-FLD-2026-10-09-005",
+      "name": "Mandakini Flash Flood Downstream Warning",
+      "start_time": "2026-10-24T17:30:00+00:00",
+      "end_time": "2026-10-24T18:30:00+00:00",
+      "time_precision": "minute",
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          78.98,
+          30.285
+        ]
+      },
+      "affected_area": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.9,
+              30.2
+            ],
+            [
+              79.05,
+              30.2
+            ],
+            [
+              79.05,
+              30.35
+            ],
+            [
+              78.9,
+              30.35
+            ],
+            [
+              78.9,
+              30.2
+            ]
+          ]
+        ]
+      },
+      "magnitude": 1420.0,
+      "magnitude_type": "discharge_cumec",
+      "severity": "High",
+      "confidence": 0.88,
+      "confidence_method": "Causal Cascade GNN Prediction + Gauge Inflow Model",
+      "status": "active",
+      "verification": "likely_true",
+      "verification_notes": "Debris dam impoundment breach warning issued by SEOC",
+      "description": "Secondary flash flood wave generated by potential debris dam breach in Basukedar tributary stream.",
+      "created_at": "2026-10-24T17:30:00+00:00",
+      "updated_at": "2026-10-24T18:30:00+00:00"
+    }
+  ],
+  "event_attribute_selection": [
+    {
+      "event_attribute_selection_id": "8a14ca48-87d4-50a9-badc-bccb9b6bb136",
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "modality_event_id": "940202e1-fa00-5ee7-a7d4-16dbca8c361c",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "attribute_name": "debris_volume_m3",
+      "value": {
+        "value": 18500.0,
+        "unit": "m3",
+        "source": "SDRF SITREP #04"
+      },
+      "method": "authoritative_agency_priority",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_attribute_selection_id": "0c5c33a7-daf5-5e39-af96-83a3e9f8836d",
+      "event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "modality_event_id": "0264a36a-c40e-5465-bc93-a2c7feb3c2b1",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "attribute_name": "cumulative_rainfall_mm",
+      "value": {
+        "value": 128.4,
+        "unit": "mm",
+        "source": "CWC_UK_Basukedar"
+      },
+      "method": "highest_sensor_accuracy",
+      "created_at": "2026-10-24T14:30:00+00:00"
+    }
+  ],
+  "event_member": [
+    {
+      "event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "modality_event_id": "0264a36a-c40e-5465-bc93-a2c7feb3c2b1",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "membership_score": 1.0,
+      "is_primary": true,
+      "created_at": "2026-10-24T14:30:00+00:00"
+    },
+    {
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "modality_event_id": "39677113-6362-5c48-97b4-ad3bd7017ed4",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "membership_score": 0.94,
+      "is_primary": false,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "modality_event_id": "940202e1-fa00-5ee7-a7d4-16dbca8c361c",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "membership_score": 1.0,
+      "is_primary": true,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_id": "e41d692b-5e52-5e94-ae1a-416ee5465bcc",
+      "modality_event_id": "ff21afbc-1a7c-5048-be0d-255ec4871878",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "membership_score": 1.0,
+      "is_primary": true,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "modality_event_id": "07ce5608-6425-517a-a05c-ebdb0bfd7ecf",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "membership_score": 1.0,
+      "is_primary": true,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "event_evidence": [
+    {
+      "event_evidence_id": "5592e072-1030-5340-a7d4-64de3a3920c4",
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "observation_id": "28d6163e-aceb-5cd2-8363-a2297f24edf0",
+      "derived_result_id": null,
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "stance": "supports",
+      "confidence": 0.99,
+      "is_primary": true,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_evidence_id": "ad66db0e-997e-5f14-ab4f-3a690945f394",
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "observation_id": "693a1832-16ef-5c2b-b204-895b40bd466e",
+      "derived_result_id": null,
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "stance": "supports",
+      "confidence": 0.95,
+      "is_primary": false,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_evidence_id": "53c03c40-f42f-5a9c-bced-beb4629c7121",
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "observation_id": null,
+      "derived_result_id": "62346075-d9ca-55dd-84b2-8c51b8874d28",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "stance": "supports",
+      "confidence": 0.94,
+      "is_primary": false,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "event_region": [
+    {
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "relation": "within",
+      "overlap_fraction": 1.0,
+      "is_primary": true,
+      "method": "point_in_polygon",
+      "created_at": "2026-10-24T16:30:00+00:00",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d"
+    },
+    {
+      "event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "relation": "overlaps",
+      "overlap_fraction": 0.85,
+      "is_primary": true,
+      "method": "grid_intersection",
+      "created_at": "2026-10-24T14:30:00+00:00",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d"
+    },
+    {
+      "event_id": "e41d692b-5e52-5e94-ae1a-416ee5465bcc",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "relation": "within",
+      "overlap_fraction": 1.0,
+      "is_primary": true,
+      "method": "river_reach_intersection",
+      "created_at": "2026-10-24T17:30:00+00:00",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d"
+    }
+  ],
+  "event_impact": [
+    {
+      "event_impact_id": "d247cc93-8fc9-5fdd-a359-0cb3dc3eae2b",
+      "event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "geo_feature_id": null,
+      "source_observation_id": "28d6163e-aceb-5cd2-8363-a2297f24edf0",
+      "source_derived_result_id": null,
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "kind": "infrastructure_damaged",
+      "category": "transportation",
+      "origin": "reported",
+      "metric_value": 340.0,
+      "unit": "meters",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.062,
+          30.485
+        ]
+      },
+      "confidence": 0.99,
+      "is_canonical": true,
+      "method": "sdrf_ground_survey",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_impact_id": "d952767f-fb79-57b7-82c6-fda7bcbab806",
+      "event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "geo_feature_id": null,
+      "source_observation_id": "28d6163e-aceb-5cd2-8363-a2297f24edf0",
+      "source_derived_result_id": null,
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "kind": "population_displaced",
+      "category": "humanitarian",
+      "origin": "reported",
+      "metric_value": 420.0,
+      "unit": "persons",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          79.062,
+          30.485
+        ]
+      },
+      "confidence": 0.95,
+      "is_canonical": true,
+      "method": "district_shelter_registration",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_impact_id": "86ebbbf5-886c-5561-9fb6-f509174b0169",
+      "event_id": "82b3a1fa-d70a-54ca-955b-979c647d767a",
+      "admin_region_id": "41af3ede-3e42-5124-92d9-bfafa3875b37",
+      "geo_feature_id": null,
+      "source_observation_id": null,
+      "source_derived_result_id": "d3e0608c-b66f-531f-926c-cc469680b5fb",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "kind": "economic_loss",
+      "category": "infrastructure_risk",
+      "origin": "predicted",
+      "metric_value": 12.5,
+      "unit": "crore_inr",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.98,
+          30.285
+        ]
+      },
+      "confidence": 0.85,
+      "is_canonical": false,
+      "method": "hydrodynamic_inundation_model",
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "event_lineage": [
+    {
+      "event_lineage_id": "f0f2e242-761e-527b-ab1a-632bc99b2d9f",
+      "from_event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "to_event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "relation": "escalates_to",
+      "reason": "Rainfall saturation triggered critical slope shear failure",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_lineage_id": "60bb1976-9e67-5890-a7e8-404ad138c452",
+      "from_event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "to_event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "relation": "splits_into",
+      "reason": "Debris mass completely severed the highway corridor",
+      "created_at": "2026-10-24T16:30:00+00:00"
+    }
+  ],
+  "event_relationship": [
+    {
+      "event_relationship_id": "6b746db9-b1b6-5ff7-bfa1-6668bba12440",
+      "parent_event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "child_event_id": "e41d692b-5e52-5e94-ae1a-416ee5465bcc",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "relationship_type": "causes",
+      "confidence": 0.98,
+      "evidence": {
+        "epistemic_badge": "Confirmed",
+        "notes": "Runoff generated direct river surge"
+      },
+      "created_at": "2026-10-24T15:30:00+00:00"
+    },
+    {
+      "event_relationship_id": "bf0d5388-4428-5257-adec-015d61ce7ca7",
+      "parent_event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "child_event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "relationship_type": "triggers",
+      "confidence": 0.95,
+      "evidence": {
+        "epistemic_badge": "Confirmed",
+        "notes": "Slope failure triggered by 128.4mm rainfall"
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_relationship_id": "2a325382-f101-51b2-9cdb-4bdcea49b1ef",
+      "parent_event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "child_event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "relationship_type": "results_in",
+      "confidence": 0.99,
+      "evidence": {
+        "epistemic_badge": "Observed",
+        "notes": "Debris deposited directly on carriageway"
+      },
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_relationship_id": "09a3b1fd-4556-5a8b-a5fd-1d5cda7752ab",
+      "parent_event_id": "e41d692b-5e52-5e94-ae1a-416ee5465bcc",
+      "child_event_id": "82b3a1fa-d70a-54ca-955b-979c647d767a",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "relationship_type": "escalates_to",
+      "confidence": 0.88,
+      "evidence": {
+        "epistemic_badge": "Inferred",
+        "notes": "River surge approaching flood threshold"
+      },
+      "created_at": "2026-10-24T17:30:00+00:00"
+    },
+    {
+      "event_relationship_id": "3704e7a7-df6e-588e-954b-4fc1538921d8",
+      "parent_event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "child_event_id": "82b3a1fa-d70a-54ca-955b-979c647d767a",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "relationship_type": "debris_dam_overflow",
+      "confidence": 0.82,
+      "evidence": {
+        "epistemic_badge": "Possible",
+        "notes": "Tributary blockage could release sudden flood surge"
+      },
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "event_group": [
+    {
+      "event_group_id": "dc8f0030-5a16-5cd9-95df-f42caaf61753",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "event_group_code": "EP-UTT-2026-10-001",
+      "name": "Rudraprayag Heavy Rainfall & Cascading Landslide Episode",
+      "description": "A severe hydrometeorological cascading disaster episode initiated by localized cloudburst in upper Mandakini basin, inducing steep slope failure at Basukedar, catastrophic blockage of Kedarnath Highway (NH-107), and downstream river inundation threat.",
+      "start_time": "2026-10-24T12:30:00+00:00",
+      "end_time": null,
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.056,
+          30.439
+        ]
+      },
+      "affected_area": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.9,
+              30.2
+            ],
+            [
+              79.2,
+              30.2
+            ],
+            [
+              79.2,
+              30.6
+            ],
+            [
+              78.9,
+              30.6
+            ],
+            [
+              78.9,
+              30.2
+            ]
+          ]
+        ]
+      },
+      "severity": "Critical",
+      "confidence": 0.98,
+      "status": "active",
+      "created_at": "2026-10-24T12:30:00+00:00",
+      "updated_at": "2026-10-24T18:30:00+00:00"
+    },
+    {
+      "event_group_id": "0c2ad829-15e4-5507-98eb-c0a6166753c1",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "event_group_code": "EP-CHA-2026-10-002",
+      "name": "Chamoli Glacial Stream Surge & Catchment Alert",
+      "description": "High glacial melt and localized precipitation surge triggering high alert along Dhauliganga river banks.",
+      "start_time": "2026-10-23T18:30:00+00:00",
+      "end_time": "2026-10-24T14:30:00+00:00",
+      "centroid": {
+        "type": "Point",
+        "coordinates": [
+          79.56,
+          30.55
+        ]
+      },
+      "affected_area": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              79.4,
+              30.4
+            ],
+            [
+              79.7,
+              30.4
+            ],
+            [
+              79.7,
+              30.7
+            ],
+            [
+              79.4,
+              30.7
+            ],
+            [
+              79.4,
+              30.4
+            ]
+          ]
+        ]
+      },
+      "severity": "Moderate",
+      "confidence": 0.91,
+      "status": "resolved",
+      "created_at": "2026-10-23T18:30:00+00:00",
+      "updated_at": "2026-10-24T14:30:00+00:00"
+    }
+  ],
+  "event_group_member": [
+    {
+      "event_group_id": "dc8f0030-5a16-5cd9-95df-f42caaf61753",
+      "event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "role": "trigger",
+      "is_primary": true,
+      "confidence": 0.98,
+      "created_at": "2026-10-24T14:30:00+00:00"
+    },
+    {
+      "event_group_id": "dc8f0030-5a16-5cd9-95df-f42caaf61753",
+      "event_id": "e41d692b-5e52-5e94-ae1a-416ee5465bcc",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "role": "consequence",
+      "is_primary": false,
+      "confidence": 0.95,
+      "created_at": "2026-10-24T15:30:00+00:00"
+    },
+    {
+      "event_group_id": "dc8f0030-5a16-5cd9-95df-f42caaf61753",
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "role": "primary",
+      "is_primary": true,
+      "confidence": 0.99,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_group_id": "dc8f0030-5a16-5cd9-95df-f42caaf61753",
+      "event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "role": "consequence",
+      "is_primary": false,
+      "confidence": 0.99,
+      "created_at": "2026-10-24T16:30:00+00:00"
+    },
+    {
+      "event_group_id": "dc8f0030-5a16-5cd9-95df-f42caaf61753",
+      "event_id": "82b3a1fa-d70a-54ca-955b-979c647d767a",
+      "pipeline_run_id": "5b362100-dd8a-5aaa-9c17-cd51ae44ba2d",
+      "role": "consequence",
+      "is_primary": false,
+      "confidence": 0.88,
+      "created_at": "2026-10-24T17:30:00+00:00"
+    }
+  ],
+  "dataset_sample": [
+    {
+      "dataset_sample_id": "f871a392-a4b3-5680-a62c-097e4d41a221",
+      "dataset_version_id": "338702dc-6348-54e0-a6dd-c1a74730f61f",
+      "event_group_id": null,
+      "external_sample_id": "BENCH_LSD_SINGLE_2026_01",
+      "sample_type": "single_event",
+      "split": "test",
+      "label": {
+        "hazard_class": "landslide",
+        "volume_class": "large (>10,000 m3)",
+        "triggered": true
+      },
+      "weight": 1.0,
+      "created_at": "2026-10-24T06:30:00+00:00"
+    },
+    {
+      "dataset_sample_id": "e49d374a-80ab-5aa3-8dd1-728e6ba8b070",
+      "dataset_version_id": "9f63ad3d-bede-5b9d-a157-057954d89e45",
+      "event_group_id": "dc8f0030-5a16-5cd9-95df-f42caaf61753",
+      "external_sample_id": "BENCH_CASCADE_MULTI_2026_02",
+      "sample_type": "multi_event",
+      "split": "validation",
+      "label": {
+        "cascade_pattern": "rain_to_landslide_to_dam_breach",
+        "total_events_in_chain": 5,
+        "critical_bottleneck": "NH-107"
+      },
+      "weight": 1.5,
+      "created_at": "2026-10-24T12:30:00+00:00"
+    }
+  ],
+  "dataset_sample_item": [
+    {
+      "dataset_sample_item_id": "7c1a870b-0884-5498-961e-ed853e14ff13",
+      "dataset_sample_id": "f871a392-a4b3-5680-a62c-097e4d41a221",
+      "observation_id": "693a1832-16ef-5c2b-b204-895b40bd466e",
+      "media_id": null,
+      "derived_result_id": null,
+      "role": "radar_backscatter_feature",
+      "created_at": "2026-10-24T06:30:00+00:00"
+    },
+    {
+      "dataset_sample_item_id": "7b58afbd-6455-5d96-b131-f6adddad4ac8",
+      "dataset_sample_id": "e49d374a-80ab-5aa3-8dd1-728e6ba8b070",
+      "observation_id": "50675443-6bb0-5ec4-a96e-927395d14b5a",
+      "media_id": null,
+      "derived_result_id": null,
+      "role": "trigger_rainfall_series",
+      "created_at": "2026-10-24T12:30:00+00:00"
+    },
+    {
+      "dataset_sample_item_id": "7c85c99c-44dd-5233-a377-710b0b73fed9",
+      "dataset_sample_id": "e49d374a-80ab-5aa3-8dd1-728e6ba8b070",
+      "observation_id": null,
+      "media_id": null,
+      "derived_result_id": "62346075-d9ca-55dd-84b2-8c51b8874d28",
+      "role": "derived_susceptibility_prior",
+      "created_at": "2026-10-24T12:30:00+00:00"
+    }
+  ],
+  "dataset_sample_event": [
+    {
+      "dataset_sample_event_id": "ca1c9b9e-7051-5d71-aa64-d8bd36281139",
+      "dataset_sample_id": "f871a392-a4b3-5680-a62c-097e4d41a221",
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "role": "primary",
+      "is_primary": true,
+      "relationship_to_primary": null,
+      "confidence": 1.0,
+      "created_at": "2026-10-24T06:30:00+00:00"
+    },
+    {
+      "dataset_sample_event_id": "6095440e-9a18-5f3b-a082-e62b4ea40466",
+      "dataset_sample_id": "e49d374a-80ab-5aa3-8dd1-728e6ba8b070",
+      "event_id": "801081fd-9549-5a1b-9c5a-067f4536c62e",
+      "role": "trigger",
+      "is_primary": false,
+      "relationship_to_primary": "triggers",
+      "confidence": 0.98,
+      "created_at": "2026-10-24T12:30:00+00:00"
+    },
+    {
+      "dataset_sample_event_id": "499f8c30-24da-5cef-841b-1035ad394c4c",
+      "dataset_sample_id": "e49d374a-80ab-5aa3-8dd1-728e6ba8b070",
+      "event_id": "a2296aea-5b5e-5af9-905e-32547c4bccff",
+      "role": "primary",
+      "is_primary": true,
+      "relationship_to_primary": null,
+      "confidence": 1.0,
+      "created_at": "2026-10-24T12:30:00+00:00"
+    },
+    {
+      "dataset_sample_event_id": "8fa6af06-eea7-5bcb-999f-8e430da2288d",
+      "dataset_sample_id": "e49d374a-80ab-5aa3-8dd1-728e6ba8b070",
+      "event_id": "35ceea61-8fc2-5376-8074-b2eb9c03daee",
+      "role": "impact",
+      "is_primary": false,
+      "relationship_to_primary": "results_in",
+      "confidence": 0.99,
+      "created_at": "2026-10-24T12:30:00+00:00"
+    }
+  ]
+}

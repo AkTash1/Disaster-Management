@@ -1,0 +1,17 @@
+venv/
+.venv/
+__pycache__/
+.agents/
+data/
+docs/
+scripts/
+tests/
+schemas/
+*.pdf
+*.docx
+*.tif
+*.h5
+*.nc
+*.grd
+*.zip
+.env
