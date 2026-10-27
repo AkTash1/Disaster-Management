@@ -57,6 +57,19 @@
 
     const [globalSearch, setGlobalSearch] = useState("");
 
+    // Babel compiles the component scripts asynchronously; re-render until they have registered
+    const [, setTick] = useState(0);
+    useEffect(() => {
+      const timer = setInterval(() => {
+        const c = window.DisasterComponents;
+        if (c && c.Sidebar && c.TopBar && window.DisasterViews && window.DisasterViews.OverviewView) {
+          clearInterval(timer);
+        }
+        setTick((t) => t + 1);
+      }, 150);
+      return () => clearInterval(timer);
+    }, []);
+
     // Sync browser URL with view navigation
     const handleViewChange = (viewId) => {
       setCurrentView(viewId);
