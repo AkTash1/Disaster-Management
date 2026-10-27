@@ -56,11 +56,13 @@ def health_check():
     }
 
 
-# Static Files Mount
+# Static Files Mount - resolved robustly across local and Vercel environments
 static_dir = Path(settings.STATIC_DIR)
 if not static_dir.exists():
-    static_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    static_dir = Path(__file__).resolve().parent / "static"
+
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 
 # Root and SPA Fallback
@@ -79,10 +81,18 @@ async def serve_root():
 async def spa_fallback(full_path: str):
     """
     SPA client-side routing fallback.
-    Returns 404 for missing /api/ or /static/ routes, serves index.html for frontend view paths.
+    Returns 404 for missing /api/ or /docs routes, serves static files if requested, or index.html for frontend view paths.
     """
-    if full_path.startswith("api/") or full_path.startswith("static/") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+    if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
         raise HTTPException(status_code=404, detail="Resource not found")
+
+    # If a static asset request bypassed the mount, serve it directly from static_dir
+    if full_path.startswith("static/"):
+        rel_path = full_path.replace("static/", "", 1)
+        file_path = static_dir / rel_path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(str(file_path))
+        raise HTTPException(status_code=404, detail="Static file not found")
 
     index_file = static_dir / "index.html"
     if index_file.exists():

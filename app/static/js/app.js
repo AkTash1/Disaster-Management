@@ -6,42 +6,14 @@
   const ReactDOM = window.ReactDOM;
   const { useState, useEffect } = React;
 
-  // Retrieve components and views from window registry
-  const { Sidebar, TopBar } = window.DisasterComponents || window;
-  const {
-    OverviewView,
-    MapExplorerView,
-    EventsView,
-    ModalityEventsView,
-    EventGroupsView,
-    ReportsView,
-    HistoryTrendsView,
-    PreparednessView,
-    AskView,
-    MyAreaView
-  } = window.DisasterViews || window;
+  // Retrieve components and views dynamically from window registry
+  const getComponents = () => window.DisasterComponents || window;
+  const getViews = () => window.DisasterViews || window;
 
-  // Milestone M3 Placeholder Views Generator
+  // Placeholder View for Help & About
   const PlaceholderView = ({ id, title, icon, description }) => {
     return (
       <div className="p-8 max-w-4xl mx-auto space-y-6">
-        {/* Milestone Banner */}
-        <div className="p-4 rounded-xl bg-blue-900/30 border border-blue-500/40 text-blue-300 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🚀</span>
-            <div>
-              <div className="font-bold text-sm text-white">{title} — Scheduled for Milestone M3</div>
-              <div className="text-xs text-blue-200">
-                Core UI contracts, database schemas, and REST endpoints are already deployed and operational in backend.
-              </div>
-            </div>
-          </div>
-          <span className="text-xs px-2.5 py-1 rounded bg-blue-600 text-white font-semibold shrink-0">
-            Milestone M3 Ready
-          </span>
-        </div>
-
-        {/* View Header */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-3xl shrink-0">
@@ -75,7 +47,6 @@
   const App = () => {
     // Current route/view state
     const [currentView, setCurrentView] = useState(() => {
-      // Determine initial view from window.location.pathname
       const path = window.location.pathname.replace(/^\//, '').toLowerCase();
       const validViews = [
         'overview', 'map-explorer', 'events', 'modality-events', 'event-groups',
@@ -104,31 +75,43 @@
       return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
-    // Render active view component
+    // Render active view component safely
     const renderActiveView = () => {
+      const views = getViews();
+      const ViewOverview = views.OverviewView;
+      const ViewMap = views.MapExplorerView;
+      const ViewEvents = views.EventsView;
+      const ViewModality = views.ModalityEventsView;
+      const ViewGroups = views.EventGroupsView;
+      const ViewReports = views.ReportsView;
+      const ViewHistory = views.HistoryTrendsView;
+      const ViewPreparedness = views.PreparednessView;
+      const ViewAsk = views.AskView;
+      const ViewMyArea = views.MyAreaView;
+
       switch (currentView) {
         case 'overview':
-          return <OverviewView onNavigate={handleViewChange} />;
+          return ViewOverview ? <ViewOverview onNavigate={handleViewChange} /> : null;
         case 'map-explorer':
-          return <MapExplorerView onNavigate={handleViewChange} />;
+          return ViewMap ? <ViewMap onNavigate={handleViewChange} /> : null;
         case 'events':
-          return <EventsView onNavigate={handleViewChange} />;
+          return ViewEvents ? <ViewEvents onNavigate={handleViewChange} /> : null;
         case 'modality-events':
-          return <ModalityEventsView onNavigate={handleViewChange} />;
+          return ViewModality ? <ViewModality onNavigate={handleViewChange} /> : null;
         case 'event-groups':
-          return <EventGroupsView onNavigate={handleViewChange} />;
+          return ViewGroups ? <ViewGroups onNavigate={handleViewChange} /> : null;
         case 'reports':
-          return <ReportsView onNavigate={handleViewChange} />;
+          return ViewReports ? <ViewReports onNavigate={handleViewChange} /> : null;
         case 'history':
-          return <HistoryTrendsView onNavigate={handleViewChange} />;
+          return ViewHistory ? <ViewHistory onNavigate={handleViewChange} /> : null;
         case 'preparedness':
-          return <PreparednessView onNavigate={handleViewChange} />;
+          return ViewPreparedness ? <ViewPreparedness onNavigate={handleViewChange} /> : null;
         case 'ask':
-          return <AskView onNavigate={handleViewChange} />;
+          return ViewAsk ? <ViewAsk onNavigate={handleViewChange} /> : null;
         case 'my-area':
-          return <MyAreaView onNavigate={handleViewChange} />;
+          return ViewMyArea ? <ViewMyArea onNavigate={handleViewChange} /> : null;
         case 'settings':
-          return <MyAreaView initialTab="notifications" onNavigate={handleViewChange} />;
+          return ViewMyArea ? <ViewMyArea initialTab="notifications" onNavigate={handleViewChange} /> : null;
         case 'help':
           return (
             <PlaceholderView
@@ -139,14 +122,28 @@
             />
           );
         default:
-          return <OverviewView onNavigate={handleViewChange} />;
+          return ViewOverview ? <ViewOverview onNavigate={handleViewChange} /> : null;
       }
     };
+
+    const comps = getComponents();
+    const SidebarComp = comps.Sidebar;
+    const TopBarComp = comps.TopBar;
+
+    if (!SidebarComp || !TopBarComp) {
+      return (
+        <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-950 text-slate-300 gap-3">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-sm font-semibold tracking-wide text-slate-200">Disaster Intelligence — Multimodal Platform</div>
+          <div className="text-xs text-slate-500">Loading components...</div>
+        </div>
+      );
+    }
 
     return (
       <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
         {/* Fixed Left Navigation Sidebar */}
-        <Sidebar
+        <SidebarComp
           currentView={currentView}
           onViewChange={handleViewChange}
         />
@@ -154,7 +151,7 @@
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Top Filter & Utility Bar */}
-          <TopBar
+          <TopBarComp
             onSearch={(q) => setGlobalSearch(q)}
             searchPlaceholder={`Search ${currentView.replace('-', ' ')}...`}
           />
@@ -176,24 +173,47 @@
     React: React,
     mount: function(targetId) {
       const rootEl = document.getElementById(targetId || "root");
-      if (rootEl && ReactDOM) {
-        if (ReactDOM.createRoot) {
-          const root = ReactDOM.createRoot(rootEl);
-          root.render(React.createElement(App));
-        } else {
-          ReactDOM.render(React.createElement(App), rootEl);
+      if (!rootEl || !ReactDOM) return;
+
+      function doMount() {
+        try {
+          if (ReactDOM.createRoot) {
+            if (!window._reactRootInstance) {
+              window._reactRootInstance = ReactDOM.createRoot(rootEl);
+            }
+            window._reactRootInstance.render(React.createElement(App));
+          } else {
+            ReactDOM.render(React.createElement(App), rootEl);
+          }
+          window._reactMounted = true;
+          console.log("Disaster Intelligence Platform mounted successfully.");
+        } catch (err) {
+          console.error("Mount error:", err);
         }
-        console.log("Disaster Intelligence Platform mounted successfully.");
+      }
+
+      // Check if critical components are ready; if Babel is still compiling, wait briefly
+      if (window.DisasterComponents?.Sidebar && window.DisasterViews?.OverviewView) {
+        doMount();
+      } else {
+        let attempts = 0;
+        const timer = setInterval(() => {
+          attempts++;
+          if ((window.DisasterComponents?.Sidebar && window.DisasterViews?.OverviewView) || attempts >= 30) {
+            clearInterval(timer);
+            doMount();
+          }
+        }, 100);
       }
     }
   };
 
-  // Mount on DOM Ready
+  // Mount on DOM Ready or immediately
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function() {
-      window.App.mount("root");
+      setTimeout(() => window.App.mount("root"), 50);
     });
   } else {
-    window.App.mount("root");
+    setTimeout(() => window.App.mount("root"), 50);
   }
 })();
