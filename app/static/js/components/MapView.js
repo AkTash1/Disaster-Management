@@ -1,54 +1,60 @@
 // Disaster Intelligence Multimodal Platform - MapView Component
-// Leaflet wrapper with CartoDB Dark Matter, Satellite, Terrain, Light basemaps, Uttarakhand center [30.2, 79.2], hazard markers and polygons
+// Key-free basemaps (Light OSM default, Topo OpenTopoMap, Satellite Esri, Dark OSM CSS-inverted),
+// live cursor coordinate readout, flat technical markers, and clean operational styling.
 
 (function() {
   const React = window.React;
   const { useEffect, useRef, useState } = React;
 
-  // Base map tile options
+  // Reliable, key-free basemap tile configurations
   const BASE_MAPS = {
-    dark: {
-      name: "Dark Matter",
-      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    light: {
+      name: "Light",
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      className: ""
+    },
+    terrain: {
+      name: "Topo",
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+      className: ""
     },
     satellite: {
       name: "Satellite",
       url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      attribution: '&copy; Esri World Imagery',
+      className: ""
     },
-    terrain: {
-      name: "Terrain",
-      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-      attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
-    },
-    light: {
-      name: "Light",
-      url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    dark: {
+      name: "Dark",
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      className: "tiles-dark"
     }
   };
 
-  // Hazard color mapping
+  // Hazard color mapping (high contrast for light/topo maps)
   const HAZARD_COLORS = {
-    'landslide': '#f97316',
-    'flood': '#38bdf8',
-    'heavy rainfall': '#60a5fa',
-    'rainfall': '#60a5fa',
-    'earthquake': '#ef4444',
-    'severe weather': '#eab308',
-    'weather': '#eab308',
-    'river rise': '#06b6d4'
+    'landslide': '#D9620F',
+    'flood': '#0B6E99',
+    'heavy rainfall': '#1F4E79',
+    'rainfall': '#1F4E79',
+    'earthquake': '#B42318',
+    'severe weather': '#B98900',
+    'weather': '#B98900',
+    'river rise': '#0B6E99'
   };
 
   const MapView = ({
-    center = [30.2, 79.2],
+    center = [30.28, 79.05],
     zoom = 8,
     markers = [],
     polygons = [],
     stations = [],
     activeLayers = { events: true, warnings: true, rainfall: true, admin: true },
     showBasemapSwitcher = true,
+    defaultBasemap = "light",
     height = "100%",
     className = "",
     onMarkerClick = null
@@ -60,7 +66,8 @@
     const polygonsLayerRef = useRef(null);
     const stationsLayerRef = useRef(null);
 
-    const [currentBasemap, setCurrentBasemap] = useState("dark");
+    const [currentBasemap, setCurrentBasemap] = useState(defaultBasemap || "light");
+    const [cursorCoords, setCursorCoords] = useState({ lat: center[0] || 30.28, lon: center[1] || 79.05 });
 
     // Initialize Map
     useEffect(() => {
@@ -70,7 +77,6 @@
         return;
       }
 
-      // Cleanup existing map if any
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -83,27 +89,40 @@
         attributionControl: true
       });
 
-      // Add Zoom Control to bottom-right or top-right
       window.L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Tile layer
-      const basemapConfig = BASE_MAPS[currentBasemap] || BASE_MAPS.dark;
+      const basemapConfig = BASE_MAPS[currentBasemap] || BASE_MAPS.light;
       const tiles = window.L.tileLayer(basemapConfig.url, {
         attribution: basemapConfig.attribution,
         maxZoom: 18,
-        subdomains: 'abcd'
+        className: basemapConfig.className || ""
       }).addTo(map);
 
       tileLayerRef.current = tiles;
 
-      // Feature Layer Groups
       polygonsLayerRef.current = window.L.layerGroup().addTo(map);
       stationsLayerRef.current = window.L.layerGroup().addTo(map);
       markersLayerRef.current = window.L.layerGroup().addTo(map);
 
+      map.on('mousemove', (e) => {
+        if (e.latlng) {
+          setCursorCoords({ lat: e.latlng.lat, lon: e.latlng.lng });
+        }
+      });
+
       mapInstanceRef.current = map;
 
-      // Trigger resize after slight delay
+      const ro = typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            if (mapInstanceRef.current) {
+              mapInstanceRef.current.invalidateSize();
+            }
+          })
+        : null;
+      if (ro && mapContainerRef.current) {
+        ro.observe(mapContainerRef.current);
+      }
+
       setTimeout(() => {
         if (mapInstanceRef.current) {
           mapInstanceRef.current.invalidateSize();
@@ -111,6 +130,7 @@
       }, 150);
 
       return () => {
+        if (ro) ro.disconnect();
         if (mapInstanceRef.current) {
           mapInstanceRef.current.remove();
           mapInstanceRef.current = null;
@@ -120,14 +140,23 @@
 
     // Handle Basemap Change
     useEffect(() => {
-      if (!mapInstanceRef.current || !tileLayerRef.current) return;
-      const basemapConfig = BASE_MAPS[currentBasemap] || BASE_MAPS.dark;
-      tileLayerRef.current.setUrl(basemapConfig.url);
+      if (!mapInstanceRef.current) return;
+      if (tileLayerRef.current) {
+        mapInstanceRef.current.removeLayer(tileLayerRef.current);
+      }
+      const basemapConfig = BASE_MAPS[currentBasemap] || BASE_MAPS.light;
+      const tiles = window.L.tileLayer(basemapConfig.url, {
+        attribution: basemapConfig.attribution,
+        maxZoom: 18,
+        className: basemapConfig.className || ""
+      }).addTo(mapInstanceRef.current);
+      if (tiles.bringToBack) tiles.bringToBack();
+      tileLayerRef.current = tiles;
     }, [currentBasemap]);
 
     // Handle Center/Zoom changes
     useEffect(() => {
-      if (mapInstanceRef.current && center) {
+      if (mapInstanceRef.current && center && center.length === 2) {
         mapInstanceRef.current.setView(center, zoom);
       }
     }, [center[0], center[1], zoom]);
@@ -137,7 +166,6 @@
       if (!mapInstanceRef.current || !markersLayerRef.current || typeof window.L === "undefined") return;
 
       markersLayerRef.current.clearLayers();
-
       if (!activeLayers.events) return;
 
       markers.forEach((m) => {
@@ -146,30 +174,36 @@
         if (!lat || !lon) return;
 
         const hazardType = String(m.hazard || m.hazard_name || 'landslide').toLowerCase();
-        const color = HAZARD_COLORS[hazardType] || '#f97316';
+        const color = HAZARD_COLORS[hazardType] || '#D9620F';
         const isCritical = (m.severity || '').toLowerCase() === 'critical';
 
-        // Animated pulse marker
-        const pulseIcon = window.L.divIcon({
+        // Crisp square/diamond technical marker
+        const shapeStyle = isCritical
+          ? `width: 12px; height: 12px; transform: rotate(45deg); background-color: #B42318; border: 1.5px solid #FFFFFF; box-shadow: 0 0 0 1px #14171C;`
+          : `width: 11px; height: 11px; border-radius: 2px; background-color: ${color}; border: 1.5px solid #FFFFFF; box-shadow: 0 0 0 1px #14171C;`;
+
+        const techIcon = window.L.divIcon({
           className: 'leaflet-marker-pulse',
-          html: `<div style="width: 14px; height: 14px; border-radius: 50%; background-color: ${color}; border: 2px solid #ffffff; box-shadow: 0 0 10px ${color};"></div>`,
-          iconSize: [14, 14],
-          iconAnchor: [7, 7]
+          html: `<div style="${shapeStyle}"></div>`,
+          iconSize: [12, 12],
+          iconAnchor: [6, 6]
         });
 
-        const marker = window.L.marker([lat, lon], { icon: pulseIcon });
+        const marker = window.L.marker([lat, lon], { icon: techIcon });
 
         const title = m.title || m.name || m.hazard_name || "Hazard Event";
         const loc = m.location || m.district || "Uttarakhand";
         const sev = m.severity || "Moderate";
+        const idStr = m.event_id || m.id || "EVT-UK";
 
         marker.bindPopup(`
-          <div style="font-family: inherit;">
-            <div style="font-weight: 700; font-size: 13px; color: #f8fafc; margin-bottom: 4px;">${title}</div>
-            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">📍 ${loc}</div>
-            <div style="display: flex; gap: 6px; font-size: 11px;">
-              <span style="background: rgba(249, 115, 22, 0.2); color: ${color}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${sev}</span>
-              ${m.status ? `<span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">${m.status}</span>` : ''}
+          <div style="font-family: var(--font-sans); min-width: 190px;">
+            <div style="font-family: var(--font-mono); font-size: 10px; color: #5E6675; text-transform: uppercase; letter-spacing: 0.05em;">${idStr} · ${loc}</div>
+            <div style="font-weight: 600; font-size: 12px; color: #14171C; margin: 2px 0 4px 0;">${title}</div>
+            <div style="font-family: var(--font-mono); font-size: 10px; color: #5E6675; margin-bottom: 6px;">${Number(lat).toFixed(4)}° N, ${Number(lon).toFixed(4)}° E</div>
+            <div style="display: flex; gap: 4px; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;">
+              <span style="background: #FDECEA; color: #B42318; padding: 1px 5px; border-left: 2px solid #B42318;">${sev}</span>
+              ${m.status ? `<span style="background: #E7F1F6; color: #0B6E99; padding: 1px 5px; border-left: 2px solid #0B6E99;">${m.status}</span>` : ''}
             </div>
           </div>
         `);
@@ -187,46 +221,41 @@
       if (!mapInstanceRef.current || !polygonsLayerRef.current || typeof window.L === "undefined") return;
 
       polygonsLayerRef.current.clearLayers();
-
       if (!activeLayers.warnings) return;
 
-      // Default sample polygons if none passed
       const polys = polygons.length > 0 ? polygons : [
-        // Red warning polygon around Rudraprayag / Kedarnath valley
         {
           coords: [[30.55, 78.95], [30.65, 79.15], [30.45, 79.25], [30.35, 79.05]],
-          color: '#ef4444',
-          fillOpacity: 0.25,
-          label: 'Official Red Alert Zone: Rudraprayag-Chamoli'
+          color: '#B42318',
+          fillOpacity: 0.16,
+          label: 'IMD Red Alert Zone · Rudraprayag-Chamoli'
         },
-        // Orange observed affected area
         {
           coords: [[30.25, 78.85], [30.40, 79.05], [30.28, 79.15], [30.15, 78.95]],
-          color: '#f97316',
-          fillOpacity: 0.20,
-          label: 'Observed Landslide Debris Area (NH-58)'
+          color: '#B54708',
+          fillOpacity: 0.14,
+          label: 'Observed Landslide Impact Zone · NH-58 Corridor'
         },
-        // Yellow forecast at-risk area
         {
           coords: [[30.30, 78.35], [30.55, 78.55], [30.45, 78.75], [30.20, 78.50]],
-          color: '#eab308',
-          fillOpacity: 0.15,
+          color: '#8F6100',
+          fillOpacity: 0.12,
           dashArray: '4, 4',
-          label: 'Forecast At-Risk Zone: Tehri Garhwal'
+          label: 'Model Susceptibility Watch · Tehri Garhwal'
         }
       ];
 
       polys.forEach((p) => {
         const poly = window.L.polygon(p.coords, {
-          color: p.color || '#ef4444',
-          weight: 2,
-          fillColor: p.color || '#ef4444',
-          fillOpacity: p.fillOpacity || 0.2,
+          color: p.color || '#B42318',
+          weight: 1.5,
+          fillColor: p.color || '#B42318',
+          fillOpacity: p.fillOpacity || 0.15,
           dashArray: p.dashArray || null
         });
 
         if (p.label) {
-          poly.bindTooltip(p.label, { sticky: true, className: 'leaflet-tooltip-dark' });
+          poly.bindTooltip(p.label, { sticky: true });
         }
 
         polygonsLayerRef.current.addLayer(poly);
@@ -246,19 +275,19 @@
           if (!lat || !lon) return;
 
           const circle = window.L.circleMarker([lat, lon], {
-            radius: 5,
-            fillColor: '#06b6d4',
-            color: '#ffffff',
-            weight: 1,
+            radius: 4.5,
+            fillColor: '#0B6E99',
+            color: '#FFFFFF',
+            weight: 1.5,
             opacity: 1,
-            fillOpacity: 0.8
+            fillOpacity: 0.9
           });
 
           circle.bindPopup(`
-            <div style="font-size: 11px;">
-              <b>Station:</b> ${s.name || s.station_name || "Telemetry Station"}<br/>
-              <b>River:</b> ${s.river || "Alaknanda"}<br/>
-              <b>Status:</b> ${s.status || "Active Telemetry"}
+            <div style="font-size: 11px; font-family: var(--font-sans);">
+              <div style="font-family: var(--font-mono); font-size: 10px; color: #5E6675;">CWC TELEMETRY GAUGE</div>
+              <b>${s.name || s.station_name || "Station"}</b><br/>
+              River: ${s.river || "Alaknanda"} · Status: ${s.status || "Operational"}
             </div>
           `);
 
@@ -268,22 +297,22 @@
     }, [stations]);
 
     return (
-      <div className={`relative w-full h-full min-h-[300px] overflow-hidden rounded-xl border border-slate-700/70 ${className}`} style={{ height }}>
+      <div className={`relative w-full h-full min-h-[300px] overflow-hidden bg-surface2 border border-line ${className}`} style={{ height }}>
         {/* Leaflet Map Div */}
-        <div ref={mapContainerRef} className="w-full h-full z-0" />
+        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full z-0" />
 
-        {/* Floating Basemap Switcher */}
+        {/* Segmented Basemap Switcher (Top-Right) */}
         {showBasemapSwitcher && (
-          <div className="absolute top-3 right-3 z-[400] flex bg-slate-900/85 backdrop-blur-md border border-slate-700/80 rounded-lg p-1 shadow-lg text-[11px] gap-1">
+          <div className="absolute top-2.5 right-2.5 z-[400] flex bg-surface border border-line-strong rounded-[2px] divide-x divide-line font-mono text-[10px] uppercase tracking-wider">
             {Object.keys(BASE_MAPS).map((key) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => setCurrentBasemap(key)}
-                className={`px-2.5 py-1 rounded font-medium transition-all ${
+                className={`px-2 py-1 transition-colors ${
                   currentBasemap === key
-                    ? 'bg-blue-600 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    ? 'bg-ink text-surface font-semibold'
+                    : 'text-muted hover:text-ink hover:bg-surface2'
                 }`}
               >
                 {BASE_MAPS[key].name}
@@ -292,28 +321,28 @@
           </div>
         )}
 
-        {/* Floating Map Legend (Bottom-Left) */}
-        <div className="absolute bottom-3 left-3 z-[400] hidden sm:flex flex-col bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-lg p-2.5 shadow-lg text-[11px] text-slate-300 gap-1.5 max-w-[200px]">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Map Legend</div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0"></span>
-            <span className="truncate">Landslide Event</span>
+        {/* Coordinate Crosshair Readout + Compact Legend (Bottom-Left) */}
+        <div className="absolute bottom-2.5 left-2.5 z-[400] flex flex-col gap-1 pointer-events-none">
+          <div className="hidden sm:flex items-center gap-3 bg-surface/95 border border-line-strong px-2 py-1 font-mono text-[10px] text-ink2">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-crit inline-block rotate-45"></span>
+              <span>Crit</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-[#D9620F] inline-block"></span>
+              <span>Landslide</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-accent inline-block"></span>
+              <span>Flood/Gauge</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-1.5 border border-crit bg-crit/20 inline-block"></span>
+              <span>Alert Zone</span>
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-400 shrink-0"></span>
-            <span className="truncate">Flood / River Rise</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
-            <span className="truncate">Earthquake / Severe Alert</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-2 border border-red-500 bg-red-500/30 rounded-sm shrink-0"></span>
-            <span className="truncate">Warning Zone</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-2 border border-orange-500 bg-orange-500/25 rounded-sm shrink-0"></span>
-            <span className="truncate">Observed Impact</span>
+          <div className="bg-surface/95 border border-line-strong px-2 py-0.5 font-mono text-[10px] text-ink tabular-nums">
+            CURSOR {Number(cursorCoords.lat).toFixed(4)}° N, {Number(cursorCoords.lon).toFixed(4)}° E · EPSG:4326
           </div>
         </div>
       </div>

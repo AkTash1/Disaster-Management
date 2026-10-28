@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disaster Intelligence — Multimodal Platform (Uttarakhand Testbed)</title>
+  <title>USDMA Disaster Intelligence Platform | Uttarakhand Testbed</title>
   <link rel="icon" href="data:,">
+
+  <!-- Typefaces: Plus Jakarta Sans (clean, highly legible modern UI font) + IBM Plex Mono (tabular numbers) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- React 18 Library -->
   <script src="/static/vendor/react.production.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/react@18/umd/react.production.min.js'"></script>
@@ -29,14 +34,42 @@
       window.tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+              mono: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif']
+            },
             colors: {
-              'brand-navy': '#0d1b2a',
-              'brand-card': '#1e293b',
-              'brand-dark': '#0f172a',
-              'brand-border': '#334155',
-              'brand-blue': '#1976d2',
-              'brand-cyan': '#38bdf8',
-              'brand-emerald': '#10b981',
+              canvas: '#F4F6F9',
+              surface: '#FFFFFF',
+              surface2: '#F8FAFC',
+              surface3: '#EEF2F6',
+              line: '#E2E8F0',
+              'line-strong': '#CBD5E1',
+              ink: '#0F172A',
+              ink2: '#334155',
+              muted: '#64748B',
+              faint: '#94A3B8',
+              accent: '#0284C7',
+              'accent-hover': '#0369A1',
+              'accent-soft': '#E0F2FE',
+              crit: '#DC2626',
+              'crit-soft': '#FEF2F2',
+              high: '#EA580C',
+              'high-soft': '#FFF7ED',
+              warn: '#D97706',
+              'warn-soft': '#FFFBEB',
+              ok: '#059669',
+              'ok-soft': '#ECFDF5',
+              info: '#4F46E5',
+              'info-soft': '#EEF2FF'
+            },
+            borderRadius: {
+              DEFAULT: '6px',
+              sm: '4px',
+              md: '6px',
+              lg: '8px',
+              xl: '10px',
+              '2xl': '12px'
             }
           }
         }
@@ -47,14 +80,13 @@
   <!-- Application Custom CSS -->
   <link rel="stylesheet" href="/static/css/app.css">
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased overflow-hidden">
+<body class="bg-canvas text-ink antialiased overflow-hidden">
   <!-- React Mount Root -->
   <div id="root" class="h-screen w-screen flex flex-col">
     <!-- Initial Loading State -->
-    <div class="h-screen w-screen flex flex-col items-center justify-center bg-slate-950 text-slate-300 gap-3">
-      <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      <div class="text-sm font-semibold tracking-wide text-slate-200">Disaster Intelligence — Multimodal Platform</div>
-      <div class="text-xs text-slate-500">Initializing Uttarakhand Testbed telemetry...</div>
+    <div class="boot-screen">
+      <div class="boot-mark">Disaster Intelligence Platform</div>
+      <div class="boot-line">Loading Uttarakhand State Emergency Dashboard&hellip;</div>
     </div>
   </div>
 
@@ -74,12 +106,16 @@
   <script type="text/babel" src="/static/js/views/ModalityEventsView.js"></script>
   <script type="text/babel" src="/static/js/views/EventGroupsView.js"></script>
 
-  <!-- Views 6 to 10 (Milestone M3) -->
+  <!-- Views 6 to 10 -->
   <script type="text/babel" src="/static/js/views/ReportsView.js"></script>
   <script type="text/babel" src="/static/js/views/HistoryTrendsView.js"></script>
   <script type="text/babel" src="/static/js/views/PreparednessView.js"></script>
   <script type="text/babel" src="/static/js/views/AskView.js"></script>
   <script type="text/babel" src="/static/js/views/MyAreaView.js"></script>
+
+  <!-- System views -->
+  <script type="text/babel" src="/static/js/views/SettingsView.js"></script>
+  <script type="text/babel" src="/static/js/views/HelpView.js"></script>
 
   <!-- Application Shell Router -->
   <script type="text/babel" src="/static/js/app.js"></script>

@@ -1,10 +1,6 @@
-// Disaster Intelligence Multimodal Platform - View 9: Ask (Evidence-Grounded Q&A) (image5.png)
-// Specifications: Top Row of 5 Clickable Suggested Question Cards (fetched from /api/v1/ask/suggested),
-// Query Input Bar with Submit Button,
-// Conversational Chat Feed with Structured Epistemic Response Sections:
-// Fact (Green #10b981), Inference (Orange #f59e0b), Prediction (Purple #8b5cf6),
-// Inline Clickable Bracketed Citations [1]–[6] Linked to Context/Evidence Sidebar Cards,
-// Key Impact Metrics Summary Row, and Context Mini-Map.
+// Disaster Intelligence Platform — View 9: Ask (Intelligence Query & SITREP Synthesis Terminal)
+// Light Operational Theme: Technical Prompt Chips, Structured SITREP Briefings (Facts / Inferences / Projections),
+// Inline Monospace Citations [1]–[6] Linked to Right-Hand Source Provenance Inspector
 
 (function() {
   const React = window.React;
@@ -21,7 +17,6 @@
       { id: 5, question: "How does the current October 2026 episode compare with the 2023 monsoon impacts?", hazard: "Comparison", region: "Garhwal Division" }
     ]);
 
-    // Current Query Input State
     const [queryInput, setQueryInput] = useState("");
     const [loadingQuery, setLoadingQuery] = useState(false);
 
@@ -30,11 +25,11 @@
       {
         sender: "user",
         text: "What caused the landslide in Rudraprayag on October 24, 2026 and what are the current road status and impacts?",
-        timestamp: "Oct 24, 2026 17:15 IST"
+        timestamp: "2026-10-24 17:15 IST"
       },
       {
         sender: "assistant",
-        intro: "Synthesis based on multimodal telemetry from IMD Doppler weather stations, CWC Basukedar hydrological gauge, SDRF field SITREPs, and BRO 752 BRTF road advisories:",
+        intro: "SITREP synthesis derived from IMD Doppler weather stations, CWC Basukedar hydrological gauge, SDRF field SITREPs, and BRO 752 BRTF road advisories:",
         facts: [
           "On October 24, 2026 at 16:30 IST, a major debris avalanche occurred at Basukedar along the NH-107 (Kedarnath Highway) in Rudraprayag district [1].",
           "The Central Water Commission Basukedar station (CWC_UK_Basukedar) recorded 128.4 mm of cumulative precipitation over 6 hours preceding the slope failure [2].",
@@ -45,7 +40,7 @@
           "A temporary debris dam formed in the Basukedar tributary stream creates an acute flash flood hazard downstream if breached under ongoing runoff [5]."
         ],
         predictions: [
-          "IMD radar projections and MOSDAC INSAT-3DR satellite imagery predict continued moderate-to-heavy rainfall (25–40 mm/hr) through the next 18 hours [6].",
+          "IMD radar projections and MOSDAC INSAT-3DR satellite imagery project continued moderate-to-heavy rainfall (25–40 mm/hr) through the next 18 hours [6].",
           "Highway clearance operations by Border Roads Organisation (752 BRTF) are projected to require at least 36 to 48 hours for single-lane emergency opening."
         ],
         key_impacts: [
@@ -59,7 +54,7 @@
           { id: 2, source_title: "CWC Hydrological Monitoring Station Basukedar Hourly Telemetry", source_type: "Sensor Data", reliability: "Verified", url: "https://cwc.gov.in/stations/CWC_UK_Basukedar" },
           { id: 3, source_title: "Border Roads Organisation (BRO) 752 BRTF Road Status Advisory", source_type: "Official Report", reliability: "Verified", url: "https://bro.gov.in/advisories/nh107" },
           { id: 4, source_title: "ISRO EOS-04 SAR C-Band Microwave Soil Saturation Analysis", source_type: "Satellite Derived", reliability: "Inferred", url: "https://bhuvan.nrsc.gov.in/disaster/sar/eos04" },
-          { id: 5, source_title: "Disaster Intelligence AI Causal Cascade Model (Model ID: ML-CAS-2026-v2)", source_type: "AI Model", reliability: "Inferred", url: "#model-ml-cas-2026" },
+          { id: 5, source_title: "Multi-Sensor Causal Cascade Model (Model ID: CAS-2026-v2)", source_type: "Cross-Modal Model", reliability: "Inferred", url: "#model-cas-2026" },
           { id: 6, source_title: "IMD Dehradun Doppler Weather Radar Nowcast Bulletin", source_type: "Weather Forecast", reliability: "Predicted", url: "https://mausam.imd.gov.in/dehradun" }
         ],
         context: {
@@ -67,15 +62,13 @@
           active_shelter: "Basukedar Community Relief Camp (1.8 km)",
           related_events: ["EV-LSD-2026-10-09-001", "EV-RAIN-2026-10-08-002", "EV-ROD-2026-10-09-004"]
         },
-        timestamp: "Oct 24, 2026 17:15 IST"
+        timestamp: "2026-10-24 17:15 IST"
       }
     ]);
 
-    // Highlighted Citation ID when clicked in text
     const [highlightedCitationId, setHighlightedCitationId] = useState(null);
     const chatEndRef = useRef(null);
 
-    // 1. Fetch Suggested Questions from API
     useEffect(() => {
       let isSubscribed = true;
       const fetchSuggested = async () => {
@@ -94,19 +87,16 @@
       return () => { isSubscribed = false; };
     }, []);
 
-    // Scroll to bottom on new message
     useEffect(() => {
       if (chatEndRef.current) {
         chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     }, [chatHistory, loadingQuery]);
 
-    // Handle Query Submission
     const handleSendQuery = async (queryText) => {
       const q = (queryText || queryInput).trim();
       if (!q) return;
 
-      // Add user message to chat feed
       const userMsg = {
         sender: "user",
         text: q,
@@ -130,7 +120,7 @@
         const ans = data.answer || {};
         const assistantMsg = {
           sender: "assistant",
-          intro: `Grounded synthesis for: "${q}"`,
+          intro: `Grounded SITREP synthesis for query: "${q}"`,
           facts: ans.facts || [],
           inferences: ans.inferences || [],
           predictions: ans.predictions || [],
@@ -152,10 +142,9 @@
       }
     };
 
-    // Helper to render text with clickable citation links [1], [2], etc.
+    // Render text with clickable monospace citation badges [1], [2], etc.
     const renderWithCitations = (text) => {
       if (!text) return null;
-      // Match bracketed citations e.g. [1], [2]
       const parts = text.split(/(\[\d+\])/g);
       return parts.map((part, i) => {
         const match = part.match(/\[(\d+)\]/);
@@ -167,17 +156,16 @@
               key={i}
               onClick={() => {
                 setHighlightedCitationId(citeId);
-                // Also scroll right sidebar to evidence card
                 const el = document.getElementById(`citation-card-${citeId}`);
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }}
-              className={`inline-flex items-center px-1.5 py-0.2 mx-0.5 rounded text-[11px] font-mono font-bold transition ${
+              className={`inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded-[2px] text-[10px] font-mono font-semibold transition-colors ${
                 isHighlighted
-                  ? "bg-blue-500 text-white ring-2 ring-blue-300"
-                  : "bg-blue-900/50 text-blue-300 hover:bg-blue-600 hover:text-white border border-blue-600/40"
+                  ? "bg-accent text-white"
+                  : "bg-accent-soft text-accent hover:bg-accent hover:text-white border border-accent/30"
               }`}
             >
-              [{citeId}]
+              [REF-0{citeId}]
             </button>
           );
         }
@@ -185,220 +173,203 @@
       });
     };
 
-    // Get current active assistant response for context sidebar
     const latestAssistantMsg = [...chatHistory].reverse().find(m => m.sender === "assistant") || chatHistory[1];
     const citationsList = latestAssistantMsg?.citations || [];
 
     return (
-      <div className="p-6 space-y-6 max-w-full">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="bg-surface border border-line rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-              <span>Ask (Evidence-Grounded Q&A)</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                View 9 • Epistemic RAG Assistant
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-lg font-bold text-ink tracking-tight">
+                Ask Assistant (Plain-English Disaster Q&amp;A)
+              </h1>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent font-semibold">
+                Verified Sources
               </span>
-            </h1>
-            <p className="text-xs md:text-sm text-slate-400 mt-0.5">
-              Ask natural language queries grounded strictly in sensor telemetry, official bulletins, and causal models with explicit Fact, Inference, and Prediction verification.
+            </div>
+            <p className="text-sm text-muted mt-0.5">
+              Ask any question about road blocks, rainfall, river levels, or relief shelters in Uttarakhand. Every answer links to official sources.
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className="px-3 py-1 rounded-lg bg-slate-850 border border-slate-700 text-slate-300 font-mono">
-              Model: <strong className="text-purple-400">RAG-Multimodal-Uttarakhand</strong>
+            <span className="px-3 py-1.5 rounded-lg bg-surface2 border border-line text-ink2 font-medium">
+              Data Source: <strong className="text-accent">IMD, CWC &amp; USDMA Live Feeds</strong>
             </span>
           </div>
         </div>
 
-        {/* Top Row: 5 Clickable Suggested Question Cards (image5.png) */}
-        <div>
-          <div className="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
-            <span>💡</span>
-            <span>Suggested Inquiries for Operational Situational Awareness:</span>
+        {/* Top Row: 5 Clickable Prompt Chips */}
+        <div className="bg-surface border border-line rounded-xl p-5 shadow-sm">
+          <div className="panel-title mb-3">
+            Common Questions (Click any card to ask immediately)
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             {suggestedQuestions.map((q) => (
               <div
                 key={q.id}
                 onClick={() => handleSendQuery(q.question)}
-                className="p-3 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-blue-500/50 cursor-pointer transition shadow flex flex-col justify-between group"
+                className="p-3.5 rounded-lg bg-surface2 hover:bg-surface border border-line hover:border-accent cursor-pointer transition-all flex flex-col justify-between group shadow-xs"
               >
                 <div className="flex items-center justify-between gap-1 mb-2">
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-900/30 text-blue-300 border border-blue-600/30">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-accent-soft text-accent">
                     {q.hazard}
                   </span>
-                  <span className="text-[10px] text-slate-500 truncate max-w-[100px]">
+                  <span className="text-xs text-muted truncate max-w-[120px]">
                     {q.region}
                   </span>
                 </div>
-                <p className="text-xs text-slate-200 group-hover:text-blue-300 transition leading-snug font-medium line-clamp-3">
-                  "{q.question}"
+                <p className="text-xs text-ink group-hover:text-accent transition-colors leading-relaxed font-semibold line-clamp-3">
+                  {q.question}
                 </p>
-                <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-end font-semibold group-hover:text-blue-400">
-                  Ask ➔
+                <div className="text-xs font-semibold text-accent mt-2.5 flex items-center justify-end">
+                  Ask this question &rarr;
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Main 2-Column Grid: Left Chat Feed (7 cols) + Right Evidence Sidebar (5 cols) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* Left Column: Conversational Q&A Feed (7 cols) */}
-          <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col shadow">
+        {/* Main 2-Column Split Pane: Left SITREP Synthesis Feed (7 cols) + Right Provenance Sidebar (5 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          {/* Left Column: SITREP Synthesis Terminal (7 cols) */}
+          <div className="lg:col-span-7 bg-surface border border-line rounded-[2px] overflow-hidden flex flex-col">
             {/* Feed Header */}
-            <div className="p-3.5 bg-slate-850 border-b border-slate-800 flex items-center justify-between">
+            <div className="px-3.5 py-2.5 bg-surface2 border-b border-line flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="text-xs font-bold text-white">Grounded Intelligence Session</span>
+                <span className="w-2 h-2 rounded-[1px] bg-ok"></span>
+                <span className="panel-title">Grounded Intelligence Session</span>
               </div>
-              <span className="text-[11px] text-slate-400">Strict Citations [1]–[6]</span>
+              <span className="text-[10px] font-mono text-muted">STRICT CITATION ENFORCEMENT [REF-01..06]</span>
             </div>
 
             {/* Chat Messages Scroll Container */}
-            <div className="p-4 space-y-5 max-h-[640px] overflow-y-auto">
+            <div className="p-4 space-y-4 max-h-[640px] overflow-y-auto bg-canvas/40">
               {chatHistory.map((msg, idx) => (
-                <div key={idx} className="space-y-3">
-                  {/* User Query Bubble */}
+                <div key={idx} className="space-y-2">
                   {msg.sender === "user" ? (
-                    <div className="flex justify-end items-start gap-2.5 pl-10">
-                      <div className="bg-blue-600/25 border border-blue-500/40 rounded-2xl rounded-tr-none p-3.5 text-xs text-slate-100 shadow max-w-xl">
-                        <div className="font-semibold text-blue-300 text-[11px] mb-1">
-                          You (Disaster Officer AS) • {msg.timestamp}
+                    <div className="flex justify-end items-start gap-2.5 pl-8">
+                      <div className="bg-surface border border-line-strong rounded-[2px] p-3 text-xs text-ink max-w-xl">
+                        <div className="text-xs font-semibold text-muted mb-1 flex items-center justify-between gap-4">
+                          <span>Ashutosh Kanojia (Duty Officer)</span>
+                          <span className="tabular-nums">{msg.timestamp}</span>
                         </div>
-                        <p className="leading-relaxed font-medium">{msg.text}</p>
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                        AS
+                        <p className="leading-relaxed font-medium text-ink">{msg.text}</p>
                       </div>
                     </div>
                   ) : (
-                    /* AI Assistant Response Container (image5.png) */
-                    <div className="flex justify-start items-start gap-3 pr-4">
-                      <div className="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm shrink-0 mt-1 shadow">
-                        🤖
+                    /* Structured SITREP Briefing */
+                    <div className="bg-surface border border-line-strong rounded-[2px] p-4 space-y-3.5 text-xs text-ink">
+                      {/* Briefing Header */}
+                      <div className="flex items-center justify-between pb-2 border-b border-line">
+                        <span className="font-mono text-[10px] uppercase tracking-wider font-semibold text-accent">
+                          AUTOMATED SITREP BRIEFING // MULTI-SENSOR SYNTHESIS
+                        </span>
+                        <span className="font-mono text-[10px] text-muted tabular-nums">{msg.timestamp}</span>
                       </div>
-                      <div className="flex-1 bg-slate-850 border border-slate-750 rounded-2xl rounded-tl-none p-4 space-y-4 text-xs text-slate-200 shadow">
-                        {/* Narrative Intro */}
-                        <div className="text-slate-400 text-[11px] leading-relaxed pb-2 border-b border-slate-750">
-                          {msg.intro}
+
+                      <div className="text-ink2 text-[11px] leading-relaxed">
+                        {msg.intro}
+                      </div>
+
+                      {/* 1. EMPIRICAL FACTS (VERIFIED) */}
+                      {msg.facts && msg.facts.length > 0 && (
+                        <div className="p-3 rounded-[2px] bg-ok-soft border border-line border-l-2 border-l-ok space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider font-semibold text-ok pb-1 border-b border-ok/20">
+                            <span>Empirical Facts (Direct Sensor &amp; Official Bulletins)</span>
+                            <span>STATUS: VERIFIED</span>
+                          </div>
+                          <ul className="space-y-1.5 text-ink">
+                            {msg.facts.map((fact, fi) => (
+                              <li key={fi} className="flex items-start gap-2">
+                                <span className="text-ok font-mono font-bold shrink-0">&bull;</span>
+                                <span className="leading-relaxed">{renderWithCitations(fact)}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
+                      )}
 
-                        {/* 1. FACT SECTION (Green #10b981) */}
-                        {msg.facts && msg.facts.length > 0 && (
-                          <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 space-y-2">
-                            <div className="flex items-center justify-between text-xs font-bold text-emerald-400 pb-1 border-b border-emerald-500/20">
-                              <span className="flex items-center gap-1.5">
-                                <span>✔</span>
-                                <span>Empirical Facts (Direct Sensor & Official Bulletins)</span>
-                              </span>
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-900/40 text-emerald-300 font-mono">
-                                Verified
-                              </span>
-                            </div>
-                            <ul className="space-y-1.5 text-slate-200">
-                              {msg.facts.map((fact, fi) => (
-                                <li key={fi} className="flex items-start gap-2">
-                                  <span className="text-emerald-400 font-bold shrink-0">•</span>
-                                  <span className="leading-relaxed">{renderWithCitations(fact)}</span>
-                                </li>
-                              ))}
-                            </ul>
+                      {/* 2. DERIVED INFERENCES (CROSS-MODAL) */}
+                      {msg.inferences && msg.inferences.length > 0 && (
+                        <div className="p-3 rounded-[2px] bg-warn-soft border border-line border-l-2 border-l-warn space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider font-semibold text-warn pb-1 border-b border-warn/20">
+                            <span>Derived Inferences (Cross-Modal Geotechnical Analysis)</span>
+                            <span>STATUS: INFERRED</span>
                           </div>
-                        )}
-
-                        {/* 2. INFERENCE SECTION (Orange #f59e0b) */}
-                        {msg.inferences && msg.inferences.length > 0 && (
-                          <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/30 space-y-2">
-                            <div className="flex items-center justify-between text-xs font-bold text-amber-400 pb-1 border-b border-amber-500/20">
-                              <span className="flex items-center gap-1.5">
-                                <span>⚠</span>
-                                <span>Derived Inferences (Causal & Cross-Modal ML Analysis)</span>
-                              </span>
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-900/40 text-amber-300 font-mono">
-                                Inferred
-                              </span>
-                            </div>
-                            <ul className="space-y-1.5 text-slate-200">
-                              {msg.inferences.map((inf, ii) => (
-                                <li key={ii} className="flex items-start gap-2">
-                                  <span className="text-amber-400 font-bold shrink-0">•</span>
-                                  <span className="leading-relaxed">{renderWithCitations(inf)}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* 3. PREDICTION SECTION (Purple #8b5cf6) */}
-                        {msg.predictions && msg.predictions.length > 0 && (
-                          <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/30 space-y-2">
-                            <div className="flex items-center justify-between text-xs font-bold text-purple-400 pb-1 border-b border-purple-500/20">
-                              <span className="flex items-center gap-1.5">
-                                <span>📊</span>
-                                <span>Forward Predictions & Simulations (Next 24–48 Hours)</span>
-                              </span>
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-900/40 text-purple-300 font-mono">
-                                Predicted
-                              </span>
-                            </div>
-                            <ul className="space-y-1.5 text-slate-200">
-                              {msg.predictions.map((pred, pi) => (
-                                <li key={pi} className="flex items-start gap-2">
-                                  <span className="text-purple-400 font-bold shrink-0">•</span>
-                                  <span className="leading-relaxed">{renderWithCitations(pred)}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* 4. KEY IMPACT METRICS SUMMARY (4 Cards in row) */}
-                        {msg.key_impacts && msg.key_impacts.length > 0 && (
-                          <div>
-                            <div className="text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
-                              Key Impacts Reported So Far:
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                              {msg.key_impacts.map((imp, imi) => (
-                                <div key={imi} className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
-                                  <div className="text-[10px] text-slate-400 truncate">{imp.metric}</div>
-                                  <div className="text-xs font-bold text-white mt-0.5">{imp.value}</div>
-                                  <div className="text-[10px] text-amber-400 mt-0.5 font-medium">{imp.status}</div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Citations Footer Row */}
-                        <div className="pt-2 border-t border-slate-750 text-[11px] text-slate-400 flex items-center justify-between">
-                          <span>Grounding Confidence: <strong className="text-emerald-400">94.8%</strong></span>
-                          <span>Timestamp: {msg.timestamp}</span>
+                          <ul className="space-y-1.5 text-ink">
+                            {msg.inferences.map((inf, ii) => (
+                              <li key={ii} className="flex items-start gap-2">
+                                <span className="text-warn font-mono font-bold shrink-0">&bull;</span>
+                                <span className="leading-relaxed">{renderWithCitations(inf)}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
+                      )}
+
+                      {/* 3. FORWARD PROJECTIONS (24-48H) */}
+                      {msg.predictions && msg.predictions.length > 0 && (
+                        <div className="p-3 rounded-[2px] bg-info-soft border border-line border-l-2 border-l-info space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider font-semibold text-info pb-1 border-b border-info/20">
+                            <span>Forward Projections &amp; Simulations (Next 24–48 Hours)</span>
+                            <span>STATUS: PROJECTED</span>
+                          </div>
+                          <ul className="space-y-1.5 text-ink">
+                            {msg.predictions.map((pred, pi) => (
+                              <li key={pi} className="flex items-start gap-2">
+                                <span className="text-info font-mono font-bold shrink-0">&bull;</span>
+                                <span className="leading-relaxed">{renderWithCitations(pred)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* 4. KEY IMPACT METRICS SUMMARY */}
+                      {msg.key_impacts && msg.key_impacts.length > 0 && (
+                        <div>
+                          <div className="panel-title mb-1.5">
+                            Key Operational Impact Telemetry
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-line border border-line">
+                            {msg.key_impacts.map((imp, imi) => (
+                              <div key={imi} className="p-2.5 bg-surface2">
+                                <div className="text-[10px] font-mono uppercase text-muted truncate">{imp.metric}</div>
+                                <div className="text-xs font-mono font-semibold text-ink mt-0.5 tabular-nums">{imp.value}</div>
+                                <div className="text-[10px] font-mono text-high mt-0.5">{imp.status}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Citations Footer Row */}
+                      <div className="pt-2 border-t border-line text-[10px] font-mono text-muted flex items-center justify-between tabular-nums">
+                        <span>CROSS-VERIFICATION CONFIDENCE: <strong className="text-ok">94.8%</strong></span>
+                        <span>PROVENANCE REFS: {citationsList.length}</span>
                       </div>
                     </div>
                   )}
                 </div>
               ))}
 
-              {/* In-Flight Query Spinner */}
               {loadingQuery && (
-                <div className="flex items-center gap-3 text-xs text-slate-400 p-4">
-                  <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span>Synthesizing evidence across IMD radar, CWC telemetry, and satellite backscatter...</span>
+                <div className="flex items-center gap-3 text-xs font-mono text-muted p-4 bg-surface border border-line rounded-[2px]">
+                  <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                  <span>SYNTHESIZING TELEMETRY ACROSS IMD RADAR, CWC GAUGES &amp; SAR BACKSCATTER...</span>
                 </div>
               )}
               <div ref={chatEndRef} />
             </div>
 
             {/* Bottom Query Input Bar */}
-            <div className="p-3 bg-slate-850 border-t border-slate-800 flex items-center gap-2">
-              <span className="text-slate-400 pl-2">📎</span>
+            <div className="p-3 bg-surface2 border-t border-line flex items-center gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-muted px-1.5">QUERY &gt;</span>
               <input
                 type="text"
-                placeholder="Ask a question about Uttarakhand hazards, shelters, rainfall, road status..."
+                placeholder="Enter operational query on Uttarakhand hazards, CWC gauges, shelters, or highway status..."
                 value={queryInput}
                 onChange={(e) => setQueryInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -407,123 +378,120 @@
                     handleSendQuery();
                   }
                 }}
-                className="flex-1 bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                className="flex-1 bg-surface text-ink border border-line-strong rounded-[2px] px-3 py-1.5 text-xs focus:outline-none focus:border-accent placeholder-faint"
               />
               <button
                 onClick={() => handleSendQuery()}
                 disabled={loadingQuery || !queryInput.trim()}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 transition shrink-0 shadow"
+                className="px-4 py-1.5 rounded-[2px] bg-accent hover:bg-accent-hover disabled:opacity-50 text-white font-mono uppercase tracking-wider font-semibold text-[11px] transition-colors shrink-0"
               >
-                <span>Ask</span>
-                <span>➤</span>
+                Execute &rarr;
               </button>
             </div>
           </div>
 
-          {/* Right Column: Context & Cited Evidence Sidebar (5 cols) (image5.png) */}
-          <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col shadow space-y-4">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h2 className="text-sm font-bold text-white flex items-center gap-1.5">
-                <span>📚</span>
-                <span>Context & Cited Evidence Sources ({citationsList.length})</span>
-              </h2>
-              <span className="text-[11px] text-slate-400 font-mono">Interactive Grounding</span>
+          {/* Right Column: Context & Cited Evidence Provenance Inspector (5 cols) */}
+          <div className="lg:col-span-5 bg-surface border border-line rounded-[2px] flex flex-col">
+            <div className="px-3.5 py-2.5 bg-surface2 border-b border-line flex items-center justify-between">
+              <span className="panel-title">Cited Evidence &amp; Source Provenance ({citationsList.length})</span>
+              <span className="text-[10px] font-mono text-muted">GROUNDING LOG</span>
             </div>
 
-            {/* Mini Map of Query Context */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>Epicenter Telemetry Bounds</span>
-                <span className="text-emerald-400 font-mono text-[11px]">Rudraprayag / NH-107</span>
-              </div>
-              <div className="h-48 rounded-xl overflow-hidden border border-slate-700/80">
-                <MapView
-                  center={[30.485, 79.062]}
-                  zoom={10}
-                  markers={[
-                    { id: "cite-1", lat: 30.485, lng: 79.062, title: "Basukedar NH-107 Obstruction", hazard: "landslide", severity: "Critical" },
-                    { id: "cite-2", lat: 30.435, lng: 79.052, title: "Basukedar Relief Shelter", hazard: "weather", severity: "Low" }
-                  ]}
-                  height="100%"
-                />
-              </div>
-            </div>
-
-            {/* Cited Evidence Cards List */}
-            <div className="space-y-2.5 max-h-[380px] overflow-y-auto">
-              {citationsList.length === 0 ? (
-                <div className="p-4 text-center text-slate-500 text-xs">
-                  No citations loaded for current response.
+            <div className="p-3.5 space-y-3.5">
+              {/* Mini Map of Query Context */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-mono text-muted">
+                  <span>EPICENTER TELEMETRY BOUNDS</span>
+                  <span className="text-ink font-semibold">RUDRAPRAYAG // NH-107</span>
                 </div>
-              ) : (
-                citationsList.map((cite) => {
-                  const isHighlighted = highlightedCitationId === cite.id;
-                  return (
-                    <div
-                      key={cite.id}
-                      id={`citation-card-${cite.id}`}
-                      className={`p-3 rounded-xl border transition text-xs space-y-1.5 ${
-                        isHighlighted
-                          ? "bg-blue-950/40 border-blue-500 ring-2 ring-blue-500/40"
-                          : "bg-slate-850 border-slate-750 hover:border-slate-650"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-blue-600 text-white font-mono font-bold flex items-center justify-center text-[10px]">
-                            {cite.id}
-                          </span>
-                          <span className="font-semibold text-slate-100 truncate max-w-[200px]">
-                            {cite.source_type || "Evidence"}
-                          </span>
-                        </div>
-                        <EpistemicBadge status={cite.reliability || "Verified"} />
-                      </div>
-
-                      <p className="text-[11px] text-slate-300 leading-snug font-medium">
-                        {cite.source_title || cite.title || "Telemetry Record"}
-                      </p>
-
-                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-750">
-                        <span className="font-mono truncate max-w-[180px]">
-                          {cite.url || "Authenticated Ingestion"}
-                        </span>
-                        {cite.url && !cite.url.startsWith("#") ? (
-                          <a
-                            href={cite.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-400 hover:underline flex items-center gap-0.5"
-                          >
-                            <span>Open</span>
-                            <span>↗</span>
-                          </a>
-                        ) : (
-                          <span className="text-purple-400">Internal Model</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* Related Context Summary Footers */}
-            <div className="p-3 rounded-lg bg-slate-850 border border-slate-750 text-xs space-y-1.5">
-              <div className="text-slate-400 text-[11px] font-semibold">Active Operational Grounding:</div>
-              <div className="text-slate-300 flex items-center justify-between">
-                <span>District: <strong>Rudraprayag</strong></span>
-                <span>Active Camp: <strong>Basukedar (1.8 km)</strong></span>
+                <div className="h-44 rounded-[2px] overflow-hidden border border-line">
+                  <MapView
+                    center={[30.485, 79.062]}
+                    zoom={10}
+                    markers={[
+                      { id: "cite-1", lat: 30.485, lng: 79.062, title: "Basukedar NH-107 Obstruction", hazard: "landslide", severity: "Critical" },
+                      { id: "cite-2", lat: 30.435, lng: 79.052, title: "Basukedar Relief Shelter", hazard: "weather", severity: "Low" }
+                    ]}
+                    height="100%"
+                    showBasemapSwitcher={false}
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-1 pt-1 flex-wrap">
-                <span className="text-slate-400 text-[10px]">Corroborated:</span>
-                <span className="px-1.5 py-0.2 rounded bg-slate-800 text-blue-400 font-mono text-[10px] border border-slate-700">
-                  EV-LSD-2026-10-09-001
-                </span>
-                <span className="px-1.5 py-0.2 rounded bg-slate-800 text-blue-400 font-mono text-[10px] border border-slate-700">
-                  EV-RAIN-2026-10-08-002
-                </span>
+
+              {/* Cited Evidence Cards List */}
+              <div className="space-y-2 max-h-[380px] overflow-y-auto">
+                {citationsList.length === 0 ? (
+                  <div className="p-4 text-center text-muted text-xs font-mono">
+                    NO CITATIONS LOADED FOR CURRENT QUERY
+                  </div>
+                ) : (
+                  citationsList.map((cite) => {
+                    const isHighlighted = highlightedCitationId === cite.id;
+                    return (
+                      <div
+                        key={cite.id}
+                        id={`citation-card-${cite.id}`}
+                        className={`p-2.5 rounded-[2px] border transition-colors text-xs space-y-1.5 ${
+                          isHighlighted
+                            ? "bg-accent-soft border-accent"
+                            : "bg-surface2 border-line hover:border-line-strong"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="px-1.5 py-0.5 rounded-[2px] bg-ink text-white font-mono font-semibold text-[10px]">
+                              REF-0{cite.id}
+                            </span>
+                            <span className="font-semibold text-ink truncate max-w-[200px]">
+                              {cite.source_type || "Evidence"}
+                            </span>
+                          </div>
+                          <EpistemicBadge status={cite.reliability || "Verified"} />
+                        </div>
+
+                        <p className="text-[11px] text-ink2 leading-snug font-medium">
+                          {cite.source_title || cite.title || "Telemetry Record"}
+                        </p>
+
+                        <div className="flex items-center justify-between text-[10px] font-mono text-muted pt-1 border-t border-line">
+                          <span className="truncate max-w-[210px]">
+                            {cite.url || "Authenticated Ingestion"}
+                          </span>
+                          {cite.url && !cite.url.startsWith("#") ? (
+                            <a
+                              href={cite.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-accent hover:underline font-semibold"
+                            >
+                              OPEN SOURCE &rarr;
+                            </a>
+                          ) : (
+                            <span className="text-info">INTERNAL MODEL</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Related Context Summary Footer */}
+              <div className="p-2.5 rounded-[2px] bg-surface2 border border-line text-[11px] space-y-1.5">
+                <div className="panel-title">Active Operational Grounding</div>
+                <div className="text-ink2 flex items-center justify-between font-mono text-[10px]">
+                  <span>SECTOR: <strong>RUDRAPRAYAG</strong></span>
+                  <span>RELIEF CAMP: <strong>BASUKEDAR (1.8 KM)</strong></span>
+                </div>
+                <div className="flex items-center gap-1.5 pt-1 flex-wrap font-mono text-[10px]">
+                  <span className="text-muted">LINKED EVENTS:</span>
+                  <span className="px-1.5 py-0.5 rounded-[2px] bg-surface text-accent border border-line">
+                    EV-LSD-2026-10-09-001
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded-[2px] bg-surface text-accent border border-line">
+                    EV-RAIN-2026-10-08-002
+                  </span>
+                </div>
               </div>
             </div>
           </div>

@@ -74,17 +74,17 @@ USER_SETTINGS = {
         "pressure": "hPa",
     },
     "map_settings": {
-        "default_basemap": "dark",
+        "default_basemap": "light",
         "show_station_markers": True,
         "show_risk_polygons": True,
         "auto_refresh_sec": 30,
         "default_zoom": 8,
     },
     "account": {
-        "name": "Ashutosh Sharma",
+        "name": "Ashutosh Kanojia",
         "role": "State Disaster Response Officer",
         "state": "Uttarakhand",
-        "badge": "AS",
+        "badge": "AK",
         "organization": "Uttarakhand State Disaster Management Authority",
     },
 }

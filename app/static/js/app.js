@@ -1,51 +1,15 @@
 // Disaster Intelligence Multimodal Platform - Main Application Shell & Router
-// React 18 UMD application with navigation routing across 10 views + Settings + Help
+// Light operational EOC shell routing all 10 domain views + dedicated /settings and /help views.
 
 (function() {
   const React = window.React;
   const ReactDOM = window.ReactDOM;
   const { useState, useEffect } = React;
 
-  // Retrieve components and views dynamically from window registry
   const getComponents = () => window.DisasterComponents || window;
   const getViews = () => window.DisasterViews || window;
 
-  // Placeholder View for Help & About
-  const PlaceholderView = ({ id, title, icon, description }) => {
-    return (
-      <div className="p-8 max-w-4xl mx-auto space-y-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-3xl shrink-0">
-              {icon}
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white tracking-tight">{title}</h1>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">{description}</p>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <span className="text-slate-400 block mb-1">Backend Schema:</span>
-              <span className="font-semibold text-emerald-400">Operational (38 Tables)</span>
-            </div>
-            <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <span className="text-slate-400 block mb-1">REST API Status:</span>
-              <span className="font-semibold text-blue-400">Loaded under /api/v1/{id}</span>
-            </div>
-            <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <span className="text-slate-400 block mb-1">Telemetry Integration:</span>
-              <span className="font-semibold text-purple-400">Active Live Feed</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const App = () => {
-    // Current route/view state
     const [currentView, setCurrentView] = useState(() => {
       const path = window.location.pathname.replace(/^\//, '').toLowerCase();
       const validViews = [
@@ -56,39 +20,46 @@
     });
 
     const [globalSearch, setGlobalSearch] = useState("");
+    const [selectedRegion, setSelectedRegion] = useState("Uttarakhand");
 
-    // Babel compiles the component scripts asynchronously; re-render until they have registered
+    // Re-render until Babel finishes compiling all view scripts
     const [, setTick] = useState(0);
     useEffect(() => {
       const timer = setInterval(() => {
         const c = window.DisasterComponents;
-        if (c && c.Sidebar && c.TopBar && window.DisasterViews && window.DisasterViews.OverviewView) {
+        const v = window.DisasterViews;
+        if (c && c.Sidebar && c.TopBar && v && v.OverviewView && v.SettingsView && v.HelpView) {
           clearInterval(timer);
         }
         setTick((t) => t + 1);
-      }, 150);
+      }, 120);
       return () => clearInterval(timer);
     }, []);
 
-    // Sync browser URL with view navigation
     const handleViewChange = (viewId) => {
-      setCurrentView(viewId);
+      const cleanId = String(viewId || 'overview').replace(/^\//, '').toLowerCase();
+      setCurrentView(cleanId);
       if (window.history && window.history.pushState) {
-        window.history.pushState(null, '', `/${viewId}`);
+        window.history.pushState(null, '', cleanId === 'overview' ? '/' : `/${cleanId}`);
       }
     };
 
-    // Handle back/forward navigation in browser
     useEffect(() => {
       const handlePopState = () => {
         const path = window.location.pathname.replace(/^\//, '').toLowerCase();
-        if (path) setCurrentView(path);
+        setCurrentView(path || 'overview');
       };
       window.addEventListener('popstate', handlePopState);
       return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
-    // Render active view component safely
+    const handleGlobalSearch = (q) => {
+      setGlobalSearch(q);
+      if (q && q.trim() && currentView === 'overview') {
+        handleViewChange('events');
+      }
+    };
+
     const renderActiveView = () => {
       const views = getViews();
       const ViewOverview = views.OverviewView;
@@ -101,6 +72,8 @@
       const ViewPreparedness = views.PreparednessView;
       const ViewAsk = views.AskView;
       const ViewMyArea = views.MyAreaView;
+      const ViewSettings = views.SettingsView;
+      const ViewHelp = views.HelpView;
 
       switch (currentView) {
         case 'overview':
@@ -108,7 +81,7 @@
         case 'map-explorer':
           return ViewMap ? <ViewMap onNavigate={handleViewChange} /> : null;
         case 'events':
-          return ViewEvents ? <ViewEvents onNavigate={handleViewChange} /> : null;
+          return ViewEvents ? <ViewEvents onNavigate={handleViewChange} initialSearch={globalSearch} /> : null;
         case 'modality-events':
           return ViewModality ? <ViewModality onNavigate={handleViewChange} /> : null;
         case 'event-groups':
@@ -124,16 +97,11 @@
         case 'my-area':
           return ViewMyArea ? <ViewMyArea onNavigate={handleViewChange} /> : null;
         case 'settings':
-          return ViewMyArea ? <ViewMyArea initialTab="notifications" onNavigate={handleViewChange} /> : null;
+          return ViewSettings
+            ? <ViewSettings onNavigate={handleViewChange} />
+            : (ViewMyArea ? <ViewMyArea initialTab="notifications" onNavigate={handleViewChange} /> : null);
         case 'help':
-          return (
-            <PlaceholderView
-              id="help"
-              title="Help & About"
-              icon="❓"
-              description="System documentation, multimodal epistemic taxonomy reference, user manual, and developer API references (/docs)."
-            />
-          );
+          return ViewHelp ? <ViewHelp onNavigate={handleViewChange} /> : null;
         default:
           return ViewOverview ? <ViewOverview onNavigate={handleViewChange} /> : null;
       }
@@ -145,32 +113,31 @@
 
     if (!SidebarComp || !TopBarComp) {
       return (
-        <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-950 text-slate-300 gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-sm font-semibold tracking-wide text-slate-200">Disaster Intelligence — Multimodal Platform</div>
-          <div className="text-xs text-slate-500">Loading components...</div>
+        <div className="boot-screen">
+          <div className="boot-mark">USDMA // DISASTER INTELLIGENCE</div>
+          <div className="boot-line">Initializing Uttarakhand testbed modules&hellip;</div>
         </div>
       );
     }
 
     return (
-      <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
-        {/* Fixed Left Navigation Sidebar */}
-        <SidebarComp
-          currentView={currentView}
-          onViewChange={handleViewChange}
+      <div className="flex flex-col h-screen w-screen overflow-hidden bg-canvas text-ink">
+        {/* Global Top Telemetry Bar */}
+        <TopBarComp
+          onSearch={handleGlobalSearch}
+          selectedRegion={selectedRegion}
+          onRegionChange={(r) => setSelectedRegion(r)}
+          onNavigate={handleViewChange}
+          searchPlaceholder={`Search ${currentView.replace('-', ' ')}...`}
         />
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Top Filter & Utility Bar */}
-          <TopBarComp
-            onSearch={(q) => setGlobalSearch(q)}
-            searchPlaceholder={`Search ${currentView.replace('-', ' ')}...`}
+        {/* Workspace below top bar: Left Navigation Rail + Active View */}
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          <SidebarComp
+            currentView={currentView}
+            onViewChange={handleViewChange}
           />
-
-          {/* Dynamic Scrollable View Canvas */}
-          <main className="flex-1 overflow-y-auto bg-slate-950">
+          <main className="flex-1 overflow-y-auto bg-canvas min-w-0">
             {renderActiveView()}
           </main>
         </div>
@@ -178,7 +145,6 @@
     );
   };
 
-  // Attach App to window namespace
   window.App = {
     version: "1.0.0",
     platform: "Disaster Intelligence Multimodal Platform",
@@ -199,13 +165,11 @@
             ReactDOM.render(React.createElement(App), rootEl);
           }
           window._reactMounted = true;
-          console.log("Disaster Intelligence Platform mounted successfully.");
         } catch (err) {
           console.error("Mount error:", err);
         }
       }
 
-      // Check if critical components are ready; if Babel is still compiling, wait briefly
       if (window.DisasterComponents?.Sidebar && window.DisasterViews?.OverviewView) {
         doMount();
       } else {
@@ -221,7 +185,6 @@
     }
   };
 
-  // Mount on DOM Ready or immediately
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function() {
       setTimeout(() => window.App.mount("root"), 50);

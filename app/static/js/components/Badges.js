@@ -1,109 +1,99 @@
-// Disaster Intelligence Multimodal Platform - Badges Component
-// Epistemic Status & Severity Taxonomy matching explorer_ui_3/handoff.md
+// Disaster Intelligence Platform — Readable Status & Severity Badges
+// Clean, easy-to-read badges with clear contrast and a subtle left accent bar.
 
 (function() {
   const React = window.React;
 
-  // Epistemic Badges: Observed, Official, Reported, AI Inferred, Predicted, Unverified, Likely True
-  const EPISTEMIC_STYLES = {
-    'observed': { bg: '#ecfdf5', text: '#059669', border: '#059669', label: 'Observed' },
-    'official': { bg: '#f0fdf4', text: '#16a34a', border: '#16a34a', label: 'Official' },
-    'reported': { bg: '#eff6ff', text: '#2563eb', border: '#2563eb', label: 'Reported' },
-    'ai inferred': { bg: '#faf5ff', text: '#9333ea', border: '#9333ea', label: 'AI Inferred' },
-    'ai inference': { bg: '#faf5ff', text: '#9333ea', border: '#9333ea', label: 'AI Inferred' },
-    'ai predicted': { bg: '#faf5ff', text: '#7c3aed', border: '#7c3aed', label: 'AI Predicted' },
-    'predicted': { bg: '#fef2f2', text: '#dc2626', border: '#dc2626', label: 'Predicted' },
-    'unverified': { bg: '#fff1f2', text: '#e11d48', border: '#e11d48', label: 'Unverified' },
-    'likely true': { bg: '#f0fdfa', text: '#0d9488', border: '#0d9488', label: 'Likely True' },
-    'verified': { bg: '#ecfdf5', text: '#059669', border: '#059669', label: 'Verified' },
-    'detected': { bg: '#ecfdf5', text: '#059669', border: '#059669', label: 'Detected' },
-    'confirmed': { bg: '#ecfdf5', text: '#059669', border: '#059669', label: 'Confirmed' },
-    'possible': { bg: '#f1f5f9', text: '#64748b', border: '#94a3b8', label: 'Possible' },
-    'fact': { bg: '#ecfdf5', text: '#059669', border: '#059669', label: 'Fact' },
-    'inference': { bg: '#fff7ed', text: '#ea580c', border: '#ea580c', label: 'Inference' },
-    'prediction': { bg: '#faf5ff', text: '#9333ea', border: '#9333ea', label: 'Prediction' },
+  const TONES = {
+    green: { text: '#065F46', bg: '#ECFDF5', bar: '#10B981' },
+    teal: { text: '#075985', bg: '#E0F2FE', bar: '#0284C7' },
+    blue: { text: '#1E40AF', bg: '#EFF6FF', bar: '#3B82F6' },
+    indigo: { text: '#3730A3', bg: '#EEF2FF', bar: '#6366F1' },
+    amber: { text: '#92400E', bg: '#FFFBEB', bar: '#F59E0B' },
+    orange: { text: '#9A3412', bg: '#FFF7ED', bar: '#EA580C' },
+    red: { text: '#991B1B', bg: '#FEF2F2', bar: '#EF4444' },
+    grey: { text: '#334155', bg: '#F1F5F9', bar: '#64748B' }
+  };
+
+  const Tag = ({ tone = 'grey', label, className = '', title }) => {
+    const t = TONES[tone] || TONES.grey;
+    return (
+      <span
+        title={title}
+        className={`inline-flex items-center rounded-md px-2 py-0.5 text-[12px] font-semibold leading-tight whitespace-nowrap ${className}`}
+        style={{ backgroundColor: t.bg, color: t.text, borderLeft: `3px solid ${t.bar}` }}
+      >
+        {label}
+      </span>
+    );
+  };
+
+  const EPISTEMIC = {
+    'observed': ['green', 'Sensor Verified'],
+    'official': ['teal', 'Official Bulletin'],
+    'reported': ['blue', 'Field Report'],
+    'ai inferred': ['indigo', 'Analyzed'],
+    'ai inference': ['indigo', 'Analyzed'],
+    'inferred': ['indigo', 'Analyzed'],
+    'ai predicted': ['amber', 'Forecast'],
+    'predicted': ['amber', 'Forecast'],
+    'unverified': ['red', 'Unverified'],
+    'likely true': ['teal', 'Likely True'],
+    'verified': ['green', 'Verified'],
+    'detected': ['green', 'Detected'],
+    'confirmed': ['green', 'Confirmed'],
+    'possible': ['grey', 'Possible'],
+    'fact': ['green', 'Verified Fact'],
+    'inference': ['indigo', 'Analysis'],
+    'prediction': ['amber', 'Forecast']
   };
 
   const EpistemicBadge = ({ status, className = "" }) => {
     if (!status) return null;
     const key = String(status).trim().toLowerCase();
-    const style = EPISTEMIC_STYLES[key] || { bg: '#f1f5f9', text: '#475569', border: '#cbd5e1', label: status };
-
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider ${className}`}
-        style={{
-          backgroundColor: style.bg,
-          color: style.text,
-          border: `1px solid ${style.border}`,
-          lineHeight: '1.2'
-        }}
-      >
-        {style.label || status}
-      </span>
-    );
+    const [tone, label] = EPISTEMIC[key] || ['grey', status];
+    return <Tag tone={tone} label={label} className={className} title={`Verification status: ${label}`} />;
   };
 
-  // Severity Badges: Critical, High, Moderate, Low, Advisory
-  const SEVERITY_STYLES = {
-    'critical': { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', border: '#ef4444', label: 'Critical' },
-    'high': { bg: 'rgba(249, 115, 22, 0.15)', text: '#fb923c', border: '#f97316', label: 'High' },
-    'moderate': { bg: 'rgba(234, 179, 8, 0.15)', text: '#facc15', border: '#eab308', label: 'Moderate' },
-    'medium': { bg: 'rgba(234, 179, 8, 0.15)', text: '#facc15', border: '#eab308', label: 'Moderate' },
-    'low': { bg: 'rgba(34, 197, 94, 0.15)', text: '#4ade80', border: '#22c55e', label: 'Low' },
-    'advisory': { bg: 'rgba(2, 132, 199, 0.15)', text: '#38bdf8', border: '#0284c7', label: 'Advisory' },
-    'warning': { bg: 'rgba(249, 115, 22, 0.15)', text: '#fb923c', border: '#f97316', label: 'Warning' },
-    'alert': { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', border: '#ef4444', label: 'Alert' },
+  const SEVERITY = {
+    'critical': ['red', 'Critical'],
+    'red': ['red', 'Red Alert'],
+    'alert': ['red', 'Alert'],
+    'high': ['orange', 'High Risk'],
+    'orange': ['orange', 'Orange Alert'],
+    'warning': ['orange', 'Warning'],
+    'moderate': ['amber', 'Moderate'],
+    'medium': ['amber', 'Moderate'],
+    'yellow': ['amber', 'Yellow Watch'],
+    'low': ['green', 'Low Risk'],
+    'advisory': ['green', 'Advisory'],
+    'green': ['green', 'Normal']
   };
 
   const SeverityBadge = ({ severity, className = "" }) => {
     if (!severity) return null;
     const key = String(severity).trim().toLowerCase();
-    const style = SEVERITY_STYLES[key] || { bg: 'rgba(148, 163, 184, 0.15)', text: '#cbd5e1', border: '#64748b', label: severity };
-
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${className}`}
-        style={{
-          backgroundColor: style.bg,
-          color: style.text,
-          border: `1px solid ${style.border}`,
-          lineHeight: '1.2'
-        }}
-      >
-        ● {style.label || severity}
-      </span>
-    );
+    const [tone, label] = SEVERITY[key] || ['grey', severity];
+    return <Tag tone={tone} label={label} className={className} title={`Severity level: ${label}`} />;
   };
 
-  // Status Badge (Active, Resolved, Pending, etc.)
   const StatusBadge = ({ status, className = "" }) => {
     if (!status) return null;
     const key = String(status).trim().toLowerCase();
-    const isAct = key === 'active' || key === 'live' || key === 'ongoing' || key === 'open';
-    const isRes = key === 'resolved' || key === 'closed' || key === 'processed' || key === 'available';
-
-    const bg = isAct ? 'rgba(239, 68, 68, 0.15)' : (isRes ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)');
-    const text = isAct ? '#f87171' : (isRes ? '#34d399' : '#94a3b8');
-    const border = isAct ? '#ef4444' : (isRes ? '#10b981' : '#475569');
-
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${className}`}
-        style={{ backgroundColor: bg, color: text, border: `1px solid ${border}` }}
-      >
-        {status}
-      </span>
-    );
+    const isAct = ['active', 'live', 'ongoing', 'open'].includes(key);
+    const isRes = ['resolved', 'closed', 'processed', 'available', 'completed'].includes(key);
+    const tone = isAct ? 'red' : (isRes ? 'green' : 'grey');
+    return <Tag tone={tone} label={status} className={className} />;
   };
 
   window.DisasterComponents = window.DisasterComponents || {};
   window.DisasterComponents.EpistemicBadge = EpistemicBadge;
   window.DisasterComponents.SeverityBadge = SeverityBadge;
   window.DisasterComponents.StatusBadge = StatusBadge;
+  window.DisasterComponents.Tag = Tag;
 
-  // Global exposure for direct access
   window.EpistemicBadge = EpistemicBadge;
   window.SeverityBadge = SeverityBadge;
   window.StatusBadge = StatusBadge;
+  window.Tag = Tag;
 })();

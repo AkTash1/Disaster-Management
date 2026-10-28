@@ -1,12 +1,13 @@
 // Disaster Intelligence Multimodal Platform - ChartView Component
-// Chart.js 4.4.2 wrapper for Doughnut, Line, and Stacked Bar charts with Dark Theme styling
+// Chart.js 4.4.2 wrapper styled for the light operational theme: crisp 1.5px strokes,
+// subtle #E1E4E8 dashed gridlines, JetBrains Mono tabular ticks, and sharp tooltips.
 
 (function() {
   const React = window.React;
   const { useEffect, useRef } = React;
 
   const ChartView = ({
-    type = "doughnut", // 'doughnut', 'line', 'bar'
+    type = "bar", // 'doughnut', 'line', 'bar'
     data = null,
     options = {},
     title = "",
@@ -25,7 +26,6 @@
         return;
       }
 
-      // Destroy previous chart instance
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
         chartInstanceRef.current = null;
@@ -33,57 +33,69 @@
 
       const ctx = canvasRef.current.getContext('2d');
 
-      // Base default options for dark theme
+      const monoFont = { size: 10, family: '"JetBrains Mono", ui-monospace, monospace' };
+
       const defaultOptions = {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        elements: {
+          line: { borderWidth: 1.5, tension: 0.15 },
+          point: { radius: 2, hoverRadius: 4 }
+        },
         plugins: {
           legend: {
-            display: type !== 'line' && type !== 'bar',
+            display: true,
             position: 'bottom',
             labels: {
-              color: '#94a3b8',
-              font: { size: 10, family: '-apple-system, BlinkMacSystemFont, sans-serif' },
+              color: '#3A414D',
+              font: monoFont,
               boxWidth: 10,
+              boxHeight: 10,
               padding: 10
             }
           },
           tooltip: {
-            backgroundColor: '#1e293b',
-            titleColor: '#f8fafc',
-            bodyColor: '#e2e8f0',
-            borderColor: '#334155',
+            backgroundColor: '#14171C',
+            titleColor: '#FFFFFF',
+            bodyColor: '#E1E4E8',
+            borderColor: '#3A414D',
             borderWidth: 1,
             padding: 8,
-            cornerRadius: 6,
-            bodyFont: { size: 11 },
-            titleFont: { size: 12, weight: 'bold' }
+            cornerRadius: 2,
+            bodyFont: monoFont,
+            titleFont: { ...monoFont, weight: '600' }
           }
         }
       };
 
-      // Add scale configuration for Cartesian charts (line, bar)
       if (type === 'line' || type === 'bar') {
         defaultOptions.scales = {
           x: {
-            grid: { color: 'rgba(51, 65, 85, 0.3)', drawBorder: false },
-            ticks: { color: '#94a3b8', font: { size: 10 } }
+            grid: { color: '#E1E4E8', borderDash: [2, 2], drawBorder: false },
+            ticks: { color: '#5E6675', font: monoFont }
           },
           y: {
-            grid: { color: 'rgba(51, 65, 85, 0.3)', drawBorder: false },
-            ticks: { color: '#94a3b8', font: { size: 10 } }
+            grid: { color: '#E1E4E8', borderDash: [2, 2], drawBorder: false },
+            ticks: { color: '#5E6675', font: monoFont }
           }
         };
       }
 
-      // Merge user options with default options
       const mergedOptions = {
         ...defaultOptions,
         ...options,
         plugins: {
           ...defaultOptions.plugins,
           ...(options.plugins || {})
-        }
+        },
+        scales: (type === 'line' || type === 'bar') ? {
+          x: { ...defaultOptions.scales.x, ...(options.scales?.x || {}) },
+          y: { ...defaultOptions.scales.y, ...(options.scales?.y || {}) }
+        } : undefined
       };
 
       try {
@@ -107,21 +119,20 @@
     return (
       <div className={`relative flex flex-col justify-between ${className}`} style={{ height }}>
         {title && (
-          <div className="text-xs font-semibold text-slate-300 mb-2 truncate">{title}</div>
+          <div className="panel-title mb-2 truncate">{title}</div>
         )}
         <div className="relative flex-1 w-full h-full min-h-[140px]">
           <canvas ref={canvasRef} />
 
-          {/* Center text overlay for Donuts */}
           {type === 'doughnut' && (centerText || centerSubtext) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-5">
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-6">
               {centerText && (
-                <span className="text-lg font-bold text-slate-100 tracking-tight leading-none">
+                <span className="font-mono text-lg font-semibold text-ink tracking-tight leading-none">
                   {centerText}
                 </span>
               )}
               {centerSubtext && (
-                <span className="text-[10px] text-slate-400 mt-0.5 leading-none">
+                <span className="font-mono text-[10px] text-muted mt-0.5 leading-none uppercase">
                   {centerSubtext}
                 </span>
               )}
