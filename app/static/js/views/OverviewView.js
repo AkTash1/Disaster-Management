@@ -198,43 +198,42 @@
 
     return (
       <div className="p-6 max-w-[1600px] mx-auto space-y-6">
-        {/* Friendly Welcome & Action Banner */}
-        <div className="bg-surface border border-line rounded-xl p-5 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        {/* Page Header (Prominent Heading + Description Below It, Matching Reference) */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2.5 mb-1">
-              <EpistemicBadge status="Official" />
-              <span className="text-xs text-muted font-medium">
-                Live feeds from IMD Weather, CWC River Gauges &amp; District Control Rooms
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Overview
+              </h1>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-ok-soft text-ok border border-ok/30 font-semibold">
+                Live Operational Picture
               </span>
             </div>
-            <h1 className="text-lg font-bold text-ink tracking-tight">
-              Uttarakhand Disaster Situation Summary
-            </h1>
-            <p className="text-sm text-ink2 mt-0.5">
-              Currently monitoring <strong className="text-ink">{kpiStrip[1].value} active incidents</strong> and <strong className="text-crit">{kpiStrip[2].value} official warnings</strong> across all 13 districts. Click any card or map marker below for details.
+            <p className="text-sm font-normal text-muted mt-1">
+              Real-time summary of active disaster events, official warnings, affected areas, and multi-sensor intelligence across Uttarakhand.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('map-explorer')}
-              className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold shadow-sm transition-colors"
+              className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold shadow-xs transition-colors"
             >
               Open Full Map &rarr;
             </button>
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('preparedness')}
-              className="px-3.5 py-2 rounded-lg bg-surface2 hover:bg-surface3 text-ink border border-line text-xs font-semibold transition-colors"
+              className="px-3.5 py-2 rounded-lg bg-surface hover:bg-surface2 text-ink border border-line text-xs font-semibold transition-colors"
             >
-              Relief Shelters &amp; Helplines
+              Preparedness &amp; Shelters
             </button>
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('ask')}
-              className="px-3.5 py-2 rounded-lg bg-surface2 hover:bg-surface3 text-ink border border-line text-xs font-semibold transition-colors"
+              className="px-3.5 py-2 rounded-lg bg-surface hover:bg-surface2 text-ink border border-line text-xs font-semibold transition-colors"
             >
-              Ask Assistant (Q&amp;A)
+              Ask (Q&amp;A)
             </button>
           </div>
         </div>

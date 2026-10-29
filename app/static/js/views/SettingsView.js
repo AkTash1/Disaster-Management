@@ -39,34 +39,41 @@
     };
 
     return (
-      <div className="p-4 space-y-4">
-        {/* Top bar */}
-        <div className="bg-surface border border-line px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        {/* Page Header (Prominent Heading + Description Below It) */}
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <div className="panel-title">SYSTEM CONFIGURATION // CONSOLE PARAMETERS</div>
-            <h1 className="text-base font-semibold text-ink mt-0.5">
-              Operational Telemetry &amp; Workstation Settings
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Settings
+              </h1>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent border border-accent/30 font-semibold">
+                System Preferences
+              </span>
+            </div>
+            <p className="text-sm font-normal text-muted mt-1">
+              Configure data refresh intervals, coordinate display formats, default map layers, and language preferences.
+            </p>
           </div>
           <div className="flex items-center gap-2">
             {savedStatus && (
-              <span className="font-mono text-[11px] text-ok bg-ok-soft px-2 py-1 border-l-2 border-ok">
+              <span className="text-xs font-semibold text-ok bg-ok-soft px-3 py-1.5 rounded-lg border border-ok/30">
                 {savedStatus}
               </span>
             )}
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('my-area')}
-              className="px-2.5 py-1 border border-line bg-surface2 hover:border-line-strong font-mono text-[11px] text-ink2"
+              className="px-3 py-1.5 rounded-lg border border-line bg-surface hover:bg-surface2 text-xs font-semibold text-ink2"
             >
-              District Watchlist (/my-area) &rarr;
+              My Area Watchlist &rarr;
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="px-3 py-1 bg-accent text-surface hover:bg-accent-hover font-mono text-[11px] uppercase tracking-wider font-medium"
+              className="px-4 py-1.5 rounded-lg bg-accent text-white hover:bg-accent-hover text-xs font-semibold"
             >
-              Commit Parameters
+              Save Settings
             </button>
           </div>
         </div>

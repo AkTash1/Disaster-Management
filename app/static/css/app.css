@@ -1,4 +1,4 @@
-/* Disaster Intelligence Platform — Clean, Spacious, Human-Friendly Light Theme */
+/* Disaster Intelligence Platform — Clean Light Theme with Crisp Typographic Hierarchy */
 :root {
   --bg-canvas: #F4F6F9;
   --bg-surface-1: #FFFFFF;
@@ -25,21 +25,61 @@ html, body {
   background-color: var(--bg-canvas);
   color: var(--text-ink);
   font-family: var(--font-sans);
-  font-size: 14.5px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.5;
   font-variant-numeric: tabular-nums;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4 {
+/* Strong, unmistakable contrast between headings and body/subtext */
+h1 {
   font-family: var(--font-sans);
-  letter-spacing: -0.015em;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.025em !important;
+  color: var(--text-ink) !important;
+}
+
+h2 {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.018em;
   color: var(--text-ink);
 }
 
-/* Keep UI readable: use Plus Jakarta Sans with tabular figures for .font-mono UI elements,
-   and reserve IBM Plex Mono for code/kbd blocks */
+h3, h4 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-ink);
+}
+
+/* Section / Card Headers: bold and clearly larger than card body text */
+.panel-title {
+  font-family: var(--font-sans);
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.35 !important;
+  color: var(--text-ink) !important;
+}
+
+/* Subtitle / description directly below a heading: lighter weight and muted color */
+.page-subtitle,
+h1 + p,
+.panel-title + p {
+  font-family: var(--font-sans);
+  font-size: 13.5px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  color: var(--text-muted) !important;
+}
+
 .font-mono {
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
@@ -49,24 +89,6 @@ h1, h2, h3, h4 {
 code, kbd, samp, pre {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-}
-
-/* Prevent microscopic text across views */
-.text-\[9px\],
-.text-\[10px\] {
-  font-size: 12px !important;
-  line-height: 1.45 !important;
-  letter-spacing: 0.01em !important;
-}
-
-.text-\[11px\] {
-  font-size: 13px !important;
-  line-height: 1.5 !important;
-}
-
-.text-xs {
-  font-size: 13.5px !important;
-  line-height: 1.5 !important;
 }
 
 /* Soften sharp 2px corners into neat 8px cards and 6px buttons/inputs */
@@ -84,23 +106,13 @@ code, kbd, samp, pre {
 
 .gap-px.bg-line > * {
   border: 1px solid var(--border-subtle) !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-}
-
-/* Clean, readable section headers instead of tiny uppercase typewriter labels */
-.panel-title {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: -0.01em;
-  color: var(--text-ink);
 }
 
 /* Spacious main content padding */
 main > div.p-4 {
-  padding: 22px 26px !important;
+  padding: 24px 28px !important;
 }
 main > div.space-y-4 > * + * {
   margin-top: 20px !important;
@@ -108,7 +120,7 @@ main > div.space-y-4 > * + * {
 
 /* Subtle card polish on top-level surface panels */
 .bg-surface.border.border-line {
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 

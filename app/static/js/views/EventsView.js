@@ -112,35 +112,32 @@
     };
 
     return (
-      <div className="p-4 space-y-4 max-w-full">
-        {/* Header */}
-        <div className="bg-surface border border-line rounded-[2px] p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        {/* Page Header (Prominent Heading + Description Below It) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-semibold text-ink tracking-tight">
-                Unified Disaster Events
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Events
               </h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[2px] font-mono uppercase tracking-wider bg-accent-soft text-accent border-l-2 border-accent font-semibold">
-                MULTI-SENSOR CORROBORATED
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent border border-accent/30 font-semibold">
+                Multi-Modal Verified
               </span>
             </div>
-            <p className="text-xs text-muted mt-0.5">
-              Canonical incident records fused across IMD weather stations, CWC river gauges, satellite SAR, and verified field SITREPs.
+            <p className="text-sm font-normal text-muted mt-1">
+              Unified real-world disaster events corroborated across weather stations, river gauges, satellite imagery, and field reports.
             </p>
-          </div>
-          <div className="text-[11px] font-mono text-muted tabular-nums">
-            ACTIVE FILTER: <strong className="text-ink">{eventsList.length} RECORDS</strong>
           </div>
         </div>
 
-        {/* 6-Column Hairline KPI Telemetry Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-line border border-line rounded-[2px] overflow-hidden">
-          <KpiCard title="Total Events (30d)" value={kpiData.total_events || 127} delta="+14 vs 30d avg" deltaTone="neutral" subtitle="Canonical incidents" />
-          <KpiCard title="Active Events" value={kpiData.active_events || 34} delta="+3 in 24h" deltaTone="crit" subtitle="Ongoing response" />
-          <KpiCard title="Resolved Events" value={kpiData.resolved_events || 78} delta="61.4% clearance" deltaTone="ok" subtitle="Closed operations" />
-          <KpiCard title="High Severity" value={kpiData.high_severity || 32} delta="25.2% share" deltaTone="crit" subtitle="Priority Level 1" />
-          <KpiCard title="Moderate Watch" value={kpiData.moderate_severity || 46} delta="36.2% share" deltaTone="warn" subtitle="Level 2 Watch" />
-          <KpiCard title="Low / Advisory" value={kpiData.low_severity || 31} delta="24.4% share" deltaTone="neutral" subtitle="Routine monitoring" />
+        {/* 6-Column KPI Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <KpiCard title="Total Events" value={kpiData.total_events || 127} delta="+14 vs 30d avg" deltaTone="neutral" />
+          <KpiCard title="Active Events" value={kpiData.active_events || 34} delta="+3 in 24h" deltaTone="crit" />
+          <KpiCard title="Resolved" value={kpiData.resolved_events || 78} delta="61.4% cleared" deltaTone="ok" />
+          <KpiCard title="High Severity" value={kpiData.high_severity || 32} delta="25.2% share" deltaTone="crit" />
+          <KpiCard title="Moderate" value={kpiData.moderate_severity || 46} delta="36.2% share" deltaTone="warn" />
+          <KpiCard title="Low / Advisory" value={kpiData.low_severity || 31} delta="24.4% share" deltaTone="neutral" />
         </div>
 
         {/* Filter Bar */}
@@ -230,19 +227,19 @@
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
-                        <h3 className="font-semibold text-xs text-ink truncate">
+                        <h3 className="font-bold text-[14.5px] text-ink truncate">
                           {item.title || item.event_title || `${hazard} in ${item.district || 'Uttarakhand'}`}
                         </h3>
                         <SeverityBadge severity={item.severity || "Moderate"} />
                       </div>
 
-                      <div className="text-[11px] text-muted mt-1 flex items-center justify-between font-mono tabular-nums">
+                      <div className="text-xs font-normal text-muted mt-1 flex items-center justify-between tabular-nums">
                         <span className="truncate">{item.location || item.district || "Uttarakhand"}</span>
                         <span className="shrink-0">{item.time || item.timestamp || "08:15 IST"}</span>
                       </div>
 
-                      <div className="flex items-center justify-between mt-1.5 pt-1 border-t border-line">
-                        <span className="text-[10px] font-mono text-muted truncate">{id}</span>
+                      <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-line">
+                        <span className="text-xs font-normal text-muted truncate">{id}</span>
                         <StatusBadge status={item.status || "Active"} />
                       </div>
                     </div>
@@ -273,22 +270,20 @@
           {/* RIGHT: UNIFIED EVENT MASTER-DETAIL PANEL */}
           <div className="lg:col-span-7 bg-surface border border-line rounded-[2px] overflow-hidden">
             {/* Detail Header */}
-            <div className="p-4 bg-surface2 border-b border-line">
+            <div className="p-5 bg-surface2 border-b border-line">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-1.5 py-0.5 rounded-[2px] bg-ink text-white font-mono text-[10px] font-semibold">
-                      {ev.event_id || "EV-LSD-2026-10-09-001"}
-                    </span>
-                    <span className="text-[11px] font-mono text-muted tabular-nums">
-                      {ev.timestamp || "2026-10-09 08:15 IST"}
-                    </span>
-                  </div>
-                  <h2 className="text-base font-semibold text-ink tracking-tight mt-1">
+                  <h2 className="text-lg font-extrabold text-ink tracking-tight">
                     {ev.title || "Landslide in Rudraprayag"}
                   </h2>
-                  <div className="text-xs text-muted mt-0.5">
-                    Sector: <strong className="text-ink2">{ev.location || "Rudraprayag, Uttarakhand"}</strong>
+                  <div className="flex items-center gap-2 mt-1 text-xs font-normal text-muted">
+                    <span className="px-1.5 py-0.5 rounded bg-surface border border-line text-ink2 font-semibold text-[11px]">
+                      {ev.event_id || "EV-LSD-2026-10-09-001"}
+                    </span>
+                    <span>&bull;</span>
+                    <span>{ev.location || "Rudraprayag, Uttarakhand"}</span>
+                    <span>&bull;</span>
+                    <span className="tabular-nums">{ev.timestamp || "2026-10-09 08:15 IST"}</span>
                   </div>
                 </div>
 

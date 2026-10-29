@@ -152,26 +152,21 @@
     };
 
     return (
-      <div className="p-4 space-y-4 max-w-full">
-        {/* Header */}
-        <div className="bg-surface border border-line rounded-[2px] p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        {/* Page Header (Prominent Heading + Description Below It) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-semibold text-ink tracking-tight">
-                Reports &amp; Evidence Repository
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Reports &amp; Evidence
               </h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[2px] font-mono uppercase tracking-wider bg-accent-soft text-accent border-l-2 border-accent font-semibold">
-                BILINGUAL EN / HI PROVENANCE
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent border border-accent/30 font-semibold">
+                Bilingual EN / HI
               </span>
             </div>
-            <p className="text-xs text-muted mt-0.5">
-              Official USDMA/SDRF SITREPs, regional press dispatches, and crowdsourced ground telemetry with bilingual verification and perceptual hash audit trails.
+            <p className="text-sm font-normal text-muted mt-1">
+              Official government bulletins, news articles, social media posts, and verified field evidence in English and Hindi.
             </p>
-          </div>
-          <div className="flex items-center gap-2 text-[11px] font-mono">
-            <span className="px-2.5 py-1 rounded-[2px] bg-surface2 border border-line text-ink2">
-              VERIFICATION PIPELINE: <strong className="text-ok">ONLINE</strong>
-            </span>
           </div>
         </div>
 
@@ -340,11 +335,11 @@
                         </span>
                       </div>
 
-                      <h3 className={`text-xs font-semibold leading-snug ${isSelected ? "text-accent" : "text-ink"}`}>
+                      <h3 className={`text-[14.5px] font-bold leading-snug ${isSelected ? "text-accent" : "text-ink"}`}>
                         {item.title}
                       </h3>
 
-                      <p className="text-[11px] text-muted line-clamp-2 leading-relaxed">
+                      <p className="text-xs font-normal text-muted line-clamp-2 leading-relaxed">
                         {item.summary}
                       </p>
 

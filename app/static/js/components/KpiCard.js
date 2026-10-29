@@ -1,5 +1,5 @@
-// Disaster Intelligence Platform — Clean, Readable KPI Summary Card
-// Displays a clear title, large bold number, optional mini sparkline, and a helpful subtitle.
+// Disaster Intelligence Platform — KPI Summary Card
+// Strong visual hierarchy: clear semi-bold label, large extra-bold value (28px), and subtle metadata/delta pill.
 
 (function() {
   const React = window.React;
@@ -13,20 +13,20 @@
   };
 
   const DELTA_TONE = {
-    neutral: 'text-muted bg-surface2',
-    crit: 'text-crit bg-crit-soft',
-    hazard: 'text-crit bg-crit-soft',
-    warn: 'text-warn bg-warn-soft',
-    warning: 'text-warn bg-warn-soft',
-    ok: 'text-ok bg-ok-soft',
-    good: 'text-ok bg-ok-soft'
+    neutral: 'text-muted bg-surface2 border border-line',
+    crit: 'text-crit bg-crit-soft border border-crit/20',
+    hazard: 'text-crit bg-crit-soft border border-crit/20',
+    warn: 'text-warn bg-warn-soft border border-warn/20',
+    warning: 'text-warn bg-warn-soft border border-warn/20',
+    ok: 'text-ok bg-ok-soft border border-ok/20',
+    good: 'text-ok bg-ok-soft border border-ok/20'
   };
 
   const SparkBars = ({ data = [], tone = 'neutral' }) => {
     if (!data || data.length === 0) return null;
     const max = Math.max(...data, 1);
     const fill = (tone === 'hazard' || tone === 'crit') ? '#DC2626' : (tone === 'warning' || tone === 'warn') ? '#D97706' : '#0284C7';
-    const w = 4, gap = 2, h = 20;
+    const w = 4, gap = 2, h = 22;
     return (
       <svg width={data.length * (w + gap) - gap} height={h} className="shrink-0" aria-hidden="true">
         {data.map((v, i) => {
@@ -58,27 +58,27 @@
     return (
       <div
         onClick={onClick}
-        className={`${bare ? '' : 'bg-surface border border-line rounded-lg shadow-sm'} p-4 flex flex-col justify-between gap-2 min-w-[130px] transition-all ${onClick ? 'cursor-pointer hover:border-accent/50 hover:shadow' : ''} ${className}`}
+        className={`${bare ? '' : 'bg-surface border border-line rounded-xl shadow-xs'} p-4 flex flex-col justify-between gap-2.5 min-w-[125px] transition-all ${onClick ? 'cursor-pointer hover:border-accent/50 hover:shadow-sm' : ''} ${className}`}
       >
-        <div className="text-[12.5px] font-semibold text-muted truncate" title={title}>
+        <div className="text-[13px] font-semibold text-ink2 truncate" title={title}>
           {title}
         </div>
 
         <div className="flex items-end justify-between gap-2">
-          <div className="text-[26px] leading-none font-bold text-ink tracking-tight tabular-nums">
+          <div className="text-[28px] leading-none font-extrabold text-ink tracking-tight tabular-nums">
             {value !== undefined && value !== null ? value : "—"}
           </div>
           <SparkBars data={spark} tone={resolvedTone} />
         </div>
 
         {(displayDelta || subtitle) && (
-          <div className="flex items-center justify-between gap-1.5 pt-1 text-[12px]">
+          <div className="flex items-center justify-between gap-1.5 pt-0.5 text-[11.5px]">
             {displayDelta ? (
-              <span className={`px-2 py-0.5 rounded-md text-[11.5px] font-semibold truncate ${toneCls}`}>
+              <span className={`px-2 py-0.5 rounded-md text-[11px] font-medium truncate ${toneCls}`}>
                 {displayDelta}{deltaLabel ? ` ${deltaLabel}` : ''}
               </span>
             ) : (
-              subtitle && <span className="text-muted truncate">{subtitle}</span>
+              subtitle && <span className="text-muted font-normal truncate">{subtitle}</span>
             )}
           </div>
         )}

@@ -138,27 +138,21 @@
       : [30.435, 79.052];
 
     return (
-      <div className="p-4 space-y-4 max-w-full">
-        {/* Header */}
-        <div className="bg-surface border border-line rounded-[2px] p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        {/* Page Header (Prominent Heading + Description Below It) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-semibold text-ink tracking-tight">
-                Preparedness &amp; Response Roster
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Preparedness &amp; Response
               </h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[2px] font-mono uppercase tracking-wider bg-ok-soft text-ok border-l-2 border-ok font-semibold">
-                CERTIFIED CIVIL DEFENSE
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-ok-soft text-ok border border-ok/30 font-semibold">
+                Verified Resources
               </span>
             </div>
-            <p className="text-xs text-muted mt-0.5">
-              Verified directory of emergency evacuation shelters, SEOC/DEOC incident commanders, heavy equipment stockpiles, and bilingual SOPs.
+            <p className="text-sm font-normal text-muted mt-1">
+              Verified relief shelters, emergency contact numbers, response resources, and bilingual safety guidance.
             </p>
-          </div>
-          <div className="flex items-center gap-2 text-[11px] font-mono">
-            <span className="px-2.5 py-1 rounded-[2px] bg-ok-soft border border-ok/30 text-ok font-semibold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-[1px] bg-ok"></span>
-              STATE RESPONSE ROSTER VERIFIED
-            </span>
           </div>
         </div>
 

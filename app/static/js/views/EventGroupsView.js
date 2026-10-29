@@ -94,34 +94,31 @@
     };
 
     return (
-      <div className="p-4 space-y-4 max-w-full">
-        {/* Header */}
-        <div className="bg-surface border border-line rounded-[2px] p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        {/* Page Header (Prominent Heading + Description Below It) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-semibold text-ink tracking-tight">
-                Event Groups (Multi-Hazard Cascade Episodes)
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Event Groups
               </h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[2px] font-mono uppercase tracking-wider bg-info-soft text-info border-l-2 border-info font-semibold">
-                CAUSAL DAG CLUSTERS
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-info-soft text-info border border-info/30 font-semibold">
+                Cascading Episodes
               </span>
             </div>
-            <p className="text-xs text-muted mt-0.5">
-              Compound disaster episodes linking primary meteorological triggers to downstream hydrological, geotechnical, and infrastructure cascades.
+            <p className="text-sm font-normal text-muted mt-1">
+              Grouped multi-hazard disaster episodes linking primary weather triggers to downstream floods, landslides, and road closures.
             </p>
-          </div>
-          <div className="text-[11px] font-mono text-muted tabular-nums">
-            TRACKED CASCADES: <strong className="text-ink">{kpis.total_episodes || 28}</strong>
           </div>
         </div>
 
-        {/* 5-Column Hairline KPI Telemetry Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-line border border-line rounded-[2px] overflow-hidden">
-          <KpiCard title="Total Episodes" value={kpis.total_episodes || 28} delta="+4 vs 30d avg" deltaTone="neutral" subtitle="Tracked cascades" />
-          <KpiCard title="Active Episodes" value={kpis.active_episodes || 9} delta="32.1% active" deltaTone="crit" subtitle="Ongoing response" />
-          <KpiCard title="Multi-Hazard" value={kpis.multi_hazard || 16} delta="57.1% compound" deltaTone="warn" subtitle="2+ linked hazards" />
-          <KpiCard title="High Impact" value={kpis.high_impact || 7} delta="25.0% severe" deltaTone="crit" subtitle="Major disruption" />
-          <KpiCard title="Resolved" value={kpis.resolved_episodes || 19} delta="67.9% closed" deltaTone="ok" subtitle="Archived cascades" />
+        {/* 5-Column KPI Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+          <KpiCard title="Total Episodes" value={kpis.total_episodes || 28} delta="+4 vs 30d avg" deltaTone="neutral" />
+          <KpiCard title="Active Episodes" value={kpis.active_episodes || 9} delta="32.1% active" deltaTone="crit" />
+          <KpiCard title="Multi-Hazard" value={kpis.multi_hazard || 16} delta="57.1% compound" deltaTone="warn" />
+          <KpiCard title="High Impact" value={kpis.high_impact || 7} delta="25.0% severe" deltaTone="crit" />
+          <KpiCard title="Resolved" value={kpis.resolved_episodes || 19} delta="67.9% closed" deltaTone="ok" />
         </div>
 
         {/* Filter Bar */}
@@ -191,18 +188,18 @@
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-xs text-ink leading-snug">
+                      <h3 className="font-bold text-[14.5px] text-ink leading-snug">
                         {item.title || item.name || "Uttarakhand Episode"}
                       </h3>
                       <SeverityBadge severity={item.impact_level || "High"} />
                     </div>
 
-                    <div className="text-[10px] font-mono text-muted mt-1 tabular-nums">
-                      WINDOW: {item.dates || item.timeframe || "2026-10-08 – 2026-10-10"}
+                    <div className="text-xs font-normal text-muted mt-1 tabular-nums">
+                      {item.dates || item.timeframe || "2026-10-08 – 2026-10-10"}
                     </div>
 
-                    <div className="text-[11px] text-ink2 mt-1 pt-1 border-t border-line flex items-center justify-between">
-                      <span className="truncate font-mono text-[10px]">{item.locations || item.region || "Rudraprayag"}</span>
+                    <div className="text-xs font-normal text-muted mt-2 pt-1.5 border-t border-line flex items-center justify-between">
+                      <span className="truncate">{item.locations || item.region || "Rudraprayag"}</span>
                       <StatusBadge status={item.status || "Active"} />
                     </div>
                   </div>
@@ -232,22 +229,20 @@
           {/* RIGHT: EPISODE DETAIL PANEL */}
           <div className="lg:col-span-8 bg-surface border border-line rounded-[2px] overflow-hidden">
             {/* Detail Header */}
-            <div className="p-4 bg-surface2 border-b border-line">
+            <div className="p-5 bg-surface2 border-b border-line">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-1.5 py-0.5 rounded-[2px] bg-ink text-white font-mono text-[10px] font-semibold">
-                      {episode.event_group_id || "EP-UTT-2026-10-001"}
-                    </span>
-                    <span className="text-[11px] font-mono text-muted tabular-nums">
-                      {episode.dates || "2026-10-08 – 2026-10-10"}
-                    </span>
-                  </div>
-                  <h2 className="text-base font-semibold text-ink tracking-tight mt-1">
+                  <h2 className="text-lg font-extrabold text-ink tracking-tight">
                     {episode.title || "Rudraprayag Heavy Rainfall Episode"}
                   </h2>
-                  <div className="text-xs text-muted mt-0.5">
-                    Affected Sectors: <strong className="text-ink2">{episode.locations || "Rudraprayag, Chamoli, Tehri Garhwal"}</strong>
+                  <div className="flex items-center gap-2 mt-1 text-xs font-normal text-muted">
+                    <span className="px-1.5 py-0.5 rounded bg-surface border border-line text-ink2 font-semibold text-[11px]">
+                      {episode.event_group_id || "EP-UTT-2026-10-001"}
+                    </span>
+                    <span>&bull;</span>
+                    <span>{episode.locations || "Rudraprayag, Chamoli, Tehri Garhwal"}</span>
+                    <span>&bull;</span>
+                    <span className="tabular-nums">{episode.dates || "2026-10-08 – 2026-10-10"}</span>
                   </div>
                 </div>
 

@@ -26,21 +26,28 @@
     ];
 
     return (
-      <div className="p-4 space-y-4">
-        <div className="bg-surface border border-line px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <div className="panel-title">OPERATIONS MANUAL &amp; TECHNICAL REFERENCE</div>
-            <h1 className="text-base font-semibold text-ink mt-0.5">
-              USDMA Disaster Intelligence Platform · Uttarakhand Testbed Documentation
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Help &amp; About
+              </h1>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent border border-accent/30 font-semibold">
+                Platform Guide
+              </span>
+            </div>
+            <p className="text-sm font-normal text-muted mt-1">
+              Documentation on platform architecture, verification badges, data sources, and the 38-table disaster intelligence schema.
+            </p>
           </div>
-          <div className="flex items-center gap-2 font-mono text-[11px]">
+          <div className="flex items-center gap-2 text-xs">
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('overview')}
-              className="px-2.5 py-1 border border-line bg-surface2 hover:border-line-strong text-ink2"
+              className="px-3 py-1.5 rounded-lg border border-line bg-surface hover:bg-surface2 font-semibold text-ink2"
             >
-              &larr; Return to Command Overview
+              &larr; Return to Overview
             </button>
           </div>
         </div>

@@ -172,19 +172,19 @@
 
     return (
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
-        {/* Header */}
-        <div className="bg-surface border border-line rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+        {/* Page Header (Prominent Heading + Description Below It) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-lg font-bold text-ink tracking-tight">
-                My Area &amp; District Alerts
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                My Area
               </h1>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent font-semibold">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent border border-accent/30 font-semibold">
                 Custom Watchlist
               </span>
             </div>
-            <p className="text-sm text-muted mt-0.5">
-              Choose which Uttarakhand districts you want to follow closely and manage your SMS / alert preferences.
+            <p className="text-sm font-normal text-muted mt-1">
+              Monitor your pinned Uttarakhand districts, configure hazard alert thresholds, and manage notification preferences.
             </p>
           </div>
 

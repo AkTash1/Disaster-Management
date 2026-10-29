@@ -178,25 +178,20 @@
 
     return (
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
-        {/* Header */}
-        <div className="bg-surface border border-line rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+        {/* Page Header (Prominent Heading + Description Below It) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-lg font-bold text-ink tracking-tight">
-                Ask Assistant (Plain-English Disaster Q&amp;A)
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Ask (Q&amp;A)
               </h1>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent font-semibold">
-                Verified Sources
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent border border-accent/30 font-semibold">
+                Evidence-Grounded
               </span>
             </div>
-            <p className="text-sm text-muted mt-0.5">
-              Ask any question about road blocks, rainfall, river levels, or relief shelters in Uttarakhand. Every answer links to official sources.
+            <p className="text-sm font-normal text-muted mt-1">
+              Ask natural-language questions about active disasters, road status, rainfall, or shelters with cited facts, inferences, and predictions.
             </p>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="px-3 py-1.5 rounded-lg bg-surface2 border border-line text-ink2 font-medium">
-              Data Source: <strong className="text-accent">IMD, CWC &amp; USDMA Live Feeds</strong>
-            </span>
           </div>
         </div>
 

@@ -219,44 +219,44 @@
     });
 
     return (
-      <div className="p-4 space-y-4 max-w-full">
-        {/* Header with Mode Toggle */}
-        <div className="bg-surface border border-line rounded-[2px] p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        {/* Page Header with Mode Toggle */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-semibold text-ink tracking-tight">
-                History &amp; Decadal Trends (2015–2025 Baseline)
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                History &amp; Trends
               </h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[2px] font-mono uppercase tracking-wider bg-accent-soft text-accent border-l-2 border-accent font-semibold">
-                CLIMATOLOGY &amp; SCAR ARCHIVE
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent border border-accent/30 font-semibold">
+                2015–2025 Archive
               </span>
             </div>
-            <p className="text-xs text-muted mt-0.5">
-              10-year historical frequency baselines, monsoon seasonal wave patterns, NRSC Bhuvan / GSI landslide scar inventory, and cross-episode benchmarking.
+            <p className="text-sm font-normal text-muted mt-1">
+              Historical disaster trends, seasonal monsoon patterns, landslide inventory, and comparisons with past events.
             </p>
           </div>
 
           {/* Segmented Mode Toggle */}
-          <div className="flex items-center border border-line-strong rounded-[2px] overflow-hidden bg-surface2 shrink-0 text-[11px] font-mono uppercase tracking-wider">
+          <div className="flex items-center border border-line-strong rounded-lg overflow-hidden bg-surface shadow-xs shrink-0 text-xs font-semibold">
             <button
               onClick={() => setViewMode("trends")}
-              className={`px-3 py-1.5 transition-colors ${
+              className={`px-3.5 py-2 transition-colors ${
                 viewMode === "trends"
-                  ? "bg-accent text-white font-semibold"
+                  ? "bg-accent text-white"
                   : "text-muted hover:text-ink"
               }`}
             >
-              Decadal Event Trends
+              Events Trends
             </button>
             <button
               onClick={() => setViewMode("inventory")}
-              className={`px-3 py-1.5 transition-colors border-l border-line ${
+              className={`px-3.5 py-2 transition-colors border-l border-line ${
                 viewMode === "inventory"
-                  ? "bg-accent text-white font-semibold"
+                  ? "bg-accent text-white"
                   : "text-muted hover:text-ink"
               }`}
             >
-              GSI Landslide Inventory
+              Landslide Inventory
             </button>
           </div>
         </div>

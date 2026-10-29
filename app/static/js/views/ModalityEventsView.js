@@ -113,54 +113,49 @@
     };
 
     return (
-      <div className="p-4 space-y-4 max-w-full">
-        {/* Header */}
-        <div className="bg-surface border border-line rounded-[2px] p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        {/* Page Header (Prominent Heading + Description Below It, Matching Reference) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-semibold text-ink tracking-tight">
-                Modality Events (Single-Sensor Detections)
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
+                Modality Events
               </h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[2px] font-mono uppercase tracking-wider bg-ok-soft text-ok border-l-2 border-ok font-semibold">
-                TIER-2 INGESTION STREAM
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-ok-soft text-ok border border-ok/30 font-semibold">
+                Individual Sensor Feeds
               </span>
             </div>
-            <p className="text-xs text-muted mt-0.5">
-              Raw anomaly detections within individual sensor modalities (IMD Doppler, CWC Hydrology, NCS Seismic, Press, Social Telemetry) prior to multi-sensor fusion.
+            <p className="text-sm font-normal text-muted mt-1">
+              Events detected within individual modalities such as earthquake, weather, news, and social media.
             </p>
-          </div>
-          <div className="text-[11px] font-mono text-muted tabular-nums">
-            INGESTED: <strong className="text-ink">{kpis.total || 482} DETECTIONS</strong>
           </div>
         </div>
 
-        {/* 8-Column Hairline Modality Telemetry Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-px bg-line border border-line rounded-[2px] overflow-hidden">
-          <KpiCard title="Total Stream" value={kpis.total || 482} delta="100% indexed" deltaTone="neutral" />
-          <KpiCard title="Seismic (NCS)" value={kpis.earthquake || 36} delta="7.5% share" deltaTone="neutral" />
-          <KpiCard title="Hydrology (CWC)" value={kpis.flood || 92} delta="19.1% share" deltaTone="warn" />
-          <KpiCard title="Geotech (GSI)" value={kpis.landslide || 74} delta="15.4% share" deltaTone="crit" />
-          <KpiCard title="Weather (IMD)" value={kpis.weather || 118} delta="24.5% share" deltaTone="neutral" />
-          <KpiCard title="Press / Media" value={kpis.news || 64} delta="13.3% share" deltaTone="neutral" />
-          <KpiCard title="Social Crowd" value={kpis.social || 71} delta="14.7% share" deltaTone="neutral" />
-          <KpiCard title="Other / UAV" value={kpis.other || 27} delta="5.6% share" deltaTone="neutral" />
+        {/* 8-Column Modality KPI Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3.5">
+          <KpiCard title="Total" value={kpis.total || 142} delta="100% indexed" deltaTone="neutral" />
+          <KpiCard title="Earthquake" value={kpis.earthquake || 4} delta="7.5% share" deltaTone="neutral" />
+          <KpiCard title="Flood" value={kpis.flood || 28} delta="19.1% share" deltaTone="warn" />
+          <KpiCard title="Landslide" value={kpis.landslide || 36} delta="15.4% share" deltaTone="crit" />
+          <KpiCard title="Weather" value={kpis.weather || 48} delta="24.5% share" deltaTone="neutral" />
+          <KpiCard title="News" value={kpis.news || 64} delta="13.3% share" deltaTone="neutral" />
+          <KpiCard title="Social" value={kpis.social || 71} delta="14.7% share" deltaTone="neutral" />
+          <KpiCard title="Other" value={kpis.other || 2} delta="5.6% share" deltaTone="neutral" />
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-surface border border-line rounded-[2px] px-3 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-wider font-semibold text-muted pr-1">
-              MODALITY FILTER:
-            </span>
+        <div className="bg-surface border border-line rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex flex-wrap items-center gap-2.5">
             <select
               value={modalityFilter}
               onChange={(e) => setModalityFilter(e.target.value)}
-              className="bg-surface2 text-ink border border-line rounded-[2px] px-2.5 py-1 text-xs focus:outline-none focus:border-accent"
+              className="bg-surface2 text-ink border border-line rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-accent"
             >
               <option value="All Modalities">All Modalities</option>
+              <option value="Earthquake">Earthquake</option>
+              <option value="Flood">Flood</option>
+              <option value="Landslide">Landslide</option>
               <option value="Weather">Weather</option>
-              <option value="Hydrology">Hydrology</option>
-              <option value="Seismic">Seismic</option>
               <option value="News">News</option>
               <option value="Social Media">Social Media</option>
             </select>
@@ -168,7 +163,7 @@
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-surface2 text-ink border border-line rounded-[2px] px-2.5 py-1 text-xs focus:outline-none focus:border-accent"
+              className="bg-surface2 text-ink border border-line rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-accent"
             >
               <option value="All Status">All Status</option>
               <option value="Processed">Processed</option>
@@ -180,13 +175,13 @@
                 setModalityFilter("All Modalities");
                 setStatusFilter("All Status");
               }}
-              className="text-[11px] font-mono uppercase tracking-wider text-muted hover:text-ink px-2 py-1 rounded-[2px] hover:bg-surface2"
+              className="text-xs font-medium text-muted hover:text-ink px-2.5 py-1.5 rounded-lg hover:bg-surface2"
             >
-              Reset
+              Clear Filters
             </button>
           </div>
-          <div className="text-[11px] font-mono text-muted tabular-nums">
-            SHOWING <strong className="text-ink">{modalityList.length}</strong> RECORDS
+          <div className="text-xs text-muted tabular-nums">
+            Showing <strong className="font-bold text-ink">{modalityList.length}</strong> events
           </div>
         </div>
 
@@ -221,20 +216,20 @@
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
-                        <h3 className="font-semibold text-xs text-ink truncate">
+                        <h3 className="font-bold text-[14.5px] text-ink truncate">
                           {item.title || item.event_name || `${item.hazard || 'Hazard'} Detection`}
                         </h3>
-                        <span className="font-mono text-[11px] font-semibold text-accent tabular-nums">
+                        <span className="font-mono text-xs font-bold text-accent tabular-nums">
                           {conf.toFixed(2)}
                         </span>
                       </div>
 
-                      <div className="text-[11px] text-muted mt-0.5 flex items-center justify-between font-mono tabular-nums">
+                      <div className="text-xs font-normal text-muted mt-0.5 flex items-center justify-between tabular-nums">
                         <span className="truncate">{item.source || item.modality || "Telemetry"}</span>
                         <span>{item.time || item.timestamp || "08:25 IST"}</span>
                       </div>
 
-                      <div className="flex items-center justify-between mt-1.5 pt-1 border-t border-line">
+                      <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-line">
                         <EpistemicBadge status={item.type || item.classification || "Detected"} />
                         <StatusBadge status={item.status || "Processed"} />
                       </div>
@@ -266,23 +261,21 @@
           {/* RIGHT: DETAIL PANEL */}
           <div className="lg:col-span-7 bg-surface border border-line rounded-[2px] overflow-hidden">
             {/* Header */}
-            <div className="p-4 bg-surface2 border-b border-line">
-              <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="p-5 bg-surface2 border-b border-line">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-1.5 py-0.5 rounded-[2px] bg-ink text-white font-mono text-[10px] font-semibold">
-                      {currentItem.modality_event_id || "ME-WTH-2026-10-09-001"}
-                    </span>
-                    <span className="text-[11px] font-mono text-muted">
-                      {currentItem.source || "IMD AWS"}
-                    </span>
-                    <span className="text-[11px] font-mono text-muted tabular-nums">
-                      &bull; {currentItem.timestamp || "2026-10-09 08:25 IST"}
-                    </span>
-                  </div>
-                  <h2 className="text-base font-semibold text-ink tracking-tight mt-1">
-                    {currentItem.title || "Heavy Rainfall Detection"}
+                  <h2 className="text-lg font-extrabold text-ink tracking-tight">
+                    {currentItem.title || "Heavy Rainfall Detection ME-WTH-2026-10-09-001"}
                   </h2>
+                  <div className="flex items-center gap-2 mt-1 text-xs font-normal text-muted">
+                    <span className="px-1.5 py-0.5 rounded bg-surface border border-line text-ink2 font-semibold text-[11px]">
+                      {currentItem.modality_event_id || "me-wth-001"}
+                    </span>
+                    <span>&bull;</span>
+                    <span>{currentItem.source || "IMD AWS"}</span>
+                    <span>&bull;</span>
+                    <span className="tabular-nums">{currentItem.timestamp || "Oct 09, 2026 08:25 IST"}</span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
