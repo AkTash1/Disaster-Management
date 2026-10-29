@@ -1,28 +1,35 @@
-// Disaster Intelligence Platform — View 4: Modality Events (Single-Sensor Ingestion Feeds)
-// Light Operational Theme: 8-Cell Sensor Telemetry Strip, Master Ingestion Log, Epistemic Classification Matrix
+// Disaster Intelligence Platform — View 4: Modality Events
+// Features:
+// - 8 Modality KPI Cards (Total, Earthquake, Flood, Landslide, Weather, News, Social, Other)
+// - Selectable Modality Events List
+// - Comprehensive Detail Panel covering:
+//   1. Summary
+//   2. The Event Itself
+//   3. Related Disasters (Whatever is Happening)
+//   4. Area Affected
+//   5. Sites of Official Channels, News & Social Media
 
 (function() {
   const React = window.React;
   const { useState, useEffect } = React;
   const { KpiCard, MapView, SeverityBadge, EpistemicBadge, StatusBadge } = window.DisasterComponents || window;
 
-  const ModalityEventsView = () => {
+  const ModalityEventsView = ({ onNavigate = null }) => {
     const [kpis, setKpis] = useState({
-      total: 482,
-      earthquake: 36,
-      flood: 92,
-      landslide: 74,
-      weather: 118,
+      total: 142,
+      earthquake: 4,
+      flood: 28,
+      landslide: 36,
+      weather: 48,
       news: 64,
       social: 71,
-      other: 27
+      other: 2
     });
 
     const [modalityList, setModalityList] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [activeTab, setActiveTab] = useState("summary");
-    const [classification, setClassification] = useState("detected");
 
     const [modalityFilter, setModalityFilter] = useState("All Modalities");
     const [statusFilter, setStatusFilter] = useState("All Status");
@@ -73,9 +80,6 @@
           const detail = await res.json();
           if (isSubscribed) {
             setSelectedDetail(detail);
-            if (detail.classification || detail.event_type) {
-              setClassification(String(detail.classification || detail.event_type).toLowerCase());
-            }
           }
         } catch (err) {
           console.error("Error loading modality detail:", err);
@@ -88,25 +92,204 @@
 
     const currentItem = selectedDetail || modalityList.find(m => (m.modality_event_id || m.id) === selectedId) || {
       modality_event_id: "ME-WTH-2026-10-09-001",
-      title: "Heavy Rainfall Detection",
+      title: "Heavy Rainfall Detection ME-WTH-2026-10-09-001",
       modality: "Weather",
-      source: "IMD AWS (Rudraprayag Station)",
-      hazard_type: "Heavy Rainfall",
-      location: "Rudraprayag, Uttarakhand",
+      source: "IMD AWS & CWC Basukedar Station",
+      hazard_name: "Heavy Rainfall",
+      location: "Basukedar, Rudraprayag, Uttarakhand",
       timestamp: "2026-10-09 08:25 IST",
-      confidence: 0.82,
+      confidence: 0.98,
       classification: "Detected Event",
       status: "Processed",
-      detection_method: "Threshold-based anomaly algorithm",
-      matched_unified_event_id: "EV-2026-10-09-003",
-      description: "Automated telemetry ingestion detected sustained rainfall exceeding 112 mm over a 3-hour window, crossing the critical flash flood and slope failure threshold for steep gradient catchments in Rudraprayag."
+      severity: "Critical",
+      matched_unified_event_id: "EV-RAIN-2026-10-08-002",
+      description: "Automated weather and river gauge stations recorded 128.4 mm of intense rainfall within 6 hours (peaking at 32.1 mm/hr), crossing the critical flash flood and landslide trigger threshold across the Mandakini river basin."
     };
+
+    const keyInfo = currentItem.key_information || {};
+    const lat = keyInfo.latitude || 30.4392;
+    const lon = keyInfo.longitude || 79.0563;
+
+    // 1. Event Itself Details
+    const eventItself = {
+      name: currentItem.title || "Heavy Rainfall Detection",
+      code: currentItem.modality_event_code || currentItem.modality_event_id || "ME-WTH-2026-10-09-001",
+      hazard: currentItem.hazard_name || currentItem.hazard_type || "Heavy Rainfall",
+      modality: currentItem.domain || currentItem.modality || "Weather Station",
+      severity: currentItem.severity || "Critical",
+      magnitude: keyInfo.cumulative_6h || keyInfo.magnitude || "128.4 mm in 6 hrs (Peak: 32.1 mm/hr)",
+      station: keyInfo.monitoring_station || currentItem.station_or_source || "CWC_UK_Basukedar (Rudraprayag)",
+      agency: keyInfo.telemetry_agency || "India Meteorological Department (IMD) & CWC",
+      startTime: currentItem.start_time || "Oct 09, 2026 · 08:25 IST",
+      threshold: keyInfo.threshold_exceeded || "Red Alert Threshold Exceeded (>90 mm / 6h)",
+      unifiedEvent: keyInfo.matched_unified_event || "EV-RAIN-2026-10-08-002 (Heavy Rainfall in Mandakini Basin)"
+    };
+
+    // 2. Related Disasters Happening Right Now
+    const relatedDisasters = [
+      {
+        id: "EV-LSD-2026-10-09-001",
+        title: "Major Landslide & Highway Blockage at Basukedar (NH-107)",
+        hazard: "Landslide",
+        severity: "Critical",
+        status: "Active",
+        location: "Basukedar, Rudraprayag (KM 48+200)",
+        impact: "340m of Kedarnath Highway blocked; 420 pilgrims moved to relief camp",
+        relation: "Triggered by this heavy rainfall surge"
+      },
+      {
+        id: "EV-FLD-2026-10-09-003",
+        title: "Mandakini & Alaknanda River Water Level Surge",
+        hazard: "Flood",
+        severity: "High",
+        status: "Active",
+        location: "Rudraprayag & Srinagar River Front",
+        impact: "Water level at 626.4m (+1.8m above warning mark); low-lying ghats evacuated",
+        relation: "Downstream runoff from catchment rain"
+      },
+      {
+        id: "EV-WTH-2026-10-09-004",
+        title: "Cloudburst & Flash Flood Watch in Chamoli-Joshimath",
+        hazard: "Heavy Rainfall",
+        severity: "High",
+        status: "Active",
+        location: "Chamoli & Gopeshwar Sector",
+        impact: " intense spell of 25–40 mm/hr continuing across adjacent valley",
+        relation: "Same monsoon convective storm system"
+      },
+      {
+        id: "EV-ROD-2026-10-09-005",
+        title: "NH-58 Badrinath Highway Debris Fall near Banswara",
+        hazard: "Landslide",
+        severity: "Moderate",
+        status: "Active",
+        location: "Banswara, Rudraprayag",
+        impact: "Single-lane clearance underway by BRO 752 BRTF excavators",
+        relation: "Secondary slope failure along corridor"
+      }
+    ];
+
+    // 3. Area Affected Details
+    const areaAffected = {
+      primaryDistrict: "Rudraprayag",
+      adjacentDistricts: "Chamoli, Tehri Garhwal",
+      tehsils: "Ukhimath, Jakholi, Rudraprayag Sadar, Karnaprayag",
+      villages: "Basukedar, Agastyamuni, Tilwara, Silli, Chandrapuri (14 villages under watch)",
+      roadsAffected: "NH-107 (Kedarnath Highway blocked at Basukedar), NH-58 (Badrinath Highway slow traffic)",
+      riversAffected: "Mandakini River & Alaknanda Confluence",
+      exposedPopulation: "42,500 residents across 14 gram panchayats",
+      evacuatedCount: "420 people sheltered at Basukedar Community Relief Centre",
+      radiusKm: "15 km impact radius around 30.4392° N, 79.0563° E",
+      elevationRange: "850 m – 2,400 m ASL (Steep Himalayan valley slopes)"
+    };
+
+    // 4. Sites of Official Channels, News & Social Media
+    const officialChannels = [
+      {
+        agency: "IMD Mausam (India Meteorological Dept)",
+        role: "Official Weather Radar, Red Alerts & District Nowcasts",
+        siteName: "mausam.imd.gov.in/dehradun",
+        url: "https://mausam.imd.gov.in",
+        update: "Bulletin #42: Red Alert issued for Rudraprayag & Chamoli"
+      },
+      {
+        agency: "Central Water Commission (CWC Flood Portal)",
+        role: "Live River Gauge Water Levels & Flood Forecasts",
+        siteName: "ffs.india-water.gov.in",
+        url: "https://ffs.india-water.gov.in",
+        update: "Basukedar & Rudraprayag gauges reporting hourly stage rise"
+      },
+      {
+        agency: "USDMA (Uttarakhand State Disaster Management)",
+        role: "State Emergency Control Room (SEOC) Daily SITREPs",
+        siteName: "usdma.uk.gov.in",
+        url: "https://usdma.uk.gov.in",
+        update: "SDRF teams & BRO machinery deployed on NH-107 & NH-58"
+      },
+      {
+        agency: "NDMA SACHET (National Early Warning Portal)",
+        role: "CAP Geo-Targeted Citizen SMS & Public Advisories",
+        siteName: "sachet.ndma.gov.in",
+        url: "https://sachet.ndma.gov.in",
+        update: "Active CAP alert broadcast to mobile subscribers in Rudraprayag"
+      }
+    ];
+
+    const newsSites = [
+      {
+        outlet: "PIB India (Press Information Bureau)",
+        headline: "NDRF & SDRF teams pre-positioned across Garhwal division amid heavy rainfall",
+        siteName: "pib.gov.in",
+        url: "https://pib.gov.in",
+        time: "25 mins ago",
+        lang: "English"
+      },
+      {
+        outlet: "Amar Ujala (उत्तराखंड ब्यूरो)",
+        headline: "रुद्रप्रयाग: बसुकेदार में भारी बारिश से केदारनाथ हाईवे बंद, 420 यात्री सुरक्षित निकाले गए",
+        siteName: "amarujala.com/uttarakhand",
+        url: "https://www.amarujala.com/uttarakhand",
+        time: "40 mins ago",
+        lang: "Hindi"
+      },
+      {
+        outlet: "Dainik Jagran Uttarakhand",
+        headline: "मंदाकिनी और अलकनंदा का जलस्तर बढ़ा, नदी किनारे रहने वाले लोगों को अलर्ट",
+        siteName: "jagran.com/uttarakhand",
+        url: "https://www.jagran.com/uttarakhand",
+        time: "1 hr ago",
+        lang: "Hindi"
+      },
+      {
+        outlet: "PTI / Hindustan Times",
+        headline: "IMD issues red alert for Uttarakhand hills; BRO clearing debris on NH-107",
+        siteName: "hindustantimes.com",
+        url: "https://www.hindustantimes.com",
+        time: "1.5 hrs ago",
+        lang: "English"
+      }
+    ];
+
+    const socialMediaSites = [
+      {
+        platform: "X (Twitter) · Official Handle",
+        handle: "@USDMAUk",
+        post: "SEOC Dehradun Update: NH-107 blocked near Basukedar due to debris slide. Travellers advised to halt at safe shelters in Agastyamuni & Tilwara.",
+        url: "https://x.com/USDMAUk",
+        time: "18 mins ago",
+        verified: true
+      },
+      {
+        platform: "X (Twitter) · Weather Handle",
+        handle: "@Indiametdept",
+        post: "Doppler Radar Dehradun shows intense convective clouds (52 dBZ) over Rudraprayag & Chamoli. Moderate to heavy spells likely for next 6 hours.",
+        url: "https://x.com/Indiametdept",
+        time: "32 mins ago",
+        verified: true
+      },
+      {
+        platform: "X (Twitter) · Uttarakhand Police",
+        handle: "@uttarakhandcops",
+        post: "Traffic Advisory: Police & SDRF personnel assisting commuters at Basukedar checkpost. Dial 112 or 1070 for emergency assistance.",
+        url: "https://x.com/uttarakhandcops",
+        time: "45 mins ago",
+        verified: true
+      },
+      {
+        platform: "YouTube / Telegram Field Clip",
+        handle: "SDRF Uttarakhand Official",
+        post: "Ground video from Basukedar bridge showing high water velocity in Mandakini tributary and ongoing JCB clearance.",
+        url: "https://www.youtube.com",
+        time: "50 mins ago",
+        verified: true
+      }
+    ];
 
     const modTag = (mod) => {
       const s = String(mod || "").toLowerCase();
       if (s.includes("weather")) return "WTH";
       if (s.includes("seismic") || s.includes("earth")) return "EQK";
-      if (s.includes("hydro") || s.includes("flood")) return "HYD";
+      if (s.includes("hydro") || s.includes("flood")) return "FLD";
       if (s.includes("news")) return "NWS";
       if (s.includes("social")) return "SOC";
       return "SEN";
@@ -114,7 +297,7 @@
 
     return (
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
-        {/* Page Header (Prominent Heading + Description Below It, Matching Reference) */}
+        {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-3">
@@ -185,126 +368,103 @@
           </div>
         </div>
 
-        {/* Main Grid: Left Modality Master List + Right Detail Panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-          {/* LEFT: MASTER MODALITY EVENT LIST */}
-          <div className="lg:col-span-5 bg-surface border border-line rounded-[2px] overflow-hidden">
-            <div className="px-3.5 py-2.5 bg-surface2 border-b border-line flex items-center justify-between">
-              <span className="panel-title">Telemetry &amp; Ingestion Records</span>
-              <span className="text-[10px] font-mono text-muted tabular-nums">PAGE {page}</span>
+        {/* Main Grid: Left Modality List (4 cols) + Right Comprehensive Detail Panel (8 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          {/* LEFT: MODALITY EVENT LIST */}
+          <div className="lg:col-span-4 bg-surface border border-line rounded-xl overflow-hidden shadow-xs">
+            <div className="px-4 py-3 bg-surface2 border-b border-line flex items-center justify-between">
+              <span className="panel-title">Modality Events ({modalityList.length})</span>
+              <span className="text-xs text-muted tabular-nums">Page {page}</span>
             </div>
 
-            <div className="divide-y divide-line max-h-[700px] overflow-y-auto">
+            <div className="divide-y divide-line max-h-[780px] overflow-y-auto">
               {modalityList.map((item) => {
                 const id = item.modality_event_id || item.id;
                 const isSelected = id === selectedId;
-                const conf = item.confidence || 0.82;
+                const conf = item.confidence || 0.95;
 
                 return (
                   <div
                     key={id}
                     onClick={() => setSelectedId(id)}
-                    className={`p-3 cursor-pointer transition-colors flex items-start gap-2.5 border-l-[3px] ${
+                    className={`p-3.5 cursor-pointer transition-colors flex items-start gap-3 border-l-4 ${
                       isSelected
-                        ? 'bg-accent-soft/50 border-l-accent'
+                        ? 'bg-accent-soft/40 border-l-accent'
                         : 'bg-surface hover:bg-surface2 border-l-transparent'
                     }`}
                   >
-                    <div className="w-9 h-9 rounded-[2px] bg-surface2 border border-line flex items-center justify-center shrink-0 font-mono text-[10px] font-bold text-ink2">
-                      {modTag(item.modality)}
+                    <div className="w-9 h-9 rounded-lg bg-surface2 border border-line flex items-center justify-center shrink-0 text-xs font-bold text-ink2">
+                      {modTag(item.domain || item.modality)}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
                         <h3 className="font-bold text-[14.5px] text-ink truncate">
-                          {item.title || item.event_name || `${item.hazard || 'Hazard'} Detection`}
+                          {item.title || item.event_name || `${item.hazard_name || 'Hazard'} Detection`}
                         </h3>
-                        <span className="font-mono text-xs font-bold text-accent tabular-nums">
+                        <span className="text-xs font-bold text-accent tabular-nums">
                           {conf.toFixed(2)}
                         </span>
                       </div>
 
                       <div className="text-xs font-normal text-muted mt-0.5 flex items-center justify-between tabular-nums">
-                        <span className="truncate">{item.source || item.modality || "Telemetry"}</span>
-                        <span>{item.time || item.timestamp || "08:25 IST"}</span>
+                        <span className="truncate">{item.station_or_source || item.modality || "Sensor Feed"}</span>
+                        <span>{item.hazard_name || "Active"}</span>
                       </div>
 
                       <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-line">
-                        <EpistemicBadge status={item.type || item.classification || "Detected"} />
-                        <StatusBadge status={item.status || "Processed"} />
+                        <EpistemicBadge status={item.classification || "Detected"} />
+                        <SeverityBadge severity={item.severity || "High"} />
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
-
-            {/* Pagination */}
-            <div className="px-3 py-2 border-t border-line flex items-center justify-between text-[11px] font-mono text-muted bg-surface2">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                className="px-2.5 py-1 rounded-[2px] bg-surface border border-line hover:border-line-strong text-ink disabled:opacity-40"
-              >
-                &larr; PREV
-              </button>
-              <span className="tabular-nums">PAGE {page} OF 25</span>
-              <button
-                onClick={() => setPage(p => p + 1)}
-                className="px-2.5 py-1 rounded-[2px] bg-surface border border-line hover:border-line-strong text-ink"
-              >
-                NEXT &rarr;
-              </button>
-            </div>
           </div>
 
-          {/* RIGHT: DETAIL PANEL */}
-          <div className="lg:col-span-7 bg-surface border border-line rounded-[2px] overflow-hidden">
-            {/* Header */}
+          {/* RIGHT: COMPREHENSIVE DETAIL PANEL */}
+          <div className="lg:col-span-8 bg-surface border border-line rounded-xl overflow-hidden shadow-xs">
+            {/* Top Event Banner */}
             <div className="p-5 bg-surface2 border-b border-line">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-extrabold text-ink tracking-tight">
-                    {currentItem.title || "Heavy Rainfall Detection ME-WTH-2026-10-09-001"}
+                  <h2 className="text-xl font-extrabold text-ink tracking-tight">
+                    {eventItself.name}
                   </h2>
-                  <div className="flex items-center gap-2 mt-1 text-xs font-normal text-muted">
-                    <span className="px-1.5 py-0.5 rounded bg-surface border border-line text-ink2 font-semibold text-[11px]">
-                      {currentItem.modality_event_id || "me-wth-001"}
+                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs font-normal text-muted">
+                    <span className="px-2 py-0.5 rounded bg-surface border border-line text-ink2 font-semibold">
+                      {eventItself.code}
                     </span>
                     <span>&bull;</span>
-                    <span>{currentItem.source || "IMD AWS"}</span>
+                    <span>{eventItself.station}</span>
                     <span>&bull;</span>
-                    <span className="tabular-nums">{currentItem.timestamp || "Oct 09, 2026 08:25 IST"}</span>
+                    <span className="tabular-nums">{eventItself.startTime}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <SeverityBadge severity={eventItself.severity} />
                   <EpistemicBadge status={currentItem.classification || "Detected"} />
                   <StatusBadge status={currentItem.status || "Processed"} />
-                  <div className="bg-surface px-2 py-0.5 rounded-[2px] border border-line flex items-center gap-1 font-mono text-[11px] tabular-nums">
-                    <span className="text-muted">CONF:</span>
-                    <span className="font-semibold text-accent">
-                      {(currentItem.confidence || 0.82).toFixed(2)}
-                    </span>
-                  </div>
                 </div>
               </div>
 
-              {/* 5 Sub-tabs Navigation */}
-              <div className="flex flex-wrap border-b border-line mt-3 -mb-4 text-[11px] font-mono uppercase tracking-wider gap-1">
+              {/* Navigation Sub-tabs for the 5 Requested Sections */}
+              <div className="flex flex-wrap border-b border-line mt-4 -mb-5 text-xs font-semibold gap-1">
                 {[
-                  { id: 'summary', label: 'Summary' },
-                  { id: 'sensor', label: 'Sensor / Raw Data' },
-                  { id: 'observations', label: 'Observations (6)' },
-                  { id: 'ml', label: 'Models & Thresholds' },
-                  { id: 'unified', label: 'Linked Unified Event' }
+                  { id: 'summary', label: 'Summary (All Info)' },
+                  { id: 'event', label: 'The Event Itself' },
+                  { id: 'related', label: `Related Disasters (${relatedDisasters.length})` },
+                  { id: 'area', label: 'Area Affected' },
+                  { id: 'sources', label: 'Official, News & Social Sites' }
                 ].map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-2.5 py-2 border-b-2 transition-colors ${
+                    className={`px-3.5 py-2.5 border-b-2 transition-colors ${
                       activeTab === tab.id
-                        ? 'border-accent text-accent bg-surface font-semibold'
+                        ? 'border-accent text-accent bg-surface font-bold'
                         : 'border-transparent text-muted hover:text-ink'
                     }`}
                   >
@@ -314,172 +474,271 @@
               </div>
             </div>
 
-            {/* Sub-tab 1: Summary */}
-            {activeTab === 'summary' && (
-              <div className="p-4 space-y-4 text-xs">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Mini-Map with Rainfall Heatmap bar */}
-                  <div className="bg-surface2 rounded-[2px] p-2.5 border border-line flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="panel-title">Station Telemetry Footprint</span>
-                      <span className="text-[10px] font-mono text-muted">IMD DOPPLER</span>
+            <div className="p-5 space-y-6">
+              {/* 1. SUMMARY SECTION */}
+              {(activeTab === 'summary' || activeTab === 'event') && (
+                <div className="bg-surface2 rounded-xl p-4 border border-line">
+                  <h3 className="panel-title mb-1.5">Summary — What is Happening</h3>
+                  <p className="text-sm font-normal text-ink2 leading-relaxed">
+                    {currentItem.description || "Automated weather and river gauge stations recorded 128.4 mm of intense rainfall within 6 hours (peaking at 32.1 mm/hr), crossing the critical flash flood and landslide trigger threshold across the Mandakini river basin in Rudraprayag."}
+                  </p>
+                </div>
+              )}
+
+              {/* 2. THE EVENT ITSELF + AREA MAP */}
+              {(activeTab === 'summary' || activeTab === 'event') && (
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                  {/* Left: The Event Itself */}
+                  <div className="md:col-span-7 bg-surface rounded-xl p-4 border border-line space-y-2.5">
+                    <div className="flex items-center justify-between border-b border-line pb-2">
+                      <div>
+                        <h3 className="panel-title">The Event Itself</h3>
+                        <p className="text-xs text-muted">Primary parameters of this modality event</p>
+                      </div>
+                      <SeverityBadge severity={eventItself.severity} />
                     </div>
-                    <div className="h-32 rounded-[2px] overflow-hidden border border-line">
+
+                    <div className="grid grid-cols-2 gap-3 text-xs pt-1">
+                      <div className="p-2.5 rounded-lg bg-surface2 border border-line">
+                        <div className="text-muted font-normal">Hazard Type</div>
+                        <div className="text-sm font-bold text-ink mt-0.5">{eventItself.hazard}</div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-surface2 border border-line">
+                        <div className="text-muted font-normal">Measured Intensity / Magnitude</div>
+                        <div className="text-sm font-bold text-accent mt-0.5">{eventItself.magnitude}</div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-surface2 border border-line">
+                        <div className="text-muted font-normal">Monitoring Station / Feed</div>
+                        <div className="text-xs font-bold text-ink mt-0.5">{eventItself.station}</div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-surface2 border border-line">
+                        <div className="text-muted font-normal">Threshold Status</div>
+                        <div className="text-xs font-bold text-crit mt-0.5">{eventItself.threshold}</div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-line flex items-center justify-between text-xs">
+                      <span className="text-muted">Linked Main Disaster Event:</span>
+                      <button
+                        type="button"
+                        onClick={() => onNavigate && onNavigate('events')}
+                        className="font-bold text-accent hover:underline"
+                      >
+                        {eventItself.unifiedEvent} &rarr;
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right: Event Map Footprint */}
+                  <div className="md:col-span-5 bg-surface rounded-xl p-4 border border-line flex flex-col justify-between">
+                    <div className="mb-2">
+                      <h3 className="panel-title">Event Location Map</h3>
+                      <p className="text-xs text-muted">{areaAffected.primaryDistrict} ({lat.toFixed(3)}°N, {lon.toFixed(3)}°E)</p>
+                    </div>
+                    <div className="h-44 rounded-lg overflow-hidden border border-line relative">
                       <MapView
-                        center={[30.28, 78.98]}
-                        zoom={9}
+                        center={[lat, lon]}
+                        zoom={10}
                         markers={[{
-                          lat: 30.2849,
-                          lon: 78.9867,
-                          title: "Rudraprayag AWS Station",
-                          hazard: "Heavy Rainfall",
-                          severity: "High"
+                          lat: lat,
+                          lon: lon,
+                          title: eventItself.name,
+                          hazard: eventItself.hazard,
+                          severity: eventItself.severity
                         }]}
                         showBasemapSwitcher={false}
                       />
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-[9px] font-mono text-muted tabular-nums">
-                      <span>0 mm</span>
-                      <div className="flex-1 mx-2 h-1.5 rounded-[1px] bg-gradient-to-r from-sky-400 via-amber-400 to-red-600"></div>
-                      <span>200+ mm</span>
-                    </div>
-                  </div>
-
-                  {/* Key Information */}
-                  <div className="bg-surface2 rounded-[2px] p-2.5 border border-line space-y-1.5 font-mono text-[11px] tabular-nums">
-                    <div className="panel-title mb-1">Telemetry Attributes</div>
-                    <div className="flex justify-between py-0.5 border-b border-line">
-                      <span className="text-muted">MODALITY:</span>
-                      <span className="text-ink font-semibold">{currentItem.modality || "Weather"}</span>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-line">
-                      <span className="text-muted">METHOD:</span>
-                      <span className="text-ink2">Threshold Anomaly</span>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-line">
-                      <span className="text-muted">PRECIP RATE:</span>
-                      <span className="text-accent font-semibold">112.0 mm / 3h</span>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-line">
-                      <span className="text-muted">UNIFIED EVENT:</span>
-                      <span className="text-accent underline cursor-pointer">
-                        {currentItem.matched_unified_event_id || "EV-2026-10-09-003"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-0.5">
-                      <span className="text-muted">CASCADES:</span>
-                      <span className="text-high font-semibold">Flood, Landslide</span>
-                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* Event Description */}
-                <div className="bg-surface2 rounded-[2px] p-3 border border-line">
-                  <div className="panel-title mb-1">Modality Ingestion Note</div>
-                  <p className="text-ink2 leading-relaxed">
-                    {currentItem.description || "Automated telemetry ingestion detected sustained rainfall exceeding 112 mm over a 3-hour window, crossing the critical flash flood and slope failure threshold for steep gradient catchments in Rudraprayag."}
-                  </p>
-                </div>
-
-                {/* Event Classification Selector */}
-                <div className="bg-surface2 rounded-[2px] p-3.5 border border-line">
-                  <div className="panel-title mb-2">
-                    Source Provenance &amp; Verification Category
+              {/* 3. RELATED DISASTERS (WHATEVER IS HAPPENING) */}
+              {(activeTab === 'summary' || activeTab === 'related') && (
+                <div className="bg-surface rounded-xl p-4 border border-line space-y-3">
+                  <div className="flex items-center justify-between border-b border-line pb-2.5">
+                    <div>
+                      <h3 className="panel-title">Related Disasters Happening Right Now</h3>
+                      <p className="text-xs text-muted">Active cascading incidents and hazards connected to this event</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate && onNavigate('events')}
+                      className="text-xs font-semibold text-accent hover:underline"
+                    >
+                      View All Active Events &rarr;
+                    </button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                    {[
-                      { id: "detected", label: "Sensor Detected", desc: "Directly measured from calibrated physical station stream" },
-                      { id: "reported", label: "Field / Agency Reported", desc: "Ingested from official SEOC bulletin or press wire" },
-                      { id: "inference", label: "Cross-Modal Derived", desc: "Inferred by multi-sensor geotechnical correlation" },
-                      { id: "predicted", label: "Forecast Projection", desc: "Simulated trajectory for upcoming 24–48h window" },
-                    ].map(opt => (
-                      <label
-                        key={opt.id}
-                        className={`p-2.5 rounded-[2px] border flex items-start gap-2.5 cursor-pointer transition-colors ${
-                          classification === opt.id
-                            ? 'bg-accent-soft border-accent text-ink'
-                            : 'bg-surface border-line text-ink2 hover:border-line-strong'
-                        }`}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {relatedDisasters.map((dis) => (
+                      <div
+                        key={dis.id}
+                        onClick={() => onNavigate && onNavigate('events')}
+                        className="p-3.5 rounded-lg bg-surface2 hover:bg-surface3 border border-line cursor-pointer transition-colors space-y-1.5"
                       >
-                        <input
-                          type="radio"
-                          name="classification"
-                          value={opt.id}
-                          checked={classification === opt.id}
-                          onChange={(e) => setClassification(e.target.value)}
-                          className="mt-0.5 text-accent focus:ring-0"
-                        />
-                        <div>
-                          <div className="font-semibold text-ink">{opt.label}</div>
-                          <div className="text-[10px] text-muted leading-tight mt-0.5">{opt.desc}</div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-bold text-accent">{dis.hazard} &bull; {dis.id}</span>
+                          <div className="flex items-center gap-1.5">
+                            <SeverityBadge severity={dis.severity} />
+                            <StatusBadge status={dis.status} />
+                          </div>
                         </div>
-                      </label>
+                        <h4 className="text-[14px] font-bold text-ink leading-snug">{dis.title}</h4>
+                        <p className="text-xs font-normal text-ink2">{dis.impact}</p>
+                        <div className="flex items-center justify-between text-[11.5px] text-muted pt-1 border-t border-line">
+                          <span>Location: <strong className="text-ink2">{dis.location}</strong></span>
+                          <span className="italic">{dis.relation}</span>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
+              )}
 
-                {/* Bottom 3 Columns: Observations, Derived Results, Evidence */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="p-3 rounded-[2px] bg-surface2 border border-line">
-                    <div className="panel-title mb-2">Supporting Observations</div>
-                    <ul className="space-y-1.5 text-[11px] font-mono text-ink2 tabular-nums">
-                      <li>&bull; 08:25 — AWS 3h: 112.0 mm</li>
-                      <li>&bull; 08:20 — Radar reflectivity: 52 dBZ</li>
-                      <li>&bull; 08:15 — Adjacent gauge: +1.4m</li>
-                      <li>&bull; 08:10 — Cloud top temp: -68°C</li>
-                    </ul>
+              {/* 4. AREA AFFECTED */}
+              {(activeTab === 'summary' || activeTab === 'area') && (
+                <div className="bg-surface rounded-xl p-4 border border-line space-y-3">
+                  <div className="flex items-center justify-between border-b border-line pb-2.5">
+                    <div>
+                      <h3 className="panel-title">Area Affected</h3>
+                      <p className="text-xs text-muted">Districts, blocks, villages, roads, and residents impacted by this event</p>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warn-soft text-warn border border-warn/30">
+                      {areaAffected.radiusKm}
+                    </span>
                   </div>
 
-                  <div className="p-3 rounded-[2px] bg-surface2 border border-line">
-                    <div className="panel-title mb-2">Derived Indices</div>
-                    <div className="space-y-1.5 text-[11px] font-mono tabular-nums">
-                      <div className="flex justify-between">
-                        <span className="text-muted">FLASH FLOOD IDX:</span>
-                        <span className="text-crit font-semibold">0.85</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted">SLOPE FAILURE IDX:</span>
-                        <span className="text-high font-semibold">0.72</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted">BUFFER RADIUS:</span>
-                        <span className="text-ink2">15.0 km</span>
-                      </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                    <div className="p-3 rounded-lg bg-surface2 border border-line">
+                      <div className="text-muted font-normal">Primary &amp; Adjacent Districts</div>
+                      <div className="text-sm font-bold text-ink mt-0.5">{areaAffected.primaryDistrict}</div>
+                      <div className="text-xs text-muted mt-0.5">Adjacent: {areaAffected.adjacentDistricts}</div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-surface2 border border-line">
+                      <div className="text-muted font-normal">Tehsils / Blocks Affected</div>
+                      <div className="text-sm font-bold text-ink mt-0.5">{areaAffected.tehsils}</div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-surface2 border border-line">
+                      <div className="text-muted font-normal">Villages &amp; Gram Panchayats</div>
+                      <div className="text-xs font-bold text-ink mt-0.5">{areaAffected.villages}</div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-surface2 border border-line">
+                      <div className="text-muted font-normal">Highways &amp; Roads Impacted</div>
+                      <div className="text-xs font-bold text-crit mt-0.5">{areaAffected.roadsAffected}</div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-surface2 border border-line">
+                      <div className="text-muted font-normal">Population &amp; Evacuations</div>
+                      <div className="text-xs font-bold text-ink mt-0.5">{areaAffected.exposedPopulation}</div>
+                      <div className="text-xs text-ok font-semibold mt-0.5">{areaAffected.evacuatedCount}</div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-surface2 border border-line">
+                      <div className="text-muted font-normal">River Basins &amp; Terrain</div>
+                      <div className="text-xs font-bold text-ink mt-0.5">{areaAffected.riversAffected}</div>
+                      <div className="text-xs text-muted mt-0.5">{areaAffected.elevationRange}</div>
                     </div>
                   </div>
+                </div>
+              )}
 
-                  <div className="p-3 rounded-[2px] bg-surface2 border border-line">
-                    <div className="panel-title mb-2">Corroborating Streams</div>
-                    <div className="space-y-1.5 text-[11px]">
-                      <div className="flex justify-between items-center">
-                        <span className="text-ink2 font-medium">IMD Bulletin #42</span>
+              {/* 5. SITES OF OFFICIAL CHANNELS, NEWS & SOCIAL MEDIA */}
+              {(activeTab === 'summary' || activeTab === 'sources') && (
+                <div className="bg-surface rounded-xl p-4 border border-line space-y-4">
+                  <div className="border-b border-line pb-2.5">
+                    <h3 className="panel-title">Official Channels, News &amp; Social Media</h3>
+                    <p className="text-xs text-muted">Direct links to official government portals, news coverage, and verified social media dispatches for this event</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    {/* Column A: Official Channel Sites */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-ink">Official Government Sites</h4>
                         <EpistemicBadge status="Official" />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-ink2 font-medium">CWC Hydro Gauge</span>
-                        <EpistemicBadge status="Observed" />
+                      {officialChannels.map((ch, i) => (
+                        <div key={i} className="p-3 rounded-lg bg-surface2 border border-line space-y-1">
+                          <div className="text-xs font-bold text-ink">{ch.agency}</div>
+                          <p className="text-xs font-normal text-muted">{ch.update}</p>
+                          <div className="pt-1 flex items-center justify-between text-xs">
+                            <span className="text-muted truncate">{ch.siteName}</span>
+                            <a
+                              href={ch.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-bold text-accent hover:underline shrink-0"
+                            >
+                              Visit Site &rarr;
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Column B: News Sites */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-ink">News Coverage &amp; Portals</h4>
+                        <EpistemicBadge status="Reported" />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-ink2 font-medium">Doppler Raster</span>
-                        <EpistemicBadge status="Observed" />
+                      {newsSites.map((nw, i) => (
+                        <div key={i} className="p-3 rounded-lg bg-surface2 border border-line space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-ink2">{nw.outlet}</span>
+                            <span className="text-muted">{nw.lang} &bull; {nw.time}</span>
+                          </div>
+                          <p className="text-xs font-semibold text-ink leading-snug">{nw.headline}</p>
+                          <div className="pt-1 flex items-center justify-between text-xs">
+                            <span className="text-muted truncate">{nw.siteName}</span>
+                            <a
+                              href={nw.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-bold text-accent hover:underline shrink-0"
+                            >
+                              Read Article &rarr;
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Column C: Social Media Sites & Feeds */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-ink">Social Media Updates</h4>
+                        <EpistemicBadge status="Verified" />
                       </div>
+                      {socialMediaSites.map((sm, i) => (
+                        <div key={i} className="p-3 rounded-lg bg-surface2 border border-line space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-accent">{sm.handle}</span>
+                            <span className="text-muted">{sm.time}</span>
+                          </div>
+                          <p className="text-xs font-normal text-ink2 leading-snug">{sm.post}</p>
+                          <div className="pt-1 flex items-center justify-between text-xs">
+                            <span className="text-muted truncate">{sm.platform}</span>
+                            <a
+                              href={sm.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-bold text-accent hover:underline shrink-0"
+                            >
+                              Open Post &rarr;
+                            </a>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Other sub-tabs fallback */}
-            {activeTab !== 'summary' && (
-              <div className="p-6 bg-surface2 m-4 rounded-[2px] border border-line text-xs space-y-2">
-                <div className="panel-title">
-                  TELEMETRY SUB-MODULE // {activeTab.toUpperCase()}
-                </div>
-                <p className="text-ink2">
-                  Displaying raw sensor time-series packets, calibration parameters, and threshold evaluation logs for <strong className="font-mono text-ink">{currentItem.modality_event_id}</strong>.
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
