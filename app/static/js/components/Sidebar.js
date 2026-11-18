@@ -1,13 +1,80 @@
 // Disaster Intelligence Platform — Left Navigation Sidebar
-// Clean single-line navigation items matching the reference layout
+// Clean single-line navigation items with PUBLIC & SEOC CORE group and RBAC-aware INTELLIGENCE SUITE
 
 (function() {
   const React = window.React;
+
+  const ROLE_SIDEBAR_CONFIG = {
+    'authority': {
+      core: ['overview', 'map-explorer', 'events', 'modality-events', 'reports', 'history', 'preparedness', 'ask', 'my-area'],
+      intelligence: ['role-command', 'hazard-monitoring', 'social-intelligence', 'multimodal-intelligence'],
+      utility: ['settings', 'help'],
+      badges: {
+        'role-command': '6 ROLES',
+        'hazard-monitoring': 'FULL',
+        'social-intelligence': 'FULL',
+        'multimodal-intelligence': 'PRIMARY'
+      }
+    },
+    'analyst': {
+      core: ['overview', 'map-explorer', 'modality-events', 'history'],
+      intelligence: ['hazard-monitoring', 'multimodal-intelligence'],
+      utility: ['help'],
+      badges: {
+        'hazard-monitoring': 'PRIMARY',
+        'multimodal-intelligence': 'FULL'
+      }
+    },
+    'response': {
+      core: ['overview', 'map-explorer', 'events', 'preparedness'],
+      intelligence: ['social-intelligence', 'multimodal-intelligence'],
+      utility: ['help'],
+      badges: {
+        'social-intelligence': 'PRIMARY',
+        'multimodal-intelligence': 'FULL'
+      }
+    },
+    'researcher': {
+      core: ['overview', 'history', 'reports', 'ask'],
+      intelligence: ['hazard-monitoring', 'multimodal-intelligence'],
+      utility: ['help'],
+      badges: {
+        'hazard-monitoring': 'READ-ONLY',
+        'multimodal-intelligence': 'READ-ONLY'
+      }
+    },
+    'data-admin': {
+      core: ['overview', 'modality-events'],
+      intelligence: ['role-command', 'hazard-monitoring', 'social-intelligence'],
+      utility: ['settings', 'help'],
+      badges: {
+        'role-command': 'PIPELINE HUB',
+        'hazard-monitoring': 'SENSOR HEALTH',
+        'social-intelligence': 'NLP QUEUE'
+      }
+    },
+    'citizen': {
+      core: ['overview', 'events', 'modality-events', 'reports', 'preparedness', 'my-area', 'ask'],
+      intelligence: [],
+      utility: ['help'],
+      badges: {}
+    }
+  };
+
+  const ROLE_LABELS = {
+    'authority': 'Authority (LVL 5)',
+    'analyst': 'Hazard Analyst (LVL 4)',
+    'response': 'Response Team (LVL 4)',
+    'researcher': 'Researcher (LVL 3)',
+    'data-admin': 'Data Admin (LVL 5)',
+    'citizen': 'Citizen · Public (LVL 1)'
+  };
 
   const NAV_ITEMS = [
     {
       id: 'overview',
       label: 'Overview',
+      badge: 'PUBLIC',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -99,6 +166,53 @@
     }
   ];
 
+  const INTELLIGENCE_ITEMS = [
+    {
+      id: 'role-command',
+      label: 'Role Hub',
+      badge: '6 ROLES',
+      screenCode: 'RAC-01',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      )
+    },
+    {
+      id: 'hazard-monitoring',
+      label: 'Hazard Monitoring',
+      badge: 'HM-01',
+      screenCode: 'HM-01',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+        </svg>
+      )
+    },
+    {
+      id: 'social-intelligence',
+      label: 'Social Intelligence',
+      badge: 'SMI-01',
+      screenCode: 'SMI-01',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+        </svg>
+      )
+    },
+    {
+      id: 'multimodal-intelligence',
+      label: 'Multimodal Dossier',
+      badge: 'MEI-01',
+      screenCode: 'MEI-01',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+      )
+    }
+  ];
+
   const UTILITY_ITEMS = [
     {
       id: 'settings',
@@ -121,44 +235,167 @@
     }
   ];
 
-  const Sidebar = ({ currentView, onViewChange }) => {
+  const SHORT_BADGE = {
+    '6 ROLES': 'FULL',
+    'READ-ONLY': 'VIEW',
+    'PIPELINE HUB': 'PRIMARY',
+    'SENSOR HEALTH': 'FULL',
+    'NLP QUEUE': 'PRIMARY'
+  };
+
+  const resolveRoleAccessBadge = (activeRoleId, viewId) => {
+    const cfg = ROLE_SIDEBAR_CONFIG[activeRoleId] || ROLE_SIDEBAR_CONFIG['authority'];
+    if (cfg.badges && cfg.badges[viewId]) {
+      return cfg.badges[viewId];
+    }
+    return 'FULL';
+  };
+
+  const getAccessBadgeStyle = (accessType, isActive) => {
+    if (isActive) {
+      return 'bg-white/20 text-white border-white/30';
+    }
+    switch (accessType) {
+      case 'PRIMARY':
+      case 'NLP QUEUE':
+        return 'bg-accent-soft text-accent border-accent/30';
+      case 'FULL':
+      case 'SENSOR HEALTH':
+        return 'bg-ok-soft text-ok border-ok/30';
+      case 'READ-ONLY':
+        return 'bg-info-soft text-info border-info/30';
+      case 'PUBLIC':
+        return 'bg-ok-soft text-ok border-ok/30';
+      case 'LOCKED':
+        return 'bg-crit-soft text-crit border-crit/30';
+      case '6 ROLES':
+      case 'PIPELINE HUB':
+        return 'bg-warn-soft text-warn border-warn/30';
+      default:
+        return 'bg-surface2 text-muted border-line';
+    }
+  };
+
+  const Sidebar = ({
+    currentView,
+    onViewChange,
+    activeRoleId = 'authority',
+    onRoleChange = null
+  }) => {
+    const roleCfg = ROLE_SIDEBAR_CONFIG[activeRoleId] || ROLE_SIDEBAR_CONFIG['authority'];
+    const visibleCoreItems = NAV_ITEMS.filter(
+      (item) => !item.hidden && roleCfg.core.includes(item.id)
+    ).map((item) => (
+      item.id === 'preparedness' && activeRoleId === 'citizen'
+        ? { ...item, label: 'Shelters & Helplines' }
+        : item
+    ));
+    const visibleIntelligenceItems = INTELLIGENCE_ITEMS.filter(
+      (item) => roleCfg.intelligence.includes(item.id)
+    );
+    const visibleUtilityItems = UTILITY_ITEMS.filter(
+      (item) => roleCfg.utility.includes(item.id)
+    );
+    const canOpenRoleCommand = roleCfg.intelligence.includes('role-command');
     const renderItem = (item) => {
       const isActive = currentView === item.id;
       return (
         <button
           key={item.id}
           onClick={() => onViewChange && onViewChange(item.id)}
-          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-colors ${
+          className={`w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-lg text-left transition-colors ${
             isActive
               ? 'bg-accent text-white font-semibold shadow-xs'
               : 'text-ink2 hover:text-ink hover:bg-surface2 font-medium'
           }`}
         >
-          <span className={`shrink-0 ${isActive ? 'text-white' : 'text-muted'}`}>{item.icon}</span>
-          <span className="text-[13.5px] leading-tight truncate">{item.label}</span>
+          <span className="flex items-center gap-3 min-w-0">
+            <span className={`shrink-0 ${isActive ? 'text-white' : 'text-muted'}`}>{item.icon}</span>
+            <span className="text-[13.5px] leading-tight truncate">{item.label}</span>
+          </span>
+          {item.badge && (
+            <span
+              className={`shrink-0 text-[9.5px] font-bold px-1.5 py-0.5 rounded border ${
+                isActive
+                  ? 'bg-white/20 text-white border-white/30'
+                  : item.badge === 'PUBLIC'
+                  ? 'bg-ok-soft text-ok border-ok/30'
+                  : 'bg-surface2 text-muted border-line'
+              }`}
+            >
+              {item.badge}
+            </span>
+          )}
+        </button>
+      );
+    };
+
+    const renderIntelligenceItem = (item) => {
+      const isActive = currentView === item.id;
+      const accessBadge = resolveRoleAccessBadge(activeRoleId, item.id);
+      const isLocked = accessBadge === 'LOCKED';
+      const showViewTag = accessBadge === 'READ-ONLY' || isLocked;
+
+      return (
+        <button
+          key={item.id}
+          onClick={() => onViewChange && onViewChange(item.id)}
+          className={`w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-lg text-left transition-colors ${
+            isActive
+              ? 'bg-accent text-white font-semibold shadow-xs'
+              : 'text-ink2 hover:text-ink hover:bg-surface2 font-medium'
+          }`}
+          title={`${item.label} (${accessBadge})`}
+        >
+          <span className="flex items-center gap-3 min-w-0 flex-1">
+            <span className={`shrink-0 ${isActive ? 'text-white' : isLocked ? 'text-crit' : 'text-muted'}`}>
+              {item.icon}
+            </span>
+            <span className="text-[13.5px] leading-tight truncate">{item.label}</span>
+          </span>
+          {showViewTag && (
+            <span
+              className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded border ${getAccessBadgeStyle(accessBadge, isActive)}`}
+            >
+              {isLocked ? 'LOCKED' : 'VIEW'}
+            </span>
+          )}
         </button>
       );
     };
 
     return (
       <aside className="w-60 h-full flex flex-col shrink-0 select-none z-20 bg-surface border-r border-line">
-        <nav className="flex-1 py-4 px-3 overflow-y-auto flex flex-col justify-between">
-          <div className="space-y-1">
-            {NAV_ITEMS.filter(item => !item.hidden).map(renderItem)}
+        <nav className="flex-1 py-3.5 px-3 overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div className="px-3.5 pb-1.5 flex items-center justify-between">
+              <span className="text-[10px] font-bold tracking-wider uppercase text-muted">
+                PUBLIC &amp; SEOC CORE
+              </span>
+            </div>
+            <div className="space-y-0.5">
+              {visibleCoreItems.map(renderItem)}
+            </div>
+
+            {visibleIntelligenceItems.length > 0 && (
+              <div className="pt-3.5 mt-3.5 border-t border-line">
+                <div className="px-3.5 pb-1.5 flex items-center justify-between">
+                  <span className="text-[10.5px] font-bold tracking-wider uppercase text-muted">
+                    INTELLIGENCE SUITE
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  {visibleIntelligenceItems.map(renderIntelligenceItem)}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="pt-4 mt-4 border-t border-line space-y-1">
-            {UTILITY_ITEMS.map(renderItem)}
+          <div className="pt-3 mt-3 border-t border-line space-y-0.5">
+            {visibleUtilityItems.map(renderItem)}
           </div>
         </nav>
 
-        <div className="border-t border-line px-4 py-3 flex items-center justify-between text-xs text-muted bg-surface2">
-          <span className="font-medium">Uttarakhand Testbed</span>
-          <span className="flex items-center gap-1.5 text-ok font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-ok inline-block"></span>
-            v1.0.0
-          </span>
-        </div>
       </aside>
     );
   };
